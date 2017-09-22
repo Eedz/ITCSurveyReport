@@ -22,9 +22,8 @@ namespace ITCSurveyReport
         // data tables for this survey 
         public DataTable rawTable;              // raw survey content, separated into fields
         public DataTable commentTable;          // table holding comments
-        public List<DataTable> translationTable;    // tables holding translation data
+        public List<DataTable> translationTables;    // tables holding translation data
         public DataTable filterTable;           // table holding filters
-        //public DataTable corrTable;
         public DataTable finalTable;            // table holding the final output
         
         //Dictionary<int, Variable> questions;  // Variable object not yet implemented
@@ -36,7 +35,6 @@ namespace ITCSurveyReport
         // filters are currently report-level but that may change
         int qRangeLow;
         int qRangeHigh;
-        String qRange;
         List<String> prefixes;
         String[] headings;
         List<String> varnames;
@@ -47,7 +45,6 @@ namespace ITCSurveyReport
         List<int> commentSources;
 
         // fields
-        String[] extraFields;
         List<String> commentFields;
         List<String> transFields;
         List<String> stdFields;
@@ -68,24 +65,10 @@ namespace ITCSurveyReport
 
         #endregion
 
-        //public event PropertyChangedEventHandler PropertyChanged;
-
-        //// This method is called by the Set accessor of each property.
-        //// The CallerMemberName attribute that is applied to the optional propertyName
-        //// parameter causes the property name of the caller to be substituted as an argument.
-        //private void NotifyPropertyChanged(String propertyName = "")
-        //{
-        //    if (PropertyChanged != null)
-        //    {
-        //        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        //    }
-        //}
-
         #region Constructors
         // blank constructor
         public Survey() {
 
-            id = 1;
             surveyCode = "";
             backend = DateTime.Today;
 
@@ -95,7 +78,6 @@ namespace ITCSurveyReport
 
             qRangeLow = 0;
             qRangeHigh = 0;
-            qRange = "";
             prefixes = new List<String>();
             varnames = new List<String>();
             headings = null;
@@ -104,7 +86,6 @@ namespace ITCSurveyReport
             commentAuthors = new List<int>();
             commentSources = new List<int>();
 
-            extraFields = null; // probably not needed
             commentFields = new List<String>();
             transFields = new List<String>();
 
@@ -167,7 +148,12 @@ namespace ITCSurveyReport
                 // deallocate comment table
                 commentTable.Dispose();
             }
-            if (filterCol) { MakeFilterTable(); }
+
+            // insert filters into raw table
+            if (filterCol) {
+                MakeFilterTable();
+                
+            }
 
             if (transFields != null && transFields.Count != 0)
             {
@@ -180,11 +166,12 @@ namespace ITCSurveyReport
                 {
                     MakeTranslationTable();
                 }
+                // insert translations now? or later?
             }
 
             
             
-            // insert filters into raw table
+            
 
 
             
@@ -264,20 +251,43 @@ namespace ITCSurveyReport
             corrTable.Dispose();
         }
 
+        // Create a table for each translation language (OR combine them right here?) (TODO)
         public void MakeTranslationTable() {
             String query = "";
             String where = "";
+            String whereLang = "";
             String strQFilter;
 
-            // form the query
-            // standard fields
-            
-            translationTable = new List<DataTable>();
+            // instantiate the data tables
+            translationTables = new List<DataTable>();
+
+            // create the filter for the query
+            where = "WHERE Survey = '" + surveyCode + "'";
+            strQFilter = GetQuestionFilter();
+            if (strQFilter != "") { where += " AND " + strQFilter; }
+
+            // create a data table for each language, set its primary key, add it to the list of translation tables
             for (int i = 0; i < transFields.Count; i++)
             {
-                query = "SELECT Survey, VarName, refVarName, Translation AS [" + transFields[i] + "] FROM qrySurveyQuestionsTranslation";
+                DataTable t;
+                t = new DataTable();
+                whereLang = " AND Lang ='" + transFields[i] + "'";
 
+                query = "SELECT QID AS ID, Survey, VarName, refVarName, Replace(Replace(Replace(Translation, '&gt;', '>'), '&lt;', '<'), '&nbsp;', ' ') AS [" + transFields[i] + "] FROM qrySurveyQuestionsTranslation " + where + whereLang;
+                
+                // run the query and fill the data table
+                conn.Open();
+                sql.SelectCommand = new SqlCommand(query, conn);
+                sql.Fill(t);
 
+                conn.Close();
+
+                t.PrimaryKey = new DataColumn[] { t.Columns["ID"] };
+
+                // TODO get corrected wordings (see GetCorrectedWordings)
+                // get headings? maybe not
+
+                translationTables.Add(t);
             }
         }
 
@@ -343,7 +353,7 @@ namespace ITCSurveyReport
 
         public void MakeFilterTable() { }
 
-        // final table
+        // final table (TODO)
         public void MakeReportTable() {
             
 
@@ -379,7 +389,7 @@ namespace ITCSurveyReport
                 }
                 
             }
-            columnNames.Add(surveyCode);
+            columnNames.Add("survey" + id);
             columnTypes.Add("string");
             finalTable = Utilities.CreateDataTable(surveyCode + ID + "_Final", columnNames.ToArray(), columnTypes.ToArray());
             DataRow newrow;
@@ -393,6 +403,7 @@ namespace ITCSurveyReport
                     switch (col.Caption)
                     {
                         case "ID":
+                        
                         case "PreP":
                         case "PreI":
                         case "PreA":
@@ -411,12 +422,30 @@ namespace ITCSurveyReport
                     
                 
                 // TODO replace this with a getQuestion type function that accepts a row
-                qText = row["PreP"] + Environment.NewLine + row["PreI"] + "\r\n" + row["PreA"] + "\r\n" + row["LitQ"] + "\r\n" + row["RespOptions"] + "\r\n" +
-                    row["NRCodes"] + "\r\n" + row["PstI"] + "\r\n" + row["PstP"];
-                newrow[surveyCode] = qText.TrimEnd('\r','\n');
+                
+                //qText = row["PreP"] + Environment.NewLine + row["PreI"] + "\r\n" + row["PreA"] + "\r\n" + row["LitQ"] + "\r\n" + row["RespOptions"] + "\r\n" +
+                //   row["NRCodes"] + "\r\n" + row["PstI"] + "\r\n" + row["PstP"];
+                //newrow["survey" + id] = qText.TrimEnd('\r','\n');
+                newrow["survey" + id] = GetQuestionText(row);
                 finalTable.Rows.Add(newrow);
             }
 
+        }
+
+        private String GetQuestionText(DataRow row)
+        {
+            String questionText = "";
+
+            if (row.Table.Columns.Contains("PreP")) { questionText += row["PreP"] + "\r\n"; }
+            if (row.Table.Columns.Contains("PreI")) { questionText += row["PreI"] + "\r\n"; }
+            if (row.Table.Columns.Contains("PreA")) { questionText += row["PreA"] + "\r\n"; }
+            if (row.Table.Columns.Contains("LitQ")) { questionText += row["LitQ"] + "\r\n"; }
+            if (row.Table.Columns.Contains("RespOptions")) { questionText += row["RespOptions"] + "\r\n"; }
+            if (row.Table.Columns.Contains("NRCodes")) { questionText += row["NRCodes"] + "\r\n"; }
+            if (row.Table.Columns.Contains("PstI")) { questionText += row["PstI"] + "\r\n"; }
+            if (row.Table.Columns.Contains("PstP")) { questionText += row["PstP"] + "\r\n"; }
+
+            return questionText;
         }
 
         // functions
@@ -481,14 +510,12 @@ namespace ITCSurveyReport
         public int ID { get => id; set => id = value; }
         public String SurveyCode { get => surveyCode; set => surveyCode = value; }
         public DateTime Backend { get => backend; set => backend = value; }
-        public String QRange { get => qRange; set => qRange = value; }
         public List<String> Prefixes { get => prefixes; set => prefixes = value; }
         public String[] Headings { get => headings; set => headings = value; }
         public List<String> Varnames { get => varnames; set => varnames = value; }
         public DateTime? CommentDate { get => commentDate; set => commentDate = value; }
         public List<int> CommentAuthors { get => commentAuthors; set => commentAuthors = value; }
         public List<int> CommentSources { get => commentSources; set => commentSources = value; }
-        public String[] ExtraFields { get => extraFields; set => extraFields = value; }
         public List<String> CommentFields
         {
             get => commentFields;
@@ -500,12 +527,7 @@ namespace ITCSurveyReport
         }
         public List<String> TransFields { get => transFields; set => transFields = value; }
         public List<String> StdFields { get => stdFields; set => stdFields = value; }
-        public bool VarLabelCol { get => varlabelCol; set
-            {
-                varlabelCol = value;
-                //NotifyPropertyChanged();
-            }
-        }
+        public bool VarLabelCol { get => varlabelCol; set => varlabelCol = value; }
         public bool FilterCol { get => filterCol; set => filterCol = value; }
         public bool CommentCol { get => commentCol; set => commentCol = value; }
         public String EssentialList { get => essentialList; set => essentialList = value; }
