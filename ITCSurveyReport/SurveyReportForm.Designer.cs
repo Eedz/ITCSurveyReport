@@ -31,27 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.Label detailsLabel;
             System.Windows.Forms.Label fileNameLabel;
-            System.Windows.Forms.Label blankColumnLabel;
-            System.Windows.Forms.Label coverPageLabel;
-            System.Windows.Forms.Label beforeAfterReportLabel;
-            System.Windows.Forms.Label bySectionLabel;
-            System.Windows.Forms.Label convertTrackedChangesLabel;
-            System.Windows.Forms.Label doCompareLabel;
-            System.Windows.Forms.Label hideIdenticalWordingsLabel;
-            System.Windows.Forms.Label hidePrimaryLabel;
-            System.Windows.Forms.Label highlightLabel;
-            System.Windows.Forms.Label highlightNRLabel;
-            System.Windows.Forms.Label highlightSchemeLabel;
-            System.Windows.Forms.Label highlightStyleLabel;
-            System.Windows.Forms.Label hybridHighlightLabel;
-            System.Windows.Forms.Label ignoreSimilarWordsLabel;
-            System.Windows.Forms.Label includeWordingsLabel;
-            System.Windows.Forms.Label matchOnRenameLabel;
-            System.Windows.Forms.Label reInsertDeletionsLabel;
-            System.Windows.Forms.Label selfCompareLabel;
-            System.Windows.Forms.Label showDeletedFieldsLabel;
-            System.Windows.Forms.Label showDeletedQuestionsLabel;
-            System.Windows.Forms.Label showOrderChangesLabel;
             this.cboSurveys = new System.Windows.Forms.ComboBox();
             this.cmdAddSurvey = new System.Windows.Forms.Button();
             this.cmdRemoveSurvey = new System.Windows.Forms.Button();
@@ -83,6 +62,7 @@
             this.lstStdFields = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.lstSelStdFields = new System.Windows.Forms.ListBox();
+            this.surveyReportBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.lstSelCommentFields = new System.Windows.Forms.ListBox();
             this.chkVarLabelCol = new System.Windows.Forms.CheckBox();
             this.chkFilterCol = new System.Windows.Forms.CheckBox();
@@ -101,11 +81,14 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupHighlightOptions = new System.Windows.Forms.GroupBox();
             this.flowHighlightOptions = new System.Windows.Forms.FlowLayoutPanel();
+            this.highlightNRCheckBox = new System.Windows.Forms.CheckBox();
             this.groupHighlightStyle = new System.Windows.Forms.GroupBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.convertTrackedChangesCheckBox = new System.Windows.Forms.CheckBox();
             this.gridPrimarySurvey = new System.Windows.Forms.DataGridView();
+            this.doCompareCheckBox = new System.Windows.Forms.CheckBox();
             this.pgOrder = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.radioButton5 = new System.Windows.Forms.RadioButton();
@@ -167,59 +150,35 @@
             this.lblTitle = new System.Windows.Forms.Label();
             this.dateBackend = new System.Windows.Forms.DateTimePicker();
             this.lblBackend = new System.Windows.Forms.Label();
-            this.blankColumnCheckBox = new System.Windows.Forms.CheckBox();
+            this.chkBlankCol = new System.Windows.Forms.CheckBox();
             this.coverPageCheckBox = new System.Windows.Forms.CheckBox();
             this.beforeAfterReportCheckBox = new System.Windows.Forms.CheckBox();
             this.bySectionCheckBox = new System.Windows.Forms.CheckBox();
-            this.convertTrackedChangesCheckBox = new System.Windows.Forms.CheckBox();
-            this.doCompareCheckBox = new System.Windows.Forms.CheckBox();
             this.hideIdenticalWordingsCheckBox = new System.Windows.Forms.CheckBox();
             this.hidePrimaryCheckBox = new System.Windows.Forms.CheckBox();
             this.highlightCheckBox = new System.Windows.Forms.CheckBox();
-            this.highlightNRCheckBox = new System.Windows.Forms.CheckBox();
-            this.highlightSchemeTextBox = new System.Windows.Forms.TextBox();
-            this.highlightStyleTextBox = new System.Windows.Forms.TextBox();
             this.hybridHighlightCheckBox = new System.Windows.Forms.CheckBox();
             this.ignoreSimilarWordsCheckBox = new System.Windows.Forms.CheckBox();
             this.includeWordingsCheckBox = new System.Windows.Forms.CheckBox();
             this.matchOnRenameCheckBox = new System.Windows.Forms.CheckBox();
             this.reInsertDeletionsCheckBox = new System.Windows.Forms.CheckBox();
-            this.selfCompareCheckBox = new System.Windows.Forms.CheckBox();
             this.showDeletedFieldsCheckBox = new System.Windows.Forms.CheckBox();
             this.showDeletedQuestionsCheckBox = new System.Windows.Forms.CheckBox();
             this.showOrderChangesCheckBox = new System.Windows.Forms.CheckBox();
             this.surveyView = new System.Windows.Forms.DataGridView();
-            this.surveyReportBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.label15 = new System.Windows.Forms.Label();
             detailsLabel = new System.Windows.Forms.Label();
             fileNameLabel = new System.Windows.Forms.Label();
-            blankColumnLabel = new System.Windows.Forms.Label();
-            coverPageLabel = new System.Windows.Forms.Label();
-            beforeAfterReportLabel = new System.Windows.Forms.Label();
-            bySectionLabel = new System.Windows.Forms.Label();
-            convertTrackedChangesLabel = new System.Windows.Forms.Label();
-            doCompareLabel = new System.Windows.Forms.Label();
-            hideIdenticalWordingsLabel = new System.Windows.Forms.Label();
-            hidePrimaryLabel = new System.Windows.Forms.Label();
-            highlightLabel = new System.Windows.Forms.Label();
-            highlightNRLabel = new System.Windows.Forms.Label();
-            highlightSchemeLabel = new System.Windows.Forms.Label();
-            highlightStyleLabel = new System.Windows.Forms.Label();
-            hybridHighlightLabel = new System.Windows.Forms.Label();
-            ignoreSimilarWordsLabel = new System.Windows.Forms.Label();
-            includeWordingsLabel = new System.Windows.Forms.Label();
-            matchOnRenameLabel = new System.Windows.Forms.Label();
-            reInsertDeletionsLabel = new System.Windows.Forms.Label();
-            selfCompareLabel = new System.Windows.Forms.Label();
-            showDeletedFieldsLabel = new System.Windows.Forms.Label();
-            showDeletedQuestionsLabel = new System.Windows.Forms.Label();
-            showOrderChangesLabel = new System.Windows.Forms.Label();
             this.tabControlOptions.SuspendLayout();
             this.pgFilters.SuspendLayout();
             this.pgFields.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).BeginInit();
             this.pgCompare.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.groupHighlightOptions.SuspendLayout();
+            this.flowHighlightOptions.SuspendLayout();
             this.groupHighlightStyle.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPrimarySurvey)).BeginInit();
             this.pgOrder.SuspendLayout();
@@ -238,7 +197,6 @@
             this.groupBox5.SuspendLayout();
             this.pgFileName.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.surveyView)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // detailsLabel
@@ -260,198 +218,10 @@
             fileNameLabel.TabIndex = 33;
             fileNameLabel.Text = "Final File Name:";
             // 
-            // blankColumnLabel
-            // 
-            blankColumnLabel.AutoSize = true;
-            blankColumnLabel.Location = new System.Drawing.Point(681, 456);
-            blankColumnLabel.Name = "blankColumnLabel";
-            blankColumnLabel.Size = new System.Drawing.Size(75, 13);
-            blankColumnLabel.TabIndex = 10;
-            blankColumnLabel.Text = "Blank Column:";
-            // 
-            // coverPageLabel
-            // 
-            coverPageLabel.AutoSize = true;
-            coverPageLabel.Location = new System.Drawing.Point(780, 492);
-            coverPageLabel.Name = "coverPageLabel";
-            coverPageLabel.Size = new System.Drawing.Size(66, 13);
-            coverPageLabel.TabIndex = 12;
-            coverPageLabel.Text = "Cover Page:";
-            // 
-            // beforeAfterReportLabel
-            // 
-            beforeAfterReportLabel.AutoSize = true;
-            beforeAfterReportLabel.Location = new System.Drawing.Point(938, 44);
-            beforeAfterReportLabel.Name = "beforeAfterReportLabel";
-            beforeAfterReportLabel.Size = new System.Drawing.Size(101, 13);
-            beforeAfterReportLabel.TabIndex = 14;
-            beforeAfterReportLabel.Text = "Before After Report:";
-            // 
-            // bySectionLabel
-            // 
-            bySectionLabel.AutoSize = true;
-            bySectionLabel.Location = new System.Drawing.Point(938, 74);
-            bySectionLabel.Name = "bySectionLabel";
-            bySectionLabel.Size = new System.Drawing.Size(61, 13);
-            bySectionLabel.TabIndex = 16;
-            bySectionLabel.Text = "By Section:";
-            // 
-            // convertTrackedChangesLabel
-            // 
-            convertTrackedChangesLabel.AutoSize = true;
-            convertTrackedChangesLabel.Location = new System.Drawing.Point(938, 104);
-            convertTrackedChangesLabel.Name = "convertTrackedChangesLabel";
-            convertTrackedChangesLabel.Size = new System.Drawing.Size(135, 13);
-            convertTrackedChangesLabel.TabIndex = 18;
-            convertTrackedChangesLabel.Text = "Convert Tracked Changes:";
-            // 
-            // doCompareLabel
-            // 
-            doCompareLabel.AutoSize = true;
-            doCompareLabel.Location = new System.Drawing.Point(938, 134);
-            doCompareLabel.Name = "doCompareLabel";
-            doCompareLabel.Size = new System.Drawing.Size(69, 13);
-            doCompareLabel.TabIndex = 20;
-            doCompareLabel.Text = "Do Compare:";
-            // 
-            // hideIdenticalWordingsLabel
-            // 
-            hideIdenticalWordingsLabel.AutoSize = true;
-            hideIdenticalWordingsLabel.Location = new System.Drawing.Point(938, 164);
-            hideIdenticalWordingsLabel.Name = "hideIdenticalWordingsLabel";
-            hideIdenticalWordingsLabel.Size = new System.Drawing.Size(123, 13);
-            hideIdenticalWordingsLabel.TabIndex = 22;
-            hideIdenticalWordingsLabel.Text = "Hide Identical Wordings:";
-            // 
-            // hidePrimaryLabel
-            // 
-            hidePrimaryLabel.AutoSize = true;
-            hidePrimaryLabel.Location = new System.Drawing.Point(938, 194);
-            hidePrimaryLabel.Name = "hidePrimaryLabel";
-            hidePrimaryLabel.Size = new System.Drawing.Size(69, 13);
-            hidePrimaryLabel.TabIndex = 24;
-            hidePrimaryLabel.Text = "Hide Primary:";
-            // 
-            // highlightLabel
-            // 
-            highlightLabel.AutoSize = true;
-            highlightLabel.Location = new System.Drawing.Point(938, 224);
-            highlightLabel.Name = "highlightLabel";
-            highlightLabel.Size = new System.Drawing.Size(51, 13);
-            highlightLabel.TabIndex = 26;
-            highlightLabel.Text = "Highlight:";
-            // 
-            // highlightNRLabel
-            // 
-            highlightNRLabel.AutoSize = true;
-            highlightNRLabel.Location = new System.Drawing.Point(938, 254);
-            highlightNRLabel.Name = "highlightNRLabel";
-            highlightNRLabel.Size = new System.Drawing.Size(70, 13);
-            highlightNRLabel.TabIndex = 28;
-            highlightNRLabel.Text = "Highlight NR:";
-            // 
-            // highlightSchemeLabel
-            // 
-            highlightSchemeLabel.AutoSize = true;
-            highlightSchemeLabel.Location = new System.Drawing.Point(938, 282);
-            highlightSchemeLabel.Name = "highlightSchemeLabel";
-            highlightSchemeLabel.Size = new System.Drawing.Size(49, 13);
-            highlightSchemeLabel.TabIndex = 30;
-            highlightSchemeLabel.Text = "Scheme:";
-            // 
-            // highlightStyleLabel
-            // 
-            highlightStyleLabel.AutoSize = true;
-            highlightStyleLabel.Location = new System.Drawing.Point(938, 308);
-            highlightStyleLabel.Name = "highlightStyleLabel";
-            highlightStyleLabel.Size = new System.Drawing.Size(33, 13);
-            highlightStyleLabel.TabIndex = 32;
-            highlightStyleLabel.Text = "Style:";
-            // 
-            // hybridHighlightLabel
-            // 
-            hybridHighlightLabel.AutoSize = true;
-            hybridHighlightLabel.Location = new System.Drawing.Point(938, 336);
-            hybridHighlightLabel.Name = "hybridHighlightLabel";
-            hybridHighlightLabel.Size = new System.Drawing.Size(84, 13);
-            hybridHighlightLabel.TabIndex = 34;
-            hybridHighlightLabel.Text = "Hybrid Highlight:";
-            // 
-            // ignoreSimilarWordsLabel
-            // 
-            ignoreSimilarWordsLabel.AutoSize = true;
-            ignoreSimilarWordsLabel.Location = new System.Drawing.Point(938, 366);
-            ignoreSimilarWordsLabel.Name = "ignoreSimilarWordsLabel";
-            ignoreSimilarWordsLabel.Size = new System.Drawing.Size(107, 13);
-            ignoreSimilarWordsLabel.TabIndex = 36;
-            ignoreSimilarWordsLabel.Text = "Ignore Similar Words:";
-            // 
-            // includeWordingsLabel
-            // 
-            includeWordingsLabel.AutoSize = true;
-            includeWordingsLabel.Location = new System.Drawing.Point(938, 396);
-            includeWordingsLabel.Name = "includeWordingsLabel";
-            includeWordingsLabel.Size = new System.Drawing.Size(93, 13);
-            includeWordingsLabel.TabIndex = 38;
-            includeWordingsLabel.Text = "Include Wordings:";
-            // 
-            // matchOnRenameLabel
-            // 
-            matchOnRenameLabel.AutoSize = true;
-            matchOnRenameLabel.Location = new System.Drawing.Point(938, 426);
-            matchOnRenameLabel.Name = "matchOnRenameLabel";
-            matchOnRenameLabel.Size = new System.Drawing.Size(100, 13);
-            matchOnRenameLabel.TabIndex = 40;
-            matchOnRenameLabel.Text = "Match On Rename:";
-            // 
-            // reInsertDeletionsLabel
-            // 
-            reInsertDeletionsLabel.AutoSize = true;
-            reInsertDeletionsLabel.Location = new System.Drawing.Point(938, 456);
-            reInsertDeletionsLabel.Name = "reInsertDeletionsLabel";
-            reInsertDeletionsLabel.Size = new System.Drawing.Size(100, 13);
-            reInsertDeletionsLabel.TabIndex = 42;
-            reInsertDeletionsLabel.Text = "Re Insert Deletions:";
-            // 
-            // selfCompareLabel
-            // 
-            selfCompareLabel.AutoSize = true;
-            selfCompareLabel.Location = new System.Drawing.Point(938, 486);
-            selfCompareLabel.Name = "selfCompareLabel";
-            selfCompareLabel.Size = new System.Drawing.Size(73, 13);
-            selfCompareLabel.TabIndex = 44;
-            selfCompareLabel.Text = "Self Compare:";
-            // 
-            // showDeletedFieldsLabel
-            // 
-            showDeletedFieldsLabel.AutoSize = true;
-            showDeletedFieldsLabel.Location = new System.Drawing.Point(938, 516);
-            showDeletedFieldsLabel.Name = "showDeletedFieldsLabel";
-            showDeletedFieldsLabel.Size = new System.Drawing.Size(107, 13);
-            showDeletedFieldsLabel.TabIndex = 46;
-            showDeletedFieldsLabel.Text = "Show Deleted Fields:";
-            // 
-            // showDeletedQuestionsLabel
-            // 
-            showDeletedQuestionsLabel.AutoSize = true;
-            showDeletedQuestionsLabel.Location = new System.Drawing.Point(938, 546);
-            showDeletedQuestionsLabel.Name = "showDeletedQuestionsLabel";
-            showDeletedQuestionsLabel.Size = new System.Drawing.Size(127, 13);
-            showDeletedQuestionsLabel.TabIndex = 48;
-            showDeletedQuestionsLabel.Text = "Show Deleted Questions:";
-            // 
-            // showOrderChangesLabel
-            // 
-            showOrderChangesLabel.AutoSize = true;
-            showOrderChangesLabel.Location = new System.Drawing.Point(938, 576);
-            showOrderChangesLabel.Name = "showOrderChangesLabel";
-            showOrderChangesLabel.Size = new System.Drawing.Size(111, 13);
-            showOrderChangesLabel.TabIndex = 50;
-            showOrderChangesLabel.Text = "Show Order Changes:";
-            // 
             // cboSurveys
             // 
             this.cboSurveys.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
+            this.cboSurveys.DisplayMember = "Survey";
             this.cboSurveys.FormattingEnabled = true;
             this.cboSurveys.Location = new System.Drawing.Point(8, 65);
             this.cboSurveys.Name = "cboSurveys";
@@ -669,6 +439,7 @@
             this.pgFields.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(170)))), ((int)(((byte)(136)))));
             this.pgFields.Controls.Add(this.lstSelTransFields);
             this.pgFields.Controls.Add(this.panel1);
+            this.pgFields.Controls.Add(this.chkBlankCol);
             this.pgFields.Controls.Add(this.lstSelCommentFields);
             this.pgFields.Controls.Add(this.chkVarLabelCol);
             this.pgFields.Controls.Add(this.chkFilterCol);
@@ -778,6 +549,10 @@
             this.lstSelStdFields.TabIndex = 1;
             this.lstSelStdFields.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstSelStdFields_MouseDoubleClick);
             // 
+            // surveyReportBindingSource
+            // 
+            this.surveyReportBindingSource.DataSource = typeof(ITCSurveyReport.SurveyReport);
+            // 
             // lstSelCommentFields
             // 
             this.lstSelCommentFields.FormattingEnabled = true;
@@ -797,6 +572,7 @@
             this.chkVarLabelCol.TabIndex = 17;
             this.chkVarLabelCol.Text = "VarLabel Column";
             this.chkVarLabelCol.UseVisualStyleBackColor = true;
+            this.chkVarLabelCol.Visible = false;
             // 
             // chkFilterCol
             // 
@@ -807,6 +583,7 @@
             this.chkFilterCol.TabIndex = 16;
             this.chkFilterCol.Text = "Filter Column";
             this.chkFilterCol.UseVisualStyleBackColor = true;
+            this.chkFilterCol.Visible = false;
             // 
             // lblTransFields
             // 
@@ -908,9 +685,12 @@
             // pgCompare
             // 
             this.pgCompare.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(170)))), ((int)(((byte)(136)))));
+            this.pgCompare.Controls.Add(this.label15);
             this.pgCompare.Controls.Add(this.groupBox1);
             this.pgCompare.Controls.Add(this.groupHighlightOptions);
             this.pgCompare.Controls.Add(this.gridPrimarySurvey);
+            this.pgCompare.Controls.Add(this.doCompareCheckBox);
+            this.pgCompare.Controls.Add(this.matchOnRenameCheckBox);
             this.pgCompare.Location = new System.Drawing.Point(4, 22);
             this.pgCompare.Name = "pgCompare";
             this.pgCompare.Size = new System.Drawing.Size(465, 503);
@@ -920,49 +700,72 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.flowLayoutPanel1);
-            this.groupBox1.Location = new System.Drawing.Point(234, 379);
+            this.groupBox1.Location = new System.Drawing.Point(234, 347);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(1);
-            this.groupBox1.Size = new System.Drawing.Size(191, 110);
+            this.groupBox1.Size = new System.Drawing.Size(191, 88);
             this.groupBox1.TabIndex = 117;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Layout Options";
             // 
             // flowLayoutPanel1
             // 
+            this.flowLayoutPanel1.Controls.Add(this.hidePrimaryCheckBox);
+            this.flowLayoutPanel1.Controls.Add(this.hideIdenticalWordingsCheckBox);
+            this.flowLayoutPanel1.Controls.Add(this.beforeAfterReportCheckBox);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(28, 18);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(1);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(157, 83);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(157, 64);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // groupHighlightOptions
             // 
             this.groupHighlightOptions.Controls.Add(this.flowHighlightOptions);
             this.groupHighlightOptions.Controls.Add(this.groupHighlightStyle);
+            this.groupHighlightOptions.Controls.Add(this.highlightCheckBox);
             this.groupHighlightOptions.Location = new System.Drawing.Point(234, 29);
             this.groupHighlightOptions.Name = "groupHighlightOptions";
-            this.groupHighlightOptions.Size = new System.Drawing.Size(191, 336);
+            this.groupHighlightOptions.Size = new System.Drawing.Size(191, 315);
             this.groupHighlightOptions.TabIndex = 11;
             this.groupHighlightOptions.TabStop = false;
             this.groupHighlightOptions.Text = "Highlight Options";
             // 
             // flowHighlightOptions
             // 
+            this.flowHighlightOptions.Controls.Add(this.highlightNRCheckBox);
+            this.flowHighlightOptions.Controls.Add(this.ignoreSimilarWordsCheckBox);
+            this.flowHighlightOptions.Controls.Add(this.hybridHighlightCheckBox);
+            this.flowHighlightOptions.Controls.Add(this.showDeletedFieldsCheckBox);
+            this.flowHighlightOptions.Controls.Add(this.showDeletedQuestionsCheckBox);
+            this.flowHighlightOptions.Controls.Add(this.reInsertDeletionsCheckBox);
+            this.flowHighlightOptions.Controls.Add(this.showOrderChangesCheckBox);
             this.flowHighlightOptions.Location = new System.Drawing.Point(28, 164);
             this.flowHighlightOptions.Margin = new System.Windows.Forms.Padding(0);
             this.flowHighlightOptions.Name = "flowHighlightOptions";
             this.flowHighlightOptions.Padding = new System.Windows.Forms.Padding(1);
-            this.flowHighlightOptions.Size = new System.Drawing.Size(157, 168);
+            this.flowHighlightOptions.Size = new System.Drawing.Size(157, 143);
             this.flowHighlightOptions.TabIndex = 10;
+            // 
+            // highlightNRCheckBox
+            // 
+            this.highlightNRCheckBox.Location = new System.Drawing.Point(1, 1);
+            this.highlightNRCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.highlightNRCheckBox.Name = "highlightNRCheckBox";
+            this.highlightNRCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.highlightNRCheckBox.Size = new System.Drawing.Size(141, 20);
+            this.highlightNRCheckBox.TabIndex = 29;
+            this.highlightNRCheckBox.Text = "Highlight NR";
+            this.highlightNRCheckBox.UseVisualStyleBackColor = true;
             // 
             // groupHighlightStyle
             // 
             this.groupHighlightStyle.Controls.Add(this.comboBox1);
             this.groupHighlightStyle.Controls.Add(this.radioButton2);
             this.groupHighlightStyle.Controls.Add(this.radioButton1);
+            this.groupHighlightStyle.Controls.Add(this.convertTrackedChangesCheckBox);
             this.groupHighlightStyle.Location = new System.Drawing.Point(18, 42);
             this.groupHighlightStyle.Name = "groupHighlightStyle";
             this.groupHighlightStyle.Size = new System.Drawing.Size(152, 117);
@@ -981,7 +784,7 @@
             // radioButton2
             // 
             this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(11, 45);
+            this.radioButton2.Location = new System.Drawing.Point(11, 41);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(85, 17);
             this.radioButton2.TabIndex = 1;
@@ -1000,6 +803,15 @@
             this.radioButton1.Text = "radioButton1";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
+            // convertTrackedChangesCheckBox
+            // 
+            this.convertTrackedChangesCheckBox.Location = new System.Drawing.Point(30, 64);
+            this.convertTrackedChangesCheckBox.Name = "convertTrackedChangesCheckBox";
+            this.convertTrackedChangesCheckBox.Size = new System.Drawing.Size(85, 20);
+            this.convertTrackedChangesCheckBox.TabIndex = 19;
+            this.convertTrackedChangesCheckBox.Text = "Real TC";
+            this.convertTrackedChangesCheckBox.UseVisualStyleBackColor = true;
+            // 
             // gridPrimarySurvey
             // 
             this.gridPrimarySurvey.AllowUserToAddRows = false;
@@ -1010,6 +822,15 @@
             this.gridPrimarySurvey.RowHeadersVisible = false;
             this.gridPrimarySurvey.Size = new System.Drawing.Size(184, 167);
             this.gridPrimarySurvey.TabIndex = 1;
+            // 
+            // doCompareCheckBox
+            // 
+            this.doCompareCheckBox.Location = new System.Drawing.Point(13, 26);
+            this.doCompareCheckBox.Name = "doCompareCheckBox";
+            this.doCompareCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.doCompareCheckBox.TabIndex = 21;
+            this.doCompareCheckBox.Text = "Compare?";
+            this.doCompareCheckBox.UseVisualStyleBackColor = true;
             // 
             // pgOrder
             // 
@@ -1103,6 +924,8 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Controls.Add(this.repeatedHeadingsCheckBox, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.qNInsertionCheckBox, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.bySectionCheckBox, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.includeWordingsCheckBox, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.colorSubsCheckBox, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.aQNInsertionCheckBox, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.showLongListsCheckBox, 0, 2);
@@ -1291,6 +1114,7 @@
             this.flowLayoutPanel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowLayoutPanel3.Controls.Add(this.webCheckBox);
             this.flowLayoutPanel3.Controls.Add(this.label10);
+            this.flowLayoutPanel3.Controls.Add(this.coverPageCheckBox);
             this.flowLayoutPanel3.Location = new System.Drawing.Point(43, 341);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
             this.flowLayoutPanel3.Padding = new System.Windows.Forms.Padding(1);
@@ -1671,189 +1495,164 @@
             this.lblBackend.TabIndex = 9;
             this.lblBackend.Text = "From";
             // 
-            // blankColumnCheckBox
+            // chkBlankCol
             // 
-            this.blankColumnCheckBox.Location = new System.Drawing.Point(762, 451);
-            this.blankColumnCheckBox.Name = "blankColumnCheckBox";
-            this.blankColumnCheckBox.Size = new System.Drawing.Size(104, 24);
-            this.blankColumnCheckBox.TabIndex = 11;
-            this.blankColumnCheckBox.Text = "checkBox1";
-            this.blankColumnCheckBox.UseVisualStyleBackColor = true;
+            this.chkBlankCol.Location = new System.Drawing.Point(163, 327);
+            this.chkBlankCol.Margin = new System.Windows.Forms.Padding(0);
+            this.chkBlankCol.Name = "chkBlankCol";
+            this.chkBlankCol.Padding = new System.Windows.Forms.Padding(1);
+            this.chkBlankCol.Size = new System.Drawing.Size(104, 17);
+            this.chkBlankCol.TabIndex = 11;
+            this.chkBlankCol.Text = "Blank Column";
+            this.chkBlankCol.UseVisualStyleBackColor = true;
+            this.chkBlankCol.Visible = false;
             // 
             // coverPageCheckBox
             // 
-            this.coverPageCheckBox.Location = new System.Drawing.Point(852, 487);
+            this.coverPageCheckBox.Location = new System.Drawing.Point(1, 66);
+            this.coverPageCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.coverPageCheckBox.Name = "coverPageCheckBox";
+            this.coverPageCheckBox.Padding = new System.Windows.Forms.Padding(1);
             this.coverPageCheckBox.Size = new System.Drawing.Size(104, 24);
             this.coverPageCheckBox.TabIndex = 13;
-            this.coverPageCheckBox.Text = "checkBox1";
+            this.coverPageCheckBox.Text = "CoverPage";
             this.coverPageCheckBox.UseVisualStyleBackColor = true;
             // 
             // beforeAfterReportCheckBox
             // 
-            this.beforeAfterReportCheckBox.Location = new System.Drawing.Point(1079, 39);
+            this.beforeAfterReportCheckBox.Location = new System.Drawing.Point(1, 41);
+            this.beforeAfterReportCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.beforeAfterReportCheckBox.Name = "beforeAfterReportCheckBox";
-            this.beforeAfterReportCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.beforeAfterReportCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.beforeAfterReportCheckBox.Size = new System.Drawing.Size(104, 20);
             this.beforeAfterReportCheckBox.TabIndex = 15;
-            this.beforeAfterReportCheckBox.Text = "checkBox1";
+            this.beforeAfterReportCheckBox.Text = "Before/After Report";
             this.beforeAfterReportCheckBox.UseVisualStyleBackColor = true;
             // 
             // bySectionCheckBox
             // 
-            this.bySectionCheckBox.Location = new System.Drawing.Point(1079, 69);
+            this.bySectionCheckBox.Location = new System.Drawing.Point(170, 28);
             this.bySectionCheckBox.Name = "bySectionCheckBox";
-            this.bySectionCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.bySectionCheckBox.Size = new System.Drawing.Size(104, 19);
             this.bySectionCheckBox.TabIndex = 17;
-            this.bySectionCheckBox.Text = "checkBox1";
+            this.bySectionCheckBox.Text = "By Section";
             this.bySectionCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // convertTrackedChangesCheckBox
-            // 
-            this.convertTrackedChangesCheckBox.Location = new System.Drawing.Point(1079, 99);
-            this.convertTrackedChangesCheckBox.Name = "convertTrackedChangesCheckBox";
-            this.convertTrackedChangesCheckBox.Size = new System.Drawing.Size(104, 24);
-            this.convertTrackedChangesCheckBox.TabIndex = 19;
-            this.convertTrackedChangesCheckBox.Text = "checkBox1";
-            this.convertTrackedChangesCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // doCompareCheckBox
-            // 
-            this.doCompareCheckBox.Location = new System.Drawing.Point(1079, 129);
-            this.doCompareCheckBox.Name = "doCompareCheckBox";
-            this.doCompareCheckBox.Size = new System.Drawing.Size(104, 24);
-            this.doCompareCheckBox.TabIndex = 21;
-            this.doCompareCheckBox.Text = "checkBox1";
-            this.doCompareCheckBox.UseVisualStyleBackColor = true;
             // 
             // hideIdenticalWordingsCheckBox
             // 
-            this.hideIdenticalWordingsCheckBox.Location = new System.Drawing.Point(1079, 159);
+            this.hideIdenticalWordingsCheckBox.Location = new System.Drawing.Point(1, 21);
+            this.hideIdenticalWordingsCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.hideIdenticalWordingsCheckBox.Name = "hideIdenticalWordingsCheckBox";
-            this.hideIdenticalWordingsCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.hideIdenticalWordingsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.hideIdenticalWordingsCheckBox.Size = new System.Drawing.Size(141, 20);
             this.hideIdenticalWordingsCheckBox.TabIndex = 23;
-            this.hideIdenticalWordingsCheckBox.Text = "checkBox1";
+            this.hideIdenticalWordingsCheckBox.Text = "Hide Identical Wordings";
             this.hideIdenticalWordingsCheckBox.UseVisualStyleBackColor = true;
             // 
             // hidePrimaryCheckBox
             // 
-            this.hidePrimaryCheckBox.Location = new System.Drawing.Point(1079, 189);
+            this.hidePrimaryCheckBox.Location = new System.Drawing.Point(1, 1);
+            this.hidePrimaryCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.hidePrimaryCheckBox.Name = "hidePrimaryCheckBox";
-            this.hidePrimaryCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.hidePrimaryCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.hidePrimaryCheckBox.Size = new System.Drawing.Size(141, 20);
             this.hidePrimaryCheckBox.TabIndex = 25;
-            this.hidePrimaryCheckBox.Text = "checkBox1";
+            this.hidePrimaryCheckBox.Text = "Hide Reference Survey";
             this.hidePrimaryCheckBox.UseVisualStyleBackColor = true;
             // 
             // highlightCheckBox
             // 
-            this.highlightCheckBox.Location = new System.Drawing.Point(1079, 219);
+            this.highlightCheckBox.Location = new System.Drawing.Point(29, 19);
             this.highlightCheckBox.Name = "highlightCheckBox";
-            this.highlightCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.highlightCheckBox.Size = new System.Drawing.Size(104, 20);
             this.highlightCheckBox.TabIndex = 27;
-            this.highlightCheckBox.Text = "checkBox1";
+            this.highlightCheckBox.Text = "Highlight";
             this.highlightCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // highlightNRCheckBox
-            // 
-            this.highlightNRCheckBox.Location = new System.Drawing.Point(1079, 249);
-            this.highlightNRCheckBox.Name = "highlightNRCheckBox";
-            this.highlightNRCheckBox.Size = new System.Drawing.Size(104, 24);
-            this.highlightNRCheckBox.TabIndex = 29;
-            this.highlightNRCheckBox.Text = "checkBox1";
-            this.highlightNRCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // highlightSchemeTextBox
-            // 
-            this.highlightSchemeTextBox.Location = new System.Drawing.Point(1079, 279);
-            this.highlightSchemeTextBox.Name = "highlightSchemeTextBox";
-            this.highlightSchemeTextBox.Size = new System.Drawing.Size(104, 20);
-            this.highlightSchemeTextBox.TabIndex = 31;
-            // 
-            // highlightStyleTextBox
-            // 
-            this.highlightStyleTextBox.Location = new System.Drawing.Point(1079, 305);
-            this.highlightStyleTextBox.Name = "highlightStyleTextBox";
-            this.highlightStyleTextBox.Size = new System.Drawing.Size(104, 20);
-            this.highlightStyleTextBox.TabIndex = 33;
             // 
             // hybridHighlightCheckBox
             // 
-            this.hybridHighlightCheckBox.Location = new System.Drawing.Point(1079, 331);
+            this.hybridHighlightCheckBox.Location = new System.Drawing.Point(1, 41);
+            this.hybridHighlightCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.hybridHighlightCheckBox.Name = "hybridHighlightCheckBox";
-            this.hybridHighlightCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.hybridHighlightCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.hybridHighlightCheckBox.Size = new System.Drawing.Size(141, 20);
             this.hybridHighlightCheckBox.TabIndex = 35;
-            this.hybridHighlightCheckBox.Text = "checkBox1";
+            this.hybridHighlightCheckBox.Text = "Markup Differences";
             this.hybridHighlightCheckBox.UseVisualStyleBackColor = true;
             // 
             // ignoreSimilarWordsCheckBox
             // 
-            this.ignoreSimilarWordsCheckBox.Location = new System.Drawing.Point(1079, 361);
+            this.ignoreSimilarWordsCheckBox.Location = new System.Drawing.Point(1, 21);
+            this.ignoreSimilarWordsCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.ignoreSimilarWordsCheckBox.Name = "ignoreSimilarWordsCheckBox";
-            this.ignoreSimilarWordsCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.ignoreSimilarWordsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.ignoreSimilarWordsCheckBox.Size = new System.Drawing.Size(141, 20);
             this.ignoreSimilarWordsCheckBox.TabIndex = 37;
-            this.ignoreSimilarWordsCheckBox.Text = "checkBox1";
+            this.ignoreSimilarWordsCheckBox.Text = "Ignore Word Variants";
             this.ignoreSimilarWordsCheckBox.UseVisualStyleBackColor = true;
             // 
             // includeWordingsCheckBox
             // 
-            this.includeWordingsCheckBox.Location = new System.Drawing.Point(1079, 391);
+            this.includeWordingsCheckBox.Location = new System.Drawing.Point(170, 53);
             this.includeWordingsCheckBox.Name = "includeWordingsCheckBox";
-            this.includeWordingsCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.includeWordingsCheckBox.Size = new System.Drawing.Size(120, 19);
             this.includeWordingsCheckBox.TabIndex = 39;
-            this.includeWordingsCheckBox.Text = "checkBox1";
+            this.includeWordingsCheckBox.Text = "Include Wordings";
             this.includeWordingsCheckBox.UseVisualStyleBackColor = true;
             // 
             // matchOnRenameCheckBox
             // 
-            this.matchOnRenameCheckBox.Location = new System.Drawing.Point(1079, 421);
+            this.matchOnRenameCheckBox.Location = new System.Drawing.Point(13, 294);
+            this.matchOnRenameCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.matchOnRenameCheckBox.Name = "matchOnRenameCheckBox";
-            this.matchOnRenameCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.matchOnRenameCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.matchOnRenameCheckBox.Size = new System.Drawing.Size(196, 20);
             this.matchOnRenameCheckBox.TabIndex = 41;
-            this.matchOnRenameCheckBox.Text = "checkBox1";
+            this.matchOnRenameCheckBox.Text = "Match variables on previous names";
             this.matchOnRenameCheckBox.UseVisualStyleBackColor = true;
             // 
             // reInsertDeletionsCheckBox
             // 
-            this.reInsertDeletionsCheckBox.Location = new System.Drawing.Point(1079, 451);
+            this.reInsertDeletionsCheckBox.Location = new System.Drawing.Point(1, 101);
+            this.reInsertDeletionsCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.reInsertDeletionsCheckBox.Name = "reInsertDeletionsCheckBox";
-            this.reInsertDeletionsCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.reInsertDeletionsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.reInsertDeletionsCheckBox.Size = new System.Drawing.Size(123, 20);
             this.reInsertDeletionsCheckBox.TabIndex = 43;
-            this.reInsertDeletionsCheckBox.Text = "checkBox1";
+            this.reInsertDeletionsCheckBox.Text = "Re-insert Deletions";
             this.reInsertDeletionsCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // selfCompareCheckBox
-            // 
-            this.selfCompareCheckBox.Location = new System.Drawing.Point(1079, 481);
-            this.selfCompareCheckBox.Name = "selfCompareCheckBox";
-            this.selfCompareCheckBox.Size = new System.Drawing.Size(104, 24);
-            this.selfCompareCheckBox.TabIndex = 45;
-            this.selfCompareCheckBox.Text = "checkBox1";
-            this.selfCompareCheckBox.UseVisualStyleBackColor = true;
             // 
             // showDeletedFieldsCheckBox
             // 
-            this.showDeletedFieldsCheckBox.Location = new System.Drawing.Point(1079, 511);
+            this.showDeletedFieldsCheckBox.Location = new System.Drawing.Point(1, 61);
+            this.showDeletedFieldsCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.showDeletedFieldsCheckBox.Name = "showDeletedFieldsCheckBox";
-            this.showDeletedFieldsCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.showDeletedFieldsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.showDeletedFieldsCheckBox.Size = new System.Drawing.Size(141, 20);
             this.showDeletedFieldsCheckBox.TabIndex = 47;
-            this.showDeletedFieldsCheckBox.Text = "checkBox1";
+            this.showDeletedFieldsCheckBox.Text = "Show Deleted Fields";
             this.showDeletedFieldsCheckBox.UseVisualStyleBackColor = true;
             // 
             // showDeletedQuestionsCheckBox
             // 
-            this.showDeletedQuestionsCheckBox.Location = new System.Drawing.Point(1079, 541);
+            this.showDeletedQuestionsCheckBox.Location = new System.Drawing.Point(1, 81);
+            this.showDeletedQuestionsCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.showDeletedQuestionsCheckBox.Name = "showDeletedQuestionsCheckBox";
-            this.showDeletedQuestionsCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.showDeletedQuestionsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.showDeletedQuestionsCheckBox.Size = new System.Drawing.Size(156, 20);
             this.showDeletedQuestionsCheckBox.TabIndex = 49;
-            this.showDeletedQuestionsCheckBox.Text = "checkBox1";
+            this.showDeletedQuestionsCheckBox.Text = "Show Deleted Questions";
             this.showDeletedQuestionsCheckBox.UseVisualStyleBackColor = true;
             // 
             // showOrderChangesCheckBox
             // 
-            this.showOrderChangesCheckBox.Location = new System.Drawing.Point(1079, 571);
+            this.showOrderChangesCheckBox.Location = new System.Drawing.Point(1, 121);
+            this.showOrderChangesCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.showOrderChangesCheckBox.Name = "showOrderChangesCheckBox";
-            this.showOrderChangesCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.showOrderChangesCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.showOrderChangesCheckBox.Size = new System.Drawing.Size(104, 20);
             this.showOrderChangesCheckBox.TabIndex = 51;
-            this.showOrderChangesCheckBox.Text = "checkBox1";
+            this.showOrderChangesCheckBox.Text = "Show Order Changes";
             this.showOrderChangesCheckBox.UseVisualStyleBackColor = true;
             // 
             // surveyView
@@ -1867,59 +1666,22 @@
             this.surveyView.Size = new System.Drawing.Size(444, 248);
             this.surveyView.TabIndex = 52;
             // 
-            // surveyReportBindingSource
+            // label15
             // 
-            this.surveyReportBindingSource.DataSource = typeof(ITCSurveyReport.SurveyReport);
+            this.label15.Location = new System.Drawing.Point(14, 246);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(182, 47);
+            this.label15.TabIndex = 118;
+            this.label15.Text = "All other surveys will be compared to the reference survey. Surveys not selected " +
+    "will contain highlighting.";
             // 
             // SurveyReportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1250, 800);
+            this.ClientSize = new System.Drawing.Size(949, 709);
             this.Controls.Add(this.surveyView);
-            this.Controls.Add(beforeAfterReportLabel);
-            this.Controls.Add(this.beforeAfterReportCheckBox);
-            this.Controls.Add(bySectionLabel);
-            this.Controls.Add(this.bySectionCheckBox);
-            this.Controls.Add(convertTrackedChangesLabel);
-            this.Controls.Add(this.convertTrackedChangesCheckBox);
-            this.Controls.Add(doCompareLabel);
-            this.Controls.Add(this.doCompareCheckBox);
-            this.Controls.Add(hideIdenticalWordingsLabel);
-            this.Controls.Add(this.hideIdenticalWordingsCheckBox);
-            this.Controls.Add(hidePrimaryLabel);
-            this.Controls.Add(this.hidePrimaryCheckBox);
-            this.Controls.Add(highlightLabel);
-            this.Controls.Add(this.highlightCheckBox);
-            this.Controls.Add(highlightNRLabel);
-            this.Controls.Add(this.highlightNRCheckBox);
-            this.Controls.Add(highlightSchemeLabel);
-            this.Controls.Add(this.highlightSchemeTextBox);
-            this.Controls.Add(highlightStyleLabel);
-            this.Controls.Add(this.highlightStyleTextBox);
-            this.Controls.Add(hybridHighlightLabel);
-            this.Controls.Add(this.hybridHighlightCheckBox);
-            this.Controls.Add(ignoreSimilarWordsLabel);
-            this.Controls.Add(this.ignoreSimilarWordsCheckBox);
-            this.Controls.Add(includeWordingsLabel);
-            this.Controls.Add(this.includeWordingsCheckBox);
-            this.Controls.Add(matchOnRenameLabel);
-            this.Controls.Add(this.matchOnRenameCheckBox);
-            this.Controls.Add(reInsertDeletionsLabel);
-            this.Controls.Add(this.reInsertDeletionsCheckBox);
-            this.Controls.Add(selfCompareLabel);
-            this.Controls.Add(this.selfCompareCheckBox);
-            this.Controls.Add(showDeletedFieldsLabel);
-            this.Controls.Add(this.showDeletedFieldsCheckBox);
-            this.Controls.Add(showDeletedQuestionsLabel);
-            this.Controls.Add(this.showDeletedQuestionsCheckBox);
-            this.Controls.Add(showOrderChangesLabel);
-            this.Controls.Add(this.showOrderChangesCheckBox);
-            this.Controls.Add(coverPageLabel);
-            this.Controls.Add(this.coverPageCheckBox);
-            this.Controls.Add(blankColumnLabel);
-            this.Controls.Add(this.blankColumnCheckBox);
             this.Controls.Add(this.lblBackend);
             this.Controls.Add(this.dateBackend);
             this.Controls.Add(this.cboSurveys);
@@ -1939,9 +1701,12 @@
             this.pgFields.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).EndInit();
             this.pgCompare.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
+            this.flowLayoutPanel1.ResumeLayout(false);
             this.groupHighlightOptions.ResumeLayout(false);
+            this.flowHighlightOptions.ResumeLayout(false);
             this.groupHighlightStyle.ResumeLayout(false);
             this.groupHighlightStyle.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPrimarySurvey)).EndInit();
@@ -1969,7 +1734,6 @@
             this.pgFileName.ResumeLayout(false);
             this.pgFileName.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.surveyView)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2092,7 +1856,7 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.CheckBox blankColumnCheckBox;
+        private System.Windows.Forms.CheckBox chkBlankCol;
         private System.Windows.Forms.CheckBox coverPageCheckBox;
         private System.Windows.Forms.CheckBox beforeAfterReportCheckBox;
         private System.Windows.Forms.CheckBox bySectionCheckBox;
@@ -2102,19 +1866,17 @@
         private System.Windows.Forms.CheckBox hidePrimaryCheckBox;
         private System.Windows.Forms.CheckBox highlightCheckBox;
         private System.Windows.Forms.CheckBox highlightNRCheckBox;
-        private System.Windows.Forms.TextBox highlightSchemeTextBox;
-        private System.Windows.Forms.TextBox highlightStyleTextBox;
         private System.Windows.Forms.CheckBox hybridHighlightCheckBox;
         private System.Windows.Forms.CheckBox ignoreSimilarWordsCheckBox;
         private System.Windows.Forms.CheckBox includeWordingsCheckBox;
         private System.Windows.Forms.CheckBox matchOnRenameCheckBox;
         private System.Windows.Forms.CheckBox reInsertDeletionsCheckBox;
-        private System.Windows.Forms.CheckBox selfCompareCheckBox;
         private System.Windows.Forms.CheckBox showDeletedFieldsCheckBox;
         private System.Windows.Forms.CheckBox showDeletedQuestionsCheckBox;
         private System.Windows.Forms.CheckBox showOrderChangesCheckBox;
         private System.Windows.Forms.DataGridView surveyView;
         private System.Windows.Forms.BindingSource surveyReportBindingSource;
+        private System.Windows.Forms.Label label15;
     }
 }
 

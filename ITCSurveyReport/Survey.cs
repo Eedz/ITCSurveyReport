@@ -22,7 +22,7 @@ namespace ITCSurveyReport
         // data tables for this survey 
         public DataTable rawTable;              // raw survey content, separated into fields
         public DataTable commentTable;          // table holding comments
-        public DataTable[] translationTable;    // tables holding translation data
+        public List<DataTable> translationTable;    // tables holding translation data
         public DataTable filterTable;           // table holding filters
         //public DataTable corrTable;
         public DataTable finalTable;            // table holding the final output
@@ -164,6 +164,8 @@ namespace ITCSurveyReport
             if (commentCol) {
                 MakeCommentTable();
                 rawTable.Merge(commentTable, false, MissingSchemaAction.Add);
+                // deallocate comment table
+                commentTable.Dispose();
             }
             if (filterCol) { MakeFilterTable(); }
 
@@ -185,15 +187,17 @@ namespace ITCSurveyReport
             // insert filters into raw table
 
 
-            // deallocate comment table
-            //commentTable.Dispose();
+            
             // deallocate filter table
             //filterTable.Dispose();
         }
 
+        // Create the raw survey table containing words, corrected and table flags, and varlabel (if needed) from a backup
+        // This could be achieved by changing the FROM clause in GetSurveyTable but often there are columns that don't exist in the backups, due to their age
+        // and all the changes that have happened to the database over the years. 
         public void GetBackupTable() { }
 
-        // Create the raw survey table (TODO:)
+        // Create the raw survey table containing wordings, corrected and table flags, and varlabel (if needed)
         public void GetSurveyTable() {
             String query = "";
             String where = "";
@@ -216,12 +220,9 @@ namespace ITCSurveyReport
             // FROM and WHERE
             query = query + " FROM qrySurveyQuestions WHERE Survey ='" + surveyCode + "'";
 
-            // additional WHERE
-            strQFilter = GetQRangeFilter();
-            if (strQFilter != "") { where = strQFilter; }
-            if (prefixes != null && prefixes.Count != 0) { where = where + " AND Left(VarName,2) IN ('" + String.Join("','", prefixes) + "')"; }
-            if (varnames != null && varnames.Count != 0) { where = where + " AND VarName IN ('" + String.Join("','", varnames) + "')"; }
-            //if (headings != null && headings.Length != 0) { where = where + " AND (" + GetHeadingFilter() + ")"; }
+            // question range WHERE
+            strQFilter = GetQuestionFilter();
+            if (strQFilter != "") { where = " AND " + strQFilter; }
 
             query = query + where + " ORDER BY Qnum ASC";
 
@@ -232,7 +233,7 @@ namespace ITCSurveyReport
             
             conn.Close();
             rawTable.PrimaryKey = new DataColumn[] { rawTable.Columns["ID"] };
-            // TODO clear varlabel from heading rows
+            // clear varlabel from heading rows
             if (varlabelCol)
             {
                 String refVar;
@@ -263,7 +264,22 @@ namespace ITCSurveyReport
             corrTable.Dispose();
         }
 
-        public void MakeTranslationTable() { }
+        public void MakeTranslationTable() {
+            String query = "";
+            String where = "";
+            String strQFilter;
+
+            // form the query
+            // standard fields
+            
+            translationTable = new List<DataTable>();
+            for (int i = 0; i < transFields.Count; i++)
+            {
+                query = "SELECT Survey, VarName, refVarName, Translation AS [" + transFields[i] + "] FROM qrySurveyQuestionsTranslation";
+
+
+            }
+        }
 
         public void MakeTranslationTableBackup() { }
 
@@ -405,8 +421,27 @@ namespace ITCSurveyReport
 
         // functions
         public String GetQRangeFilter() {
+            String filter = "";
+            if (qRangeLow <= qRangeHigh)
+            {
+                filter = "Qnum BETWEEN '" + qRangeLow.ToString().PadLeft(3, '0') + "' AND '" + qRangeHigh.ToString().PadLeft(3, '0') + "'";
+            }
+            return filter;
+        }
 
-            return "";
+        // Returns a WHERE clause using the properties qRange, prefixes, and varnames (and headings if it is decided to use them again)
+        public String GetQuestionFilter()
+        {
+            String filter = "";
+
+            filter = GetQRangeFilter();
+            
+            if (prefixes != null && prefixes.Count != 0) { filter += " AND Left(VarName,2) IN ('" + String.Join("','", prefixes) + "')"; }
+            if (varnames != null && varnames.Count != 0) { filter += " AND VarName IN ('" + String.Join("','", varnames) + "')"; }
+            //if (headings != null && headings.Count != 0) { filter += " AND (" + GetHeadingFilter() + ")"; }
+            // TODO trim AND from the edges 
+            //filter.Trim();
+            return filter;
         }
 
         public String GetTranslation(int index)

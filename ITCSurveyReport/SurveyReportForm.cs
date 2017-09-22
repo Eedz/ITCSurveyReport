@@ -282,6 +282,9 @@ namespace ITCSurveyReport
             lstTransFields.Visible = true;
             lstSelTransFields.Visible = true;
             dateTimeCommentsSince.Visible = true;
+            chkFilterCol.Visible = true;
+            chkVarLabelCol.Visible = true;
+            chkBlankCol.Visible = true;
 
         }
         private void lstCommentFields_MouseDoubleClick(object sender, MouseEventArgs e)
