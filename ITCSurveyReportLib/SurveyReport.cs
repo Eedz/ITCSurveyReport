@@ -13,12 +13,12 @@ using System.ComponentModel;
 namespace ITCSurveyReport
 {
     enum ReportTemplate { Standard, Comparison, Automatic }
-    class SurveyReport
+    public class SurveyReport
     {
         #region Survey Report Properties
         // the dataset containing all the tables needed for the report
         //DataSet SurveyReportData;
-        DataTable reportTable;
+        public DataTable reportTable;
         SqlDataAdapter sql;
 
         // the surveys appearing in the report
@@ -89,6 +89,9 @@ namespace ITCSurveyReport
             formatting = new ReportFormatting();
             surveycompare = new Comparison();
             surveys = new List<Survey>();
+
+            // default settings
+            
         }
         #endregion
         // TODO method for setting highlight options?
@@ -127,19 +130,25 @@ namespace ITCSurveyReport
             // TODO
             // compile final tables into report
             // merge tables into one
+            
+                reportTable = surveys[0].finalTable.Copy();
+            if (surveys.Count > 1)
+            {
+                reportTable.Merge(surveys[1].finalTable, false, MissingSchemaAction.Add);
+            }
 
             // for now, just set the reportTable to the first survey's final table
             // this way the SurveyReport object is only set up to generate a single survey, the first one defined in the surveys list.
             // this could also be where we remove the primary survey if hidePrimary is true
             // this is also where we would sort the report
-            reportTable = surveys[0].finalTable;
+            //reportTable = surveys[0].finalTable;
 
             // output report
             // at this point the reportTable should be exactly how we want it to appear, minus interpreting tags
-#if DEBUG
-#else 
+//#if DEBUG
+//#else 
             OutputReportTable();
-#endif
+//#endif
             return 0;
         }
 
@@ -196,6 +205,22 @@ namespace ITCSurveyReport
 
         }
 
+        // Automatically sets the primary survey to be either:
+        // the 2nd survey if there are 2 surveys
+        // the 1st survey if there are 1, 3 or more
+        public void AutoSetPrimary()
+        {
+            if (surveys.Count == 0) return;
+            for (int i = 0; i < surveys.Count; i++) {surveys[i].Primary = false; }
+            if (surveys.Count ==2)
+            {
+                surveys[1].Primary = true;
+            }else
+            {
+                surveys[0].Primary = true;
+            }
+        }
+
         // Returns the survey object that has been designated primary
         public Survey GetPrimarySurvey() {
             Survey s = null;
@@ -223,13 +248,20 @@ namespace ITCSurveyReport
         public void OutputReportTable() {
 
             
-            int rowCount = reportTable.Rows.Count;
-            int columnCount = reportTable.Columns.Count;
+            
 
             Word.Application appWord;
             Word.Document docReport;
 
-            
+
+            // remove refVarName column first 
+            DataColumn[] pk = new DataColumn[1];
+            pk[0] = reportTable.Columns["VarName"];
+            reportTable.PrimaryKey = pk;
+            reportTable.Columns.Remove("refVarName");
+
+            int rowCount = reportTable.Rows.Count;
+            int columnCount = reportTable.Columns.Count;
 
             // ensure that the columns are in the right order
             reportTable.Columns["Qnum"].SetOrdinal(0);
@@ -344,11 +376,12 @@ namespace ITCSurveyReport
             // format shading for order comparisons
             if (reportType == 3) { formatting.FormatShading(docReport); }
 
-            fileName += ReportFileName() + ", " + DateTime.Today.ToString("d").Replace("-", "");
+            fileName += ReportFileName() + ", " + DateTime.Today.ToString("d").Replace("-", "") ;
             fileName += ".doc";
 
             //save the file
             docReport.SaveAs2(fileName);
+            appWord.Visible = true;
             // close the document and word if this is an automatic survey
             if (batch) {
                 docReport.Close();
@@ -588,9 +621,41 @@ namespace ITCSurveyReport
         public String[] RepeatedFields { get => repeatedFields; set => repeatedFields = value; }
         public bool InlineRouting { get => inlineRouting; set => inlineRouting = value; }
         public bool ShowLongLists { get => showLongLists; set => showLongLists = value; }
-        public bool QNInsertion { get => qnInsertion; set => qnInsertion = value; }
-        public bool AQNInsertion { get => aqnInsertion; set => aqnInsertion = value; }
-        public bool CCInsertion { get => ccInsertion; set => ccInsertion = value; }
+        public bool QNInsertion
+        {
+            get => qnInsertion;
+            set
+            {
+                foreach (Survey s in surveys)
+                {
+                    s.QNInsertion = value;
+                }
+                qnInsertion = value;
+            }
+        }
+        public bool AQNInsertion
+        {
+            get => aqnInsertion;
+            set
+            {
+                foreach (Survey s in surveys)
+                {
+                    s.AQNInsertion = value;
+                }
+                aqnInsertion = value;
+            }
+        }
+        public bool CCInsertion
+        {
+            get => ccInsertion;
+            set
+            {
+                foreach (Survey s in surveys){
+                    s.CCInsertion = value;
+                }
+                ccInsertion = value;
+            }
+        }
         public bool SemiTel { get => semiTel; set => semiTel = value; }
         public bool SingleField { get => singleField; set => singleField = value; }
         public bool Tables { get => tables; set => tables = value; }

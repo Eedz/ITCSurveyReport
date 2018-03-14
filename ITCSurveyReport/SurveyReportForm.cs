@@ -66,14 +66,39 @@ namespace ITCSurveyReport
 
         private void cmdCheckOptions_Click(object sender, EventArgs e)
         {
+            
             if (lstSelectedSurveys.SelectedIndex != -1)
             {
-                MessageBox.Show(SR.ToString());
-                SR.GenerateSurveyReport();
-                
-                
-                surveyView.DataSource = CurrentSurvey.finalTable;
-                Utilities.Export_Data_To_Word(surveyView, "test.doc");
+                if (SR.Surveys.Count > 1)
+                {
+                    SR.Surveys[1].Primary = true;
+                }
+                else
+                {
+                    SR.Surveys[0].Primary = true;
+                }
+                //MessageBox.Show(SR.ToString());
+                SR.SurveyCompare.ShowDeletedFields = true;
+
+                int result;
+                result = SR.GenerateSurveyReport();
+                switch (result)
+                {
+                    case 0: // no errors
+                        break;
+                    case 1:
+                        MessageBox.Show("One or more surveys contain no records.");
+                        break;
+                    default:
+                        break;
+
+                }
+
+
+                //surveyView.DataSource = SR.Surveys[1].finalTable;
+                surveyView.DataSource = SR.reportTable;
+
+
             }
         }
 
@@ -203,24 +228,35 @@ namespace ITCSurveyReport
                 SurveyCode = cboSurveys.SelectedValue.ToString()
             };
             SR.AddSurvey(s);
+            SR.AutoSetPrimary();
             lstSelectedSurveys.DataSource = null;
             lstSelectedSurveys.DataSource = SR.Surveys;
             lstSelectedSurveys.ValueMember = "ID";
             lstSelectedSurveys.DisplayMember = "SurveyCode";
 
-            if (lstSelectedSurveys.Items.Count >=2) { tabControlOptions.TabPages.Insert(2,pgCompareTab); }
+            if (lstSelectedSurveys.Items.Count >=2 && !tabControlOptions.TabPages.Contains(pgCompareTab)) { tabControlOptions.TabPages.Insert(2,pgCompareTab); }
+            gridPrimarySurvey.DataSource = null;
+            gridPrimarySurvey.DataSource = SR.Surveys;
+            gridPrimarySurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            gridPrimarySurvey.Refresh();
+            
         }
 
         private void cmdRemoveSurvey_Click(object sender, EventArgs e)
         {
             // remove survey from the SurveyReport object
             SR.Surveys.Remove((Survey)lstSelectedSurveys.SelectedItem);
+            SR.AutoSetPrimary();
 
             lstSelectedSurveys.DataSource = null;
             lstSelectedSurveys.DataSource = SR.Surveys;
             lstSelectedSurveys.ValueMember = "ID";
             lstSelectedSurveys.DisplayMember = "SurveyCode";
             if (lstSelectedSurveys.Items.Count < 2) { tabControlOptions.TabPages.Remove(pgCompareTab); }
+            gridPrimarySurvey.DataSource = null;
+            gridPrimarySurvey.DataSource = SR.Surveys;
+            gridPrimarySurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            gridPrimarySurvey.Refresh();
         }
         #endregion
 
@@ -319,17 +355,53 @@ namespace ITCSurveyReport
             lstSelTransFields.DataSource = CurrentSurvey.TransFields;
         }
 
-
-
-
-
         #endregion
 
         #region Comparison Tab
+        // Once the gridview is bound, hide unecessary columns and rename SurveyCode to Survey
+        private void gridPrimarySurvey_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            for (int i = 0; i < gridPrimarySurvey.ColumnCount; i++)
+            {
+                switch (gridPrimarySurvey.Columns[i].Name)
+                {
+                    case "SurveyCode":
+                        gridPrimarySurvey.Columns[i].HeaderText = "Survey";                   
+                        break;
+                    case "Backend":
+                    case "Corrected":
+                    case "Primary":
+                        break;
+                    default:
+                        gridPrimarySurvey.Columns[i].Visible = false;
+                        break;
+                }
+            }
+        }
 
+        // If a cell is modified, commit the change to fire the CellValueChanged event
+        private void gridPrimarySurvey_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (gridPrimarySurvey.IsCurrentCellDirty)
+                gridPrimarySurvey.CommitEdit(DataGridViewDataErrorContexts.Commit);            
+        }
+
+        // If the cell that was modified is in the Primary column, uncheck the other rows so that there is always 
+        // a single Primary row
+        private void gridPrimarySurvey_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (gridPrimarySurvey.Columns[e.ColumnIndex].Name == "Primary")
+            {
+                for (int i = 0; i < gridPrimarySurvey.Rows.Count; i++)
+                {
+                    if (i != e.RowIndex)
+                    {
+                        gridPrimarySurvey.Rows[i].Cells[e.ColumnIndex].Value = false;
+                    }
+                }
+            }
+        }
 
         #endregion
-
-       
     }
 }

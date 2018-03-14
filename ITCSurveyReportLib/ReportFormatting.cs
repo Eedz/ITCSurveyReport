@@ -7,7 +7,7 @@ using Word = Microsoft.Office.Interop.Word;
 
 namespace ITCSurveyReport
 {
-    class ReportFormatting
+    public class ReportFormatting
     {
         
         //TODO probably do not need appWord argument
@@ -19,8 +19,8 @@ namespace ITCSurveyReport
         public void FormatTags (Word.Application appWord, Word.Document doc, bool highlight)
         {
             FormatStyle ( doc);
-            InterpretFontTags(appWord, doc);
-            if ( highlight) { InterpretHighlightTags( doc); }
+            InterpretFontTags( doc);
+            if ( highlight) { InterpretHighlightTags(appWord, doc); }
             InterpretFillTags( doc);
         }
 
@@ -46,10 +46,10 @@ namespace ITCSurveyReport
             FindAndReplace(doc, "\\[center\\](*)\\[/center\\]", f);
         }
 
-        public void InterpretFontTags(Word.Application appWord, Word.Document doc) {
+        public void InterpretFontTags(Word.Document doc) {
             Word.Range rng = doc.Content;
             Word.Find f = rng.Find;
-            appWord.Visible = true;
+            
             // Font options
             f.Replacement.ClearFormatting();
             f.Replacement.Font.Bold = 1;
@@ -79,7 +79,34 @@ namespace ITCSurveyReport
             // tracked changes tags
 
         }
-        public void InterpretHighlightTags(Word.Document doc) { }
+        public void InterpretHighlightTags(Word.Application appWord, Word.Document doc) {
+            Word.Range rng = doc.Content;
+            Word.Find f = rng.Find;
+            Word.WdColorIndex old = appWord.Options.DefaultHighlightColorIndex;
+
+            appWord.Options.DefaultHighlightColorIndex = Word.WdColorIndex.wdYellow;
+            f.Replacement.ClearFormatting();
+            f.Replacement.Highlight = 1;
+            FindAndReplace(doc, "\\[yellow\\](*)\\[/yellow\\]", f);
+
+            appWord.Options.DefaultHighlightColorIndex = Word.WdColorIndex.wdBrightGreen;
+            f.Replacement.ClearFormatting();
+            f.Replacement.Highlight = 1;
+            FindAndReplace(doc, "\\[brightgreen\\](*)\\[/brightgreen\\]", f);
+
+            appWord.Options.DefaultHighlightColorIndex = Word.WdColorIndex.wdTurquoise;
+            f.Replacement.ClearFormatting();
+            f.Replacement.Highlight = 1;
+            FindAndReplace(doc, "\\[t\\](*)\\[/t\\]", f);
+
+            f.Replacement.ClearFormatting();
+            f.Replacement.Font.StrikeThrough = 1;
+            FindAndReplace(doc, "\\[s\\](*)\\[/s\\]", f);
+
+            // reset options
+            f.Replacement.Highlight = 0;
+            appWord.Options.DefaultHighlightColorIndex = old;
+        }
         public void InterpretFillTags(Word.Document doc) { }
         public void ConvertTC(Word.Document doc) { }
         public void FormatShading(Word.Document doc) { }

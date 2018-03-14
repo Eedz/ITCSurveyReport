@@ -7,12 +7,13 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 //using System.Runtime.CompilerServices;
 
 namespace ITCSurveyReport
 {
-    class Survey //: INotifyPropertyChanged
+    public class Survey //: INotifyPropertyChanged
     {
         #region Survey Properties
         
@@ -26,7 +27,9 @@ namespace ITCSurveyReport
         public List<DataTable> translationTables;    // tables holding translation data
         public DataTable filterTable;           // table holding filters
         public DataTable finalTable;            // table holding the final output
-        
+
+        public DataTable qnumTable;             // table holding the complete list of Qnums, AltQnums for each VarName
+
         //Dictionary<int, Variable> questions;  // Variable object not yet implemented
 
         int id;                                 // unique id
@@ -66,6 +69,9 @@ namespace ITCSurveyReport
         // report level options
         bool includePrevNames;
         bool excludeTempNames;
+        bool qnInsertion;
+        bool aqnInsertion;
+        bool ccInsertion;
 
         // errors and results
         // qnu list
@@ -165,7 +171,8 @@ namespace ITCSurveyReport
             // insert filters into raw table
             if (filterCol) {
                 MakeFilterTable();
-                
+                // deallocate filter table
+                //filterTable.Dispose();
             }
 
             if (transFields != null && transFields.Count != 0)
@@ -189,8 +196,7 @@ namespace ITCSurveyReport
 
 
             
-            // deallocate filter table
-            //filterTable.Dispose();
+            
         }
 
         // Create the raw survey table containing words, corrected and table flags, and varlabel (if needed) from a backup
@@ -299,7 +305,7 @@ namespace ITCSurveyReport
                 t.PrimaryKey = new DataColumn[] { t.Columns["ID"] };
 
                 // TODO get corrected wordings (see GetCorrectedWordings)
-                // get headings? maybe not
+                // get headings
 
                 translationTables.Add(t);
             }
@@ -368,12 +374,17 @@ namespace ITCSurveyReport
         public void MakeFilterTable() { }
 
         // final table (TODO)
+        // Combine fields into question column.
         public void MakeReportTable() {
 
             RemoveRepeats();
             // TODO remove repeats for translation (split only)
 
             // TODO QN insertion
+            if (qnInsertion)
+            {
+               // InsertRoutingQnum();
+            }
             // TODO CC insertion
             
             
@@ -414,8 +425,14 @@ namespace ITCSurveyReport
             columnTypes.Add("string");
             finalTable = Utilities.CreateDataTable(surveyCode + ID + "_Final", columnNames.ToArray(), columnTypes.ToArray());
             DataRow newrow;
-            // use DataRow[] dr = rawTable.Select to get all records for each operation
-           
+
+
+            
+
+            // TODO use DataRow[] dr = rawTable.Select to get all records for each operation
+            
+
+
             // insert fields into finalTable from rawTable
             foreach (DataRow row in rawTable.Rows)
             {
@@ -440,6 +457,7 @@ namespace ITCSurveyReport
                         case "SortBy":
                         case "Survey":
                         case "PreP":
+                            
                         case "PreI":
                             // semi tel
                             
@@ -510,7 +528,7 @@ namespace ITCSurveyReport
 
 
                 }
-                // if this is varname BI104, set essential questions list TODO
+                // if this is varname BI104, set essential questions list
                 if (row["refVarName"].Equals( "BI104"))
                 {
                     newrow[questionColumnName] = GetQuestionText(row) + "\r\n<strong>" + essentialList + "</strong>";
@@ -529,9 +547,11 @@ namespace ITCSurveyReport
             // delete unneeded fields
             finalTable.Columns.Remove("CorrectedFlag");
             finalTable.Columns.Remove("TableFormat");
-            finalTable.Columns.Remove("refVarName");
+            //finalTable.Columns.Remove("refVarName");
 
-
+            DataColumn[] pk = new DataColumn[1];
+            pk[0] = finalTable.Columns["refVarName"];
+            finalTable.PrimaryKey = pk;
 
 
 
@@ -724,8 +744,6 @@ namespace ITCSurveyReport
 
         public void ReplaceQN() { }
 
-        public String InsertRoutingQnum() { return ""; }
-
         public void ReplaceQN2() { }
 
         public void InsertCC() { }
@@ -769,7 +787,9 @@ namespace ITCSurveyReport
         public string WebName { get => webName; set => webName = value; }
         public bool IncludePrevNames { get => includePrevNames; set => includePrevNames = value; }
         public bool ExcludeTempNames { get => excludeTempNames; set => excludeTempNames = value; }
-
+        public bool QNInsertion { get => qnInsertion; set => qnInsertion = value; }
+        public bool AQNInsertion { get => aqnInsertion; set => aqnInsertion = value; }
+        public bool CCInsertion { get => ccInsertion; set => ccInsertion = value; }
         #endregion
 
 

@@ -8,7 +8,7 @@ using System.Data;
 
 namespace ITCSurveyReport
 {
-    class Comparison
+    public class Comparison
     {
         // data tables
         public DataTable changes;
@@ -48,9 +48,9 @@ namespace ITCSurveyReport
             doCompare = false;
 
             hidePrimary = false;
-            showDeletedFields = false;
-            showDeletedQuestions = false;
-            reInsertDeletions = false;
+            showDeletedFields = true;
+            showDeletedQuestions = true;
+            reInsertDeletions = true;
             hideIdenticalWordings = false;
             showOrderChanges = false;
             beforeAfterReport = false;
@@ -61,7 +61,7 @@ namespace ITCSurveyReport
             includeWordings = false;
             bySection = false;
 
-            highlight = false;
+            highlight = true;
             highlightStyle = HStyle.Classic;
             highlightScheme = HScheme.Sequential;
             highlightNR = true;
@@ -82,38 +82,83 @@ namespace ITCSurveyReport
 
             foreach (Survey s in SurveyList)
             {
-                if (!s.Primary) { other = s.rawTable; }
-
-                CompareSurveyTables(primary, other);
+                if (!s.Primary) {
+                    other = s.rawTable;
+                    CompareSurveyTables(primary, other);
+                }   
             }
-
-            
-
-           
-
         }
 
-
-
-        public void CompareSurveyTables (DataTable dt1, DataTable dt2)
+        /// <summary>
+        /// Compares rows in 2 DataTable objects.
+        /// </summary>
+        public void CompareSurveyTables(DataTable dt1, DataTable dt2)
         {
-            foreach (DataRow rPrime in dt1.Rows)
+            
+            DataRow[] foundRows;
+            foreach (DataRow rOther in dt2.Rows)
             {
-                foreach (DataRow rOther in dt2.Rows)
+                foundRows = dt1.Select("refVarName = '" + rOther["refVarName"].ToString() + "'");
+
+                // if no rows are found, this row is unique to dt1, color it yellow
+                if (foundRows.Length == 0)
                 {
-                    if (rOther["refVarName"].Equals(rPrime["refVarName"]))
+                    CompareVars(null, rOther);
+                }
+                else
+                {
+                    foreach (DataRow r in foundRows)
                     {
-                        CompareWordings(rPrime, rOther, "PreP");
-                        CompareWordings(rPrime, rOther, "PreI");
-                        CompareWordings(rPrime, rOther, "PreA");
-                        CompareWordings(rPrime, rOther, "LitQ");
-                        CompareWordings(rPrime, rOther, "PstI");
-                        CompareWordings(rPrime, rOther, "PstP");
-                        CompareWordings(rPrime, rOther, "RespOptions");
-                        if (highlightNR) { CompareWordings(rPrime, rOther, "NRCodes"); }
+                        CompareWordings(r, rOther, "PreP");
+                        CompareWordings(r, rOther, "PreI");
+                        CompareWordings(r, rOther, "PreA");
+                        CompareWordings(r, rOther, "LitQ");
+                        CompareWordings(r, rOther, "PstI");
+                        CompareWordings(r, rOther, "PstP");
+                        CompareWordings(r, rOther, "RespOptions");
+                        if (highlightNR) { CompareWordings(r, rOther, "NRCodes"); }
                     }
                 }
             }
+
+            foreach (DataRow rPrime in dt1.Rows)
+            {
+                
+                foundRows = dt2.Select("refVarName = '" + rPrime["refVarName"].ToString() + "'");
+                if (foundRows.Length == 0)
+                {
+                    CompareVars(rPrime, null);
+                }
+            }
+        }
+
+        public void CompareVars(DataRow rPrime, DataRow rOther)
+        {
+            if (rPrime == null) // if rPrime is null, yellow
+            {
+                if (!rOther["PreP"].Equals("")) {rOther["PreP"] = "[yellow]" + rOther["PreP"] + "[/yellow]"; }
+                if (!rOther["PreI"].Equals("")) { rOther["PreI"] = "[yellow]" + rOther["PreI"] + "[/yellow]"; }
+                if (!rOther["PreA"].Equals("")) { rOther["PreA"] = "[yellow]" + rOther["PreA"] + "[/yellow]"; }
+                if (!rOther["LitQ"].Equals("")) { rOther["LitQ"] = "[yellow]" + rOther["LitQ"] + "[/yellow]"; }
+                if (!rOther["PstI"].Equals("")) { rOther["PstI"] = "[yellow]" + rOther["PstI"] + "[/yellow]"; }
+                if (!rOther["PstP"].Equals("")) { rOther["PstP"] = "[yellow]" + rOther["PstP"] + "[/yellow]"; }
+                if (!rOther["RespOptions"].Equals("")) { rOther["RespOptions"] = "[yellow]" + rOther["RespOptions"] + "[/yellow]"; }
+                if (!rOther["NRCodes"].Equals("")) { rOther["NRCodes"] = "[yellow]" + rOther["NRCodes"] + "[/yellow]"; }
+                rOther.AcceptChanges();
+            }else if (rOther == null) // if rOther is null, blue
+            {
+                if (!rPrime["PreP"].Equals("")) { rPrime["PreP"] = "[t][s]" + rPrime["PreP"] + "[/s][/t]"; }
+                if (!rPrime["PreI"].Equals("")) { rPrime["PreI"] = "[t][s]" + rPrime["PreI"] + "[/s][/t]"; }
+                if (!rPrime["PreA"].Equals("")) { rPrime["PreA"] = "[t][s]" + rPrime["PreA"] + "[/s][/t]"; }
+                if (!rPrime["LitQ"].Equals("")) { rPrime["LitQ"] = "[t][s]" + rPrime["LitQ"] + "[/s][/t]"; }
+                if (!rPrime["PstI"].Equals("")) { rPrime["PstI"] = "[t][s]" + rPrime["PstI"] + "[/s][/t]"; }
+                if (!rPrime["PstP"].Equals("")) { rPrime["PstP"] = "[t][s]" + rPrime["PstP"] + "[/s][/t]"; }
+                if (!rPrime["RespOptions"].Equals("")) { rPrime["RespOptions"] = "[t][s]" + rPrime["RespOptions"] + "[/s][/t]"; }
+                if (!rPrime["NRCodes"].Equals("")) { rPrime["NRCodes"] = "[t][s]" + rPrime["NRCodes"] + "[/s][/t]"; }
+                rPrime.AcceptChanges();
+            }
+            
+
         }
 
         public void CompareWordings (DataRow rPrime, DataRow rOther, String fieldname)
@@ -128,34 +173,35 @@ namespace ITCSurveyReport
             bool highlightVar;
             bool highlightWord;
 
-            if (highlightStyle == HStyle.Classic)
-            {
-                if (highlightScheme == HScheme.Sequential)
-                {
-                    highlightVar = true;
-                    highlightWord = true;
-                } else if (highlightScheme == HScheme.AcrossCountry)
-                {
-                    highlightVar = true;
-                    highlightWord = false;
-                }
-                highlightStartNew = "[yellow]";
-                highlightEndNew = "[/yellow]";
+            switch (highlightStyle) {
+                case HStyle.Classic:
 
-                highlightStartDiff = "[brightgreen]";
-                highlightEndDiff = "[/brightgreen]";
+                    if (highlightScheme == HScheme.Sequential)
+                    {
+                        highlightVar = true;
+                        highlightWord = true;
+                    } else if (highlightScheme == HScheme.AcrossCountry)
+                    {
+                        highlightVar = true;
+                        highlightWord = false;
+                    }
+                    highlightStartNew = "[yellow]";
+                    highlightEndNew = "[/yellow]";
 
-                highlightStartMiss = "[t][s]";
-                highlightEndMiss = "[/s][/t]";
-            }
-            else if (highlightStyle == HStyle.TrackedChanges)
-            {
+                    highlightStartDiff = "[brightgreen]";
+                    highlightEndDiff = "[/brightgreen]";
+
+                    highlightStartMiss = "[t][s]";
+                    highlightEndMiss = "[/s][/t]";
+                    break;
+                case HStyle.TrackedChanges:
+                    
+                    break;
 
             }
             
-
             if (rPrime[fieldname].Equals(rOther[fieldname])){
-
+                if (hideIdenticalWordings) { }
             }
             else
             {

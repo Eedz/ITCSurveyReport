@@ -63,6 +63,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.lstSelStdFields = new System.Windows.Forms.ListBox();
             this.surveyReportBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.chkBlankCol = new System.Windows.Forms.CheckBox();
             this.lstSelCommentFields = new System.Windows.Forms.ListBox();
             this.chkVarLabelCol = new System.Windows.Forms.CheckBox();
             this.chkFilterCol = new System.Windows.Forms.CheckBox();
@@ -77,18 +78,30 @@
             this.lstCommentFields = new System.Windows.Forms.ListBox();
             this.cmdToggleExtraFields = new System.Windows.Forms.Button();
             this.pgCompare = new System.Windows.Forms.TabPage();
+            this.label15 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.hidePrimaryCheckBox = new System.Windows.Forms.CheckBox();
+            this.hideIdenticalWordingsCheckBox = new System.Windows.Forms.CheckBox();
+            this.beforeAfterReportCheckBox = new System.Windows.Forms.CheckBox();
             this.groupHighlightOptions = new System.Windows.Forms.GroupBox();
             this.flowHighlightOptions = new System.Windows.Forms.FlowLayoutPanel();
             this.highlightNRCheckBox = new System.Windows.Forms.CheckBox();
+            this.ignoreSimilarWordsCheckBox = new System.Windows.Forms.CheckBox();
+            this.hybridHighlightCheckBox = new System.Windows.Forms.CheckBox();
+            this.showDeletedFieldsCheckBox = new System.Windows.Forms.CheckBox();
+            this.showDeletedQuestionsCheckBox = new System.Windows.Forms.CheckBox();
+            this.reInsertDeletionsCheckBox = new System.Windows.Forms.CheckBox();
+            this.showOrderChangesCheckBox = new System.Windows.Forms.CheckBox();
             this.groupHighlightStyle = new System.Windows.Forms.GroupBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.convertTrackedChangesCheckBox = new System.Windows.Forms.CheckBox();
+            this.highlightCheckBox = new System.Windows.Forms.CheckBox();
             this.gridPrimarySurvey = new System.Windows.Forms.DataGridView();
             this.doCompareCheckBox = new System.Windows.Forms.CheckBox();
+            this.matchOnRenameCheckBox = new System.Windows.Forms.CheckBox();
             this.pgOrder = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.radioButton5 = new System.Windows.Forms.RadioButton();
@@ -100,6 +113,8 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.repeatedHeadingsCheckBox = new System.Windows.Forms.CheckBox();
             this.qNInsertionCheckBox = new System.Windows.Forms.CheckBox();
+            this.bySectionCheckBox = new System.Windows.Forms.CheckBox();
+            this.includeWordingsCheckBox = new System.Windows.Forms.CheckBox();
             this.colorSubsCheckBox = new System.Windows.Forms.CheckBox();
             this.aQNInsertionCheckBox = new System.Windows.Forms.CheckBox();
             this.showLongListsCheckBox = new System.Windows.Forms.CheckBox();
@@ -117,6 +132,7 @@
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.webCheckBox = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
+            this.coverPageCheckBox = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.survNotesCheckBox = new System.Windows.Forms.CheckBox();
             this.varChangesColCheckBox = new System.Windows.Forms.CheckBox();
@@ -150,23 +166,7 @@
             this.lblTitle = new System.Windows.Forms.Label();
             this.dateBackend = new System.Windows.Forms.DateTimePicker();
             this.lblBackend = new System.Windows.Forms.Label();
-            this.chkBlankCol = new System.Windows.Forms.CheckBox();
-            this.coverPageCheckBox = new System.Windows.Forms.CheckBox();
-            this.beforeAfterReportCheckBox = new System.Windows.Forms.CheckBox();
-            this.bySectionCheckBox = new System.Windows.Forms.CheckBox();
-            this.hideIdenticalWordingsCheckBox = new System.Windows.Forms.CheckBox();
-            this.hidePrimaryCheckBox = new System.Windows.Forms.CheckBox();
-            this.highlightCheckBox = new System.Windows.Forms.CheckBox();
-            this.hybridHighlightCheckBox = new System.Windows.Forms.CheckBox();
-            this.ignoreSimilarWordsCheckBox = new System.Windows.Forms.CheckBox();
-            this.includeWordingsCheckBox = new System.Windows.Forms.CheckBox();
-            this.matchOnRenameCheckBox = new System.Windows.Forms.CheckBox();
-            this.reInsertDeletionsCheckBox = new System.Windows.Forms.CheckBox();
-            this.showDeletedFieldsCheckBox = new System.Windows.Forms.CheckBox();
-            this.showDeletedQuestionsCheckBox = new System.Windows.Forms.CheckBox();
-            this.showOrderChangesCheckBox = new System.Windows.Forms.CheckBox();
             this.surveyView = new System.Windows.Forms.DataGridView();
-            this.label15 = new System.Windows.Forms.Label();
             detailsLabel = new System.Windows.Forms.Label();
             fileNameLabel = new System.Windows.Forms.Label();
             this.tabControlOptions.SuspendLayout();
@@ -221,8 +221,11 @@
             // cboSurveys
             // 
             this.cboSurveys.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
+            this.cboSurveys.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.cboSurveys.Cursor = System.Windows.Forms.Cursors.WaitCursor;
             this.cboSurveys.DisplayMember = "Survey";
             this.cboSurveys.FormattingEnabled = true;
+            this.cboSurveys.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.cboSurveys.Location = new System.Drawing.Point(8, 65);
             this.cboSurveys.Name = "cboSurveys";
             this.cboSurveys.Size = new System.Drawing.Size(108, 21);
@@ -553,6 +556,18 @@
             // 
             this.surveyReportBindingSource.DataSource = typeof(ITCSurveyReport.SurveyReport);
             // 
+            // chkBlankCol
+            // 
+            this.chkBlankCol.Location = new System.Drawing.Point(163, 327);
+            this.chkBlankCol.Margin = new System.Windows.Forms.Padding(0);
+            this.chkBlankCol.Name = "chkBlankCol";
+            this.chkBlankCol.Padding = new System.Windows.Forms.Padding(1);
+            this.chkBlankCol.Size = new System.Drawing.Size(104, 17);
+            this.chkBlankCol.TabIndex = 11;
+            this.chkBlankCol.Text = "Blank Column";
+            this.chkBlankCol.UseVisualStyleBackColor = true;
+            this.chkBlankCol.Visible = false;
+            // 
             // lstSelCommentFields
             // 
             this.lstSelCommentFields.FormattingEnabled = true;
@@ -697,10 +712,19 @@
             this.pgCompare.TabIndex = 2;
             this.pgCompare.Text = "Comparison";
             // 
+            // label15
+            // 
+            this.label15.Location = new System.Drawing.Point(14, 246);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(182, 47);
+            this.label15.TabIndex = 118;
+            this.label15.Text = "All other surveys will be compared to the reference survey. Surveys not selected " +
+    "will contain highlighting.";
+            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.flowLayoutPanel1);
-            this.groupBox1.Location = new System.Drawing.Point(234, 347);
+            this.groupBox1.Location = new System.Drawing.Point(253, 344);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(1);
@@ -721,12 +745,45 @@
             this.flowLayoutPanel1.Size = new System.Drawing.Size(157, 64);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
+            // hidePrimaryCheckBox
+            // 
+            this.hidePrimaryCheckBox.Location = new System.Drawing.Point(1, 1);
+            this.hidePrimaryCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.hidePrimaryCheckBox.Name = "hidePrimaryCheckBox";
+            this.hidePrimaryCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.hidePrimaryCheckBox.Size = new System.Drawing.Size(141, 20);
+            this.hidePrimaryCheckBox.TabIndex = 25;
+            this.hidePrimaryCheckBox.Text = "Hide Reference Survey";
+            this.hidePrimaryCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // hideIdenticalWordingsCheckBox
+            // 
+            this.hideIdenticalWordingsCheckBox.Location = new System.Drawing.Point(1, 21);
+            this.hideIdenticalWordingsCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.hideIdenticalWordingsCheckBox.Name = "hideIdenticalWordingsCheckBox";
+            this.hideIdenticalWordingsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.hideIdenticalWordingsCheckBox.Size = new System.Drawing.Size(141, 20);
+            this.hideIdenticalWordingsCheckBox.TabIndex = 23;
+            this.hideIdenticalWordingsCheckBox.Text = "Hide Identical Wordings";
+            this.hideIdenticalWordingsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // beforeAfterReportCheckBox
+            // 
+            this.beforeAfterReportCheckBox.Location = new System.Drawing.Point(1, 41);
+            this.beforeAfterReportCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.beforeAfterReportCheckBox.Name = "beforeAfterReportCheckBox";
+            this.beforeAfterReportCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.beforeAfterReportCheckBox.Size = new System.Drawing.Size(104, 20);
+            this.beforeAfterReportCheckBox.TabIndex = 15;
+            this.beforeAfterReportCheckBox.Text = "Before/After Report";
+            this.beforeAfterReportCheckBox.UseVisualStyleBackColor = true;
+            // 
             // groupHighlightOptions
             // 
             this.groupHighlightOptions.Controls.Add(this.flowHighlightOptions);
             this.groupHighlightOptions.Controls.Add(this.groupHighlightStyle);
             this.groupHighlightOptions.Controls.Add(this.highlightCheckBox);
-            this.groupHighlightOptions.Location = new System.Drawing.Point(234, 29);
+            this.groupHighlightOptions.Location = new System.Drawing.Point(253, 26);
             this.groupHighlightOptions.Name = "groupHighlightOptions";
             this.groupHighlightOptions.Size = new System.Drawing.Size(191, 315);
             this.groupHighlightOptions.TabIndex = 11;
@@ -751,6 +808,7 @@
             // 
             // highlightNRCheckBox
             // 
+            this.highlightNRCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.HighlightNR", true));
             this.highlightNRCheckBox.Location = new System.Drawing.Point(1, 1);
             this.highlightNRCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.highlightNRCheckBox.Name = "highlightNRCheckBox";
@@ -759,6 +817,77 @@
             this.highlightNRCheckBox.TabIndex = 29;
             this.highlightNRCheckBox.Text = "Highlight NR";
             this.highlightNRCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // ignoreSimilarWordsCheckBox
+            // 
+            this.ignoreSimilarWordsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.IgnoreSimilarWords", true));
+            this.ignoreSimilarWordsCheckBox.Location = new System.Drawing.Point(1, 21);
+            this.ignoreSimilarWordsCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.ignoreSimilarWordsCheckBox.Name = "ignoreSimilarWordsCheckBox";
+            this.ignoreSimilarWordsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.ignoreSimilarWordsCheckBox.Size = new System.Drawing.Size(141, 20);
+            this.ignoreSimilarWordsCheckBox.TabIndex = 37;
+            this.ignoreSimilarWordsCheckBox.Text = "Ignore Word Variants";
+            this.ignoreSimilarWordsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // hybridHighlightCheckBox
+            // 
+            this.hybridHighlightCheckBox.Location = new System.Drawing.Point(1, 41);
+            this.hybridHighlightCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.hybridHighlightCheckBox.Name = "hybridHighlightCheckBox";
+            this.hybridHighlightCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.hybridHighlightCheckBox.Size = new System.Drawing.Size(141, 20);
+            this.hybridHighlightCheckBox.TabIndex = 35;
+            this.hybridHighlightCheckBox.Text = "Markup Differences";
+            this.hybridHighlightCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // showDeletedFieldsCheckBox
+            // 
+            this.showDeletedFieldsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.ShowDeletedFields", true));
+            this.showDeletedFieldsCheckBox.Location = new System.Drawing.Point(1, 61);
+            this.showDeletedFieldsCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.showDeletedFieldsCheckBox.Name = "showDeletedFieldsCheckBox";
+            this.showDeletedFieldsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.showDeletedFieldsCheckBox.Size = new System.Drawing.Size(141, 20);
+            this.showDeletedFieldsCheckBox.TabIndex = 47;
+            this.showDeletedFieldsCheckBox.Text = "Show Deleted Fields";
+            this.showDeletedFieldsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // showDeletedQuestionsCheckBox
+            // 
+            this.showDeletedQuestionsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.ShowDeletedQuestions", true));
+            this.showDeletedQuestionsCheckBox.Location = new System.Drawing.Point(1, 81);
+            this.showDeletedQuestionsCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.showDeletedQuestionsCheckBox.Name = "showDeletedQuestionsCheckBox";
+            this.showDeletedQuestionsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.showDeletedQuestionsCheckBox.Size = new System.Drawing.Size(156, 20);
+            this.showDeletedQuestionsCheckBox.TabIndex = 49;
+            this.showDeletedQuestionsCheckBox.Text = "Show Deleted Questions";
+            this.showDeletedQuestionsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // reInsertDeletionsCheckBox
+            // 
+            this.reInsertDeletionsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.ReInsertDeletions", true));
+            this.reInsertDeletionsCheckBox.Location = new System.Drawing.Point(1, 101);
+            this.reInsertDeletionsCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.reInsertDeletionsCheckBox.Name = "reInsertDeletionsCheckBox";
+            this.reInsertDeletionsCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.reInsertDeletionsCheckBox.Size = new System.Drawing.Size(123, 20);
+            this.reInsertDeletionsCheckBox.TabIndex = 43;
+            this.reInsertDeletionsCheckBox.Text = "Re-insert Deletions";
+            this.reInsertDeletionsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // showOrderChangesCheckBox
+            // 
+            this.showOrderChangesCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.ShowOrderChanges", true));
+            this.showOrderChangesCheckBox.Location = new System.Drawing.Point(1, 121);
+            this.showOrderChangesCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.showOrderChangesCheckBox.Name = "showOrderChangesCheckBox";
+            this.showOrderChangesCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.showOrderChangesCheckBox.Size = new System.Drawing.Size(141, 20);
+            this.showOrderChangesCheckBox.TabIndex = 51;
+            this.showOrderChangesCheckBox.Text = "Show Order Changes";
+            this.showOrderChangesCheckBox.UseVisualStyleBackColor = true;
             // 
             // groupHighlightStyle
             // 
@@ -812,16 +941,29 @@
             this.convertTrackedChangesCheckBox.Text = "Real TC";
             this.convertTrackedChangesCheckBox.UseVisualStyleBackColor = true;
             // 
+            // highlightCheckBox
+            // 
+            this.highlightCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.Highlight", true));
+            this.highlightCheckBox.Location = new System.Drawing.Point(29, 19);
+            this.highlightCheckBox.Name = "highlightCheckBox";
+            this.highlightCheckBox.Size = new System.Drawing.Size(104, 20);
+            this.highlightCheckBox.TabIndex = 27;
+            this.highlightCheckBox.Text = "Highlight";
+            this.highlightCheckBox.UseVisualStyleBackColor = true;
+            // 
             // gridPrimarySurvey
             // 
             this.gridPrimarySurvey.AllowUserToAddRows = false;
             this.gridPrimarySurvey.AllowUserToDeleteRows = false;
             this.gridPrimarySurvey.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridPrimarySurvey.Location = new System.Drawing.Point(13, 71);
+            this.gridPrimarySurvey.Location = new System.Drawing.Point(12, 67);
             this.gridPrimarySurvey.Name = "gridPrimarySurvey";
             this.gridPrimarySurvey.RowHeadersVisible = false;
-            this.gridPrimarySurvey.Size = new System.Drawing.Size(184, 167);
+            this.gridPrimarySurvey.Size = new System.Drawing.Size(235, 167);
             this.gridPrimarySurvey.TabIndex = 1;
+            this.gridPrimarySurvey.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridPrimarySurvey_CellValueChanged);
+            this.gridPrimarySurvey.CurrentCellDirtyStateChanged += new System.EventHandler(this.gridPrimarySurvey_CurrentCellDirtyStateChanged);
+            this.gridPrimarySurvey.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.gridPrimarySurvey_DataBindingComplete);
             // 
             // doCompareCheckBox
             // 
@@ -831,6 +973,17 @@
             this.doCompareCheckBox.TabIndex = 21;
             this.doCompareCheckBox.Text = "Compare?";
             this.doCompareCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // matchOnRenameCheckBox
+            // 
+            this.matchOnRenameCheckBox.Location = new System.Drawing.Point(13, 294);
+            this.matchOnRenameCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.matchOnRenameCheckBox.Name = "matchOnRenameCheckBox";
+            this.matchOnRenameCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.matchOnRenameCheckBox.Size = new System.Drawing.Size(196, 20);
+            this.matchOnRenameCheckBox.TabIndex = 41;
+            this.matchOnRenameCheckBox.Text = "Match variables on previous names";
+            this.matchOnRenameCheckBox.UseVisualStyleBackColor = true;
             // 
             // pgOrder
             // 
@@ -952,9 +1105,10 @@
             // 
             // repeatedHeadingsCheckBox
             // 
+            this.repeatedHeadingsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "RepeatedHeadings", true));
             this.repeatedHeadingsCheckBox.Location = new System.Drawing.Point(3, 3);
             this.repeatedHeadingsCheckBox.Name = "repeatedHeadingsCheckBox";
-            this.repeatedHeadingsCheckBox.Size = new System.Drawing.Size(104, 19);
+            this.repeatedHeadingsCheckBox.Size = new System.Drawing.Size(122, 19);
             this.repeatedHeadingsCheckBox.TabIndex = 46;
             this.repeatedHeadingsCheckBox.Text = "Repeat Headings";
             this.repeatedHeadingsCheckBox.UseVisualStyleBackColor = true;
@@ -968,8 +1122,27 @@
             this.qNInsertionCheckBox.Text = "QN Insertion";
             this.qNInsertionCheckBox.UseVisualStyleBackColor = true;
             // 
+            // bySectionCheckBox
+            // 
+            this.bySectionCheckBox.Location = new System.Drawing.Point(170, 28);
+            this.bySectionCheckBox.Name = "bySectionCheckBox";
+            this.bySectionCheckBox.Size = new System.Drawing.Size(104, 19);
+            this.bySectionCheckBox.TabIndex = 17;
+            this.bySectionCheckBox.Text = "By Section";
+            this.bySectionCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // includeWordingsCheckBox
+            // 
+            this.includeWordingsCheckBox.Location = new System.Drawing.Point(170, 53);
+            this.includeWordingsCheckBox.Name = "includeWordingsCheckBox";
+            this.includeWordingsCheckBox.Size = new System.Drawing.Size(120, 19);
+            this.includeWordingsCheckBox.TabIndex = 39;
+            this.includeWordingsCheckBox.Text = "Include Wordings";
+            this.includeWordingsCheckBox.UseVisualStyleBackColor = true;
+            // 
             // colorSubsCheckBox
             // 
+            this.colorSubsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "ColorSubs", true));
             this.colorSubsCheckBox.Location = new System.Drawing.Point(3, 28);
             this.colorSubsCheckBox.Name = "colorSubsCheckBox";
             this.colorSubsCheckBox.Size = new System.Drawing.Size(122, 19);
@@ -988,6 +1161,7 @@
             // 
             // showLongListsCheckBox
             // 
+            this.showLongListsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "ShowLongLists", true));
             this.showLongListsCheckBox.Location = new System.Drawing.Point(3, 53);
             this.showLongListsCheckBox.Name = "showLongListsCheckBox";
             this.showLongListsCheckBox.Size = new System.Drawing.Size(104, 19);
@@ -1142,6 +1316,17 @@
             this.label10.Size = new System.Drawing.Size(119, 41);
             this.label10.TabIndex = 71;
             this.label10.Text = "Includes PDF format, Cover Page with mode and Web file name";
+            // 
+            // coverPageCheckBox
+            // 
+            this.coverPageCheckBox.Location = new System.Drawing.Point(1, 66);
+            this.coverPageCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.coverPageCheckBox.Name = "coverPageCheckBox";
+            this.coverPageCheckBox.Padding = new System.Windows.Forms.Padding(1);
+            this.coverPageCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.coverPageCheckBox.TabIndex = 13;
+            this.coverPageCheckBox.Text = "CoverPage";
+            this.coverPageCheckBox.UseVisualStyleBackColor = true;
             // 
             // flowLayoutPanel2
             // 
@@ -1495,166 +1680,6 @@
             this.lblBackend.TabIndex = 9;
             this.lblBackend.Text = "From";
             // 
-            // chkBlankCol
-            // 
-            this.chkBlankCol.Location = new System.Drawing.Point(163, 327);
-            this.chkBlankCol.Margin = new System.Windows.Forms.Padding(0);
-            this.chkBlankCol.Name = "chkBlankCol";
-            this.chkBlankCol.Padding = new System.Windows.Forms.Padding(1);
-            this.chkBlankCol.Size = new System.Drawing.Size(104, 17);
-            this.chkBlankCol.TabIndex = 11;
-            this.chkBlankCol.Text = "Blank Column";
-            this.chkBlankCol.UseVisualStyleBackColor = true;
-            this.chkBlankCol.Visible = false;
-            // 
-            // coverPageCheckBox
-            // 
-            this.coverPageCheckBox.Location = new System.Drawing.Point(1, 66);
-            this.coverPageCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.coverPageCheckBox.Name = "coverPageCheckBox";
-            this.coverPageCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.coverPageCheckBox.Size = new System.Drawing.Size(104, 24);
-            this.coverPageCheckBox.TabIndex = 13;
-            this.coverPageCheckBox.Text = "CoverPage";
-            this.coverPageCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // beforeAfterReportCheckBox
-            // 
-            this.beforeAfterReportCheckBox.Location = new System.Drawing.Point(1, 41);
-            this.beforeAfterReportCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.beforeAfterReportCheckBox.Name = "beforeAfterReportCheckBox";
-            this.beforeAfterReportCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.beforeAfterReportCheckBox.Size = new System.Drawing.Size(104, 20);
-            this.beforeAfterReportCheckBox.TabIndex = 15;
-            this.beforeAfterReportCheckBox.Text = "Before/After Report";
-            this.beforeAfterReportCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // bySectionCheckBox
-            // 
-            this.bySectionCheckBox.Location = new System.Drawing.Point(170, 28);
-            this.bySectionCheckBox.Name = "bySectionCheckBox";
-            this.bySectionCheckBox.Size = new System.Drawing.Size(104, 19);
-            this.bySectionCheckBox.TabIndex = 17;
-            this.bySectionCheckBox.Text = "By Section";
-            this.bySectionCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // hideIdenticalWordingsCheckBox
-            // 
-            this.hideIdenticalWordingsCheckBox.Location = new System.Drawing.Point(1, 21);
-            this.hideIdenticalWordingsCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.hideIdenticalWordingsCheckBox.Name = "hideIdenticalWordingsCheckBox";
-            this.hideIdenticalWordingsCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.hideIdenticalWordingsCheckBox.Size = new System.Drawing.Size(141, 20);
-            this.hideIdenticalWordingsCheckBox.TabIndex = 23;
-            this.hideIdenticalWordingsCheckBox.Text = "Hide Identical Wordings";
-            this.hideIdenticalWordingsCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // hidePrimaryCheckBox
-            // 
-            this.hidePrimaryCheckBox.Location = new System.Drawing.Point(1, 1);
-            this.hidePrimaryCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.hidePrimaryCheckBox.Name = "hidePrimaryCheckBox";
-            this.hidePrimaryCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.hidePrimaryCheckBox.Size = new System.Drawing.Size(141, 20);
-            this.hidePrimaryCheckBox.TabIndex = 25;
-            this.hidePrimaryCheckBox.Text = "Hide Reference Survey";
-            this.hidePrimaryCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // highlightCheckBox
-            // 
-            this.highlightCheckBox.Location = new System.Drawing.Point(29, 19);
-            this.highlightCheckBox.Name = "highlightCheckBox";
-            this.highlightCheckBox.Size = new System.Drawing.Size(104, 20);
-            this.highlightCheckBox.TabIndex = 27;
-            this.highlightCheckBox.Text = "Highlight";
-            this.highlightCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // hybridHighlightCheckBox
-            // 
-            this.hybridHighlightCheckBox.Location = new System.Drawing.Point(1, 41);
-            this.hybridHighlightCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.hybridHighlightCheckBox.Name = "hybridHighlightCheckBox";
-            this.hybridHighlightCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.hybridHighlightCheckBox.Size = new System.Drawing.Size(141, 20);
-            this.hybridHighlightCheckBox.TabIndex = 35;
-            this.hybridHighlightCheckBox.Text = "Markup Differences";
-            this.hybridHighlightCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // ignoreSimilarWordsCheckBox
-            // 
-            this.ignoreSimilarWordsCheckBox.Location = new System.Drawing.Point(1, 21);
-            this.ignoreSimilarWordsCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.ignoreSimilarWordsCheckBox.Name = "ignoreSimilarWordsCheckBox";
-            this.ignoreSimilarWordsCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.ignoreSimilarWordsCheckBox.Size = new System.Drawing.Size(141, 20);
-            this.ignoreSimilarWordsCheckBox.TabIndex = 37;
-            this.ignoreSimilarWordsCheckBox.Text = "Ignore Word Variants";
-            this.ignoreSimilarWordsCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // includeWordingsCheckBox
-            // 
-            this.includeWordingsCheckBox.Location = new System.Drawing.Point(170, 53);
-            this.includeWordingsCheckBox.Name = "includeWordingsCheckBox";
-            this.includeWordingsCheckBox.Size = new System.Drawing.Size(120, 19);
-            this.includeWordingsCheckBox.TabIndex = 39;
-            this.includeWordingsCheckBox.Text = "Include Wordings";
-            this.includeWordingsCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // matchOnRenameCheckBox
-            // 
-            this.matchOnRenameCheckBox.Location = new System.Drawing.Point(13, 294);
-            this.matchOnRenameCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.matchOnRenameCheckBox.Name = "matchOnRenameCheckBox";
-            this.matchOnRenameCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.matchOnRenameCheckBox.Size = new System.Drawing.Size(196, 20);
-            this.matchOnRenameCheckBox.TabIndex = 41;
-            this.matchOnRenameCheckBox.Text = "Match variables on previous names";
-            this.matchOnRenameCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // reInsertDeletionsCheckBox
-            // 
-            this.reInsertDeletionsCheckBox.Location = new System.Drawing.Point(1, 101);
-            this.reInsertDeletionsCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.reInsertDeletionsCheckBox.Name = "reInsertDeletionsCheckBox";
-            this.reInsertDeletionsCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.reInsertDeletionsCheckBox.Size = new System.Drawing.Size(123, 20);
-            this.reInsertDeletionsCheckBox.TabIndex = 43;
-            this.reInsertDeletionsCheckBox.Text = "Re-insert Deletions";
-            this.reInsertDeletionsCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // showDeletedFieldsCheckBox
-            // 
-            this.showDeletedFieldsCheckBox.Location = new System.Drawing.Point(1, 61);
-            this.showDeletedFieldsCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.showDeletedFieldsCheckBox.Name = "showDeletedFieldsCheckBox";
-            this.showDeletedFieldsCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.showDeletedFieldsCheckBox.Size = new System.Drawing.Size(141, 20);
-            this.showDeletedFieldsCheckBox.TabIndex = 47;
-            this.showDeletedFieldsCheckBox.Text = "Show Deleted Fields";
-            this.showDeletedFieldsCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // showDeletedQuestionsCheckBox
-            // 
-            this.showDeletedQuestionsCheckBox.Location = new System.Drawing.Point(1, 81);
-            this.showDeletedQuestionsCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.showDeletedQuestionsCheckBox.Name = "showDeletedQuestionsCheckBox";
-            this.showDeletedQuestionsCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.showDeletedQuestionsCheckBox.Size = new System.Drawing.Size(156, 20);
-            this.showDeletedQuestionsCheckBox.TabIndex = 49;
-            this.showDeletedQuestionsCheckBox.Text = "Show Deleted Questions";
-            this.showDeletedQuestionsCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // showOrderChangesCheckBox
-            // 
-            this.showOrderChangesCheckBox.Location = new System.Drawing.Point(1, 121);
-            this.showOrderChangesCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.showOrderChangesCheckBox.Name = "showOrderChangesCheckBox";
-            this.showOrderChangesCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.showOrderChangesCheckBox.Size = new System.Drawing.Size(104, 20);
-            this.showOrderChangesCheckBox.TabIndex = 51;
-            this.showOrderChangesCheckBox.Text = "Show Order Changes";
-            this.showOrderChangesCheckBox.UseVisualStyleBackColor = true;
-            // 
             // surveyView
             // 
             this.surveyView.AllowUserToAddRows = false;
@@ -1666,21 +1691,12 @@
             this.surveyView.Size = new System.Drawing.Size(444, 248);
             this.surveyView.TabIndex = 52;
             // 
-            // label15
-            // 
-            this.label15.Location = new System.Drawing.Point(14, 246);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(182, 47);
-            this.label15.TabIndex = 118;
-            this.label15.Text = "All other surveys will be compared to the reference survey. Surveys not selected " +
-    "will contain highlighting.";
-            // 
             // SurveyReportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(949, 709);
+            this.ClientSize = new System.Drawing.Size(952, 714);
             this.Controls.Add(this.surveyView);
             this.Controls.Add(this.lblBackend);
             this.Controls.Add(this.dateBackend);
