@@ -747,6 +747,7 @@
             // 
             // hidePrimaryCheckBox
             // 
+            this.hidePrimaryCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.HidePrimary", true));
             this.hidePrimaryCheckBox.Location = new System.Drawing.Point(1, 1);
             this.hidePrimaryCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.hidePrimaryCheckBox.Name = "hidePrimaryCheckBox";
@@ -758,6 +759,7 @@
             // 
             // hideIdenticalWordingsCheckBox
             // 
+            this.hideIdenticalWordingsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.HideIdenticalWordings", true));
             this.hideIdenticalWordingsCheckBox.Location = new System.Drawing.Point(1, 21);
             this.hideIdenticalWordingsCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.hideIdenticalWordingsCheckBox.Name = "hideIdenticalWordingsCheckBox";
@@ -769,6 +771,7 @@
             // 
             // beforeAfterReportCheckBox
             // 
+            this.beforeAfterReportCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.BeforeAfterReport", true));
             this.beforeAfterReportCheckBox.Location = new System.Drawing.Point(1, 41);
             this.beforeAfterReportCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.beforeAfterReportCheckBox.Name = "beforeAfterReportCheckBox";
@@ -976,6 +979,7 @@
             // 
             // matchOnRenameCheckBox
             // 
+            this.matchOnRenameCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.MatchOnRename", true));
             this.matchOnRenameCheckBox.Location = new System.Drawing.Point(13, 294);
             this.matchOnRenameCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.matchOnRenameCheckBox.Name = "matchOnRenameCheckBox";
@@ -1043,6 +1047,7 @@
             // 
             // showAllQnumsCheckBox
             // 
+            this.showAllQnumsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "ShowAllQnums", true));
             this.showAllQnumsCheckBox.Location = new System.Drawing.Point(39, 91);
             this.showAllQnumsCheckBox.Name = "showAllQnumsCheckBox";
             this.showAllQnumsCheckBox.Size = new System.Drawing.Size(104, 24);
@@ -1319,6 +1324,7 @@
             // 
             // coverPageCheckBox
             // 
+            this.coverPageCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "LayoutOptions.CoverPage", true));
             this.coverPageCheckBox.Location = new System.Drawing.Point(1, 66);
             this.coverPageCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.coverPageCheckBox.Name = "coverPageCheckBox";

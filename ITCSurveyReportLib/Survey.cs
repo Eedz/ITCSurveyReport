@@ -13,10 +13,17 @@ using System.Text.RegularExpressions;
 
 namespace ITCSurveyReport
 {
-    public class Survey //: INotifyPropertyChanged
+    public class Survey // make a base class called Survey, and another called ReportSurvey (or something) which extends Survey
     {
         #region Survey Properties
-        
+        // properties for the base class
+        // TODO fill in these values during creation of object
+        string languages;
+        string title;
+        string groups;
+        string mode;
+        int cc; 
+
         SqlDataAdapter sql;
         SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
 
@@ -28,12 +35,13 @@ namespace ITCSurveyReport
         public DataTable filterTable;           // table holding filters
         public DataTable finalTable;            // table holding the final output
 
-        public DataTable qnumTable;             // table holding the complete list of Qnums, AltQnums for each VarName
+        public DataTable qnumTable;             // table holding the complete list of Qnums, AltQnums for each VarName (used if the rawTable is filtered)
 
         //Dictionary<int, Variable> questions;  // Variable object not yet implemented
 
         int id;                                 // unique id
         String surveyCode;
+        
         DateTime backend;                         // file name of backup
         String webName;                         // the long name of this survey
 
@@ -72,7 +80,8 @@ namespace ITCSurveyReport
         bool qnInsertion;
         bool aqnInsertion;
         bool ccInsertion;
-
+        Enumeration numbering;
+        ReadOutOptions nrFormat;
         // errors and results
         // qnu list
 
@@ -82,6 +91,7 @@ namespace ITCSurveyReport
         // blank constructor
         // TODO create constructors for quick reports + auto surveys (create an enum?)
         public Survey() {
+            
 
             surveyCode = "";
             backend = DateTime.Today;
@@ -130,6 +140,86 @@ namespace ITCSurveyReport
 
             includePrevNames = false;
             excludeTempNames = true;
+            numbering = Enumeration.Qnum;
+            nrFormat = ReadOutOptions.Neither;
+        }
+
+        public Survey(string code)
+        {
+            sql = new SqlDataAdapter();
+            String query = "SELECT * FROM qrySurveyInfo WHERE Survey = @survey";
+            SqlParameter param = new SqlParameter("@survey", SqlDbType.VarChar, 50);
+            param.Value = code;
+            
+            conn.Open();
+            sql.SelectCommand = new SqlCommand(query, conn);
+            sql.SelectCommand.Parameters.Add(param);
+            SqlDataReader rdr = sql.SelectCommand.ExecuteReader();
+            rdr.Read();
+            surveyCode = (string) rdr["Survey"];
+            if (!rdr.IsDBNull(rdr.GetOrdinal("Languages"))) { languages = (string)rdr["Languages"]; }
+            title = (string) rdr["SurveyTitle"];
+            if (!rdr.IsDBNull(rdr.GetOrdinal("Group"))) { groups = (string)rdr["Group"]; }
+            mode = (string) rdr["ModeLong"];
+            cc = Int32.Parse((string) rdr ["CountryCode"]);
+
+            rdr.Close();
+            conn.Close();
+
+            
+            backend = DateTime.Today;
+            webName = "";
+
+            SurveyDataSet = new DataSet("Survey" + id);
+            
+            rawTable = new DataTable();
+
+            qRangeLow = 0;
+            qRangeHigh = 0;
+            prefixes = new List<String>();
+            varnames = new List<String>();
+            headings = null;
+
+            commentDate = null;
+            commentAuthors = new List<int>();
+            commentSources = new List<int>();
+
+            repeatedFields = new List<String>();
+            commentFields = new List<String>();
+            transFields = new List<String>();
+
+            stdFields = new List<String>
+            {
+                "PreP",
+                "PreI",
+                "PreA",
+                "LitQ",
+                "RespOptions",
+                "NRCodes",
+                "PstI",
+                "PstP"
+            };
+
+            varlabelCol = false;
+            filterCol = false;
+            commentCol = false;
+
+            essentialList = "";
+
+            primary = false;
+            qnum = false;
+            corrected = false;
+            marked = false;
+
+            includePrevNames = false;
+            excludeTempNames = true;
+
+            numbering = Enumeration.Qnum;
+            nrFormat = ReadOutOptions.Neither;
+        }
+
+        public Survey (ReportTemplate repTemplate)
+        {
 
         }
         #endregion 
@@ -381,10 +471,7 @@ namespace ITCSurveyReport
             // TODO remove repeats for translation (split only)
 
             // TODO QN insertion
-            if (qnInsertion)
-            {
-               // InsertRoutingQnum();
-            }
+            
             // TODO CC insertion
             
             
@@ -438,12 +525,9 @@ namespace ITCSurveyReport
             {
                 
 
-                
-                // NRformat
                 // inline routing
                 // semitel
                 // table format tags
-                // headings
 
                 newrow = finalTable.NewRow();
                 foreach (DataColumn col in row.Table.Columns)
@@ -456,17 +540,51 @@ namespace ITCSurveyReport
                         case "ID":
                         case "SortBy":
                         case "Survey":
+                            break;
                         case "PreP":
-                            
+                            if (qnInsertion) {
+                                row[colName] = InsertQnums((string)row[colName]);
+                                row.AcceptChanges();
+                            }
+                            break;
                         case "PreI":
                             // semi tel
-                            
+                            if (qnInsertion)
+                            {
+                                row[colName] = InsertQnums((string)row[colName]);
+                                row.AcceptChanges();
+                            }
+                            break;
                         case "PreA":
+                            if (qnInsertion)
+                            {
+                                row[colName] = InsertQnums((string)row[colName]);
+                                row.AcceptChanges();
+                            }
+                            break;
                         case "LitQ":
-                            // semi tel
-                            // table format
+                            if (qnInsertion)
+                            {
+                                row[colName] = InsertQnums((string)row[colName]);
+                                row.AcceptChanges();
+                            }
+                            break;
+                        // semi tel
+                        // table format
                         case "PstI":
+                            if (qnInsertion)
+                            {
+                                row[colName] = InsertQnums((string)row[colName]);
+                                row.AcceptChanges();
+                            }
+                            break;
                         case "PstP":
+                            if (qnInsertion)
+                            {
+                                row[colName] = InsertQnums((string)row[colName]);
+                                row.AcceptChanges();
+                            }
+                            break;
                         case "RespOptions":
                             // long lists
                             if (!row.IsNull(colName))
@@ -478,12 +596,29 @@ namespace ITCSurveyReport
                                     row.AcceptChanges();
                                 }
                             }
+                            if (qnInsertion)
+                            {
+                                row[colName] = InsertQnums((string)row[colName]);
+                                row.AcceptChanges();
+                            }
+                            break;
                             // inline routing
                             // semi tel
                             // table format
-                            break;
+                            
                         case "NRCodes":
+                            if (qnInsertion)
+                            {
+                                row[colName] = InsertQnums((string)row[colName]);
+                                row.AcceptChanges();
+                            }
+                            
                             // NRFormat
+                            if (nrFormat != ReadOutOptions.Neither)
+                            {
+                                row[colName] = FormatNR((string)row[colName]);
+                                row.AcceptChanges();
+                            }
                             // inline routing
                             // table format
                             break;
@@ -555,6 +690,113 @@ namespace ITCSurveyReport
 
 
 
+        }
+
+        // TODO remove whitespace around each option before adding read out instruction
+        private string FormatNR (string wording)
+        {
+            string[] options;
+            string result = wording;
+            string readOut = new string (' ',3);
+
+            options = wording.Split('\n', '\r');
+            switch (nrFormat)
+            {
+                case ReadOutOptions.DontRead:
+                    readOut += "(Don't read)";
+                    break;
+                case ReadOutOptions.DontReadOut:
+                    readOut += "(Don't read out)";
+                    break;
+                case ReadOutOptions.Neither:
+                    break;
+            }
+
+            for (int i=0; i < options.Length; i++)
+            {
+                options[i] += readOut;
+            }
+
+            result = string.Join("\n\r", options);
+
+            return result;
+        }
+
+        // TODO if there are filters on the rawTable look up from qnumTable
+        private string InsertQnums (string wording)
+        {
+            string newwording = wording;
+            string[] words;
+            string qnum;
+            string varname;
+            MatchCollection m;
+            Regex rx = new Regex("[A-Z]{2}\\d{3}");
+            // split the wording into words            
+            words = newwording.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries);
+            
+            // check for filters here TODO
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                // if words[i] contains a variable name, look up the qnum and place it before the variable
+                if (rx.Match(words[i]).Success)
+                {
+                    m = rx.Matches(words[i]);
+                    varname = m[0].Groups[0].Value;
+                    switch (numbering)
+                    {
+                        case Enumeration.Both:
+                        case Enumeration.Qnum:
+                            qnum = Utilities.DTLookup(rawTable, "Qnum", "refVarName = '" + varname + "'");
+                            break;
+                        case Enumeration.AltQnum:
+                            qnum = Utilities.DTLookup(rawTable, "AltQnum", "refVarName = '" + varname + "'");
+                            break;
+                        default:
+                            qnum = Utilities.DTLookup(rawTable, "Qnum", "refVarName = '" + varname + "'");
+                            break;
+                    }
+
+                    if (!qnum.Equals(""))
+                        qnum = "QNU";
+                    
+                    words[i] = rx.Replace(words[i], qnum + "/" + varname); 
+                }
+            }
+            newwording = string.Join(" ", words);
+            return newwording;
+        }
+
+        
+        private string InsertCountryCodes(string wording)
+        {
+            string newwording = wording;
+            string[] words;
+            string qnum;
+            string varname;
+            MatchCollection m;
+            Regex rx = new Regex("[A-Z]{2}\\d{3}");
+            // split the wording into words            
+            words = newwording.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries);
+            
+            // check for filters here TODO
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                // if words[i] contains a variable name, replace the variable with the country coded version
+                if (rx.Match(words[i]).Success)
+                {
+                    m = rx.Matches(words[i]);
+                    varname = m[0].Groups[0].Value;
+                    varname = Utilities.ChangeCC(varname, cc);
+
+                    
+
+                    words[i] = rx.Replace(words[i], varname);
+                }
+            }
+            newwording = string.Join(" ", words);
+            return newwording;
         }
 
         private String GetPreviousNames(String varname)
@@ -790,6 +1032,13 @@ namespace ITCSurveyReport
         public bool QNInsertion { get => qnInsertion; set => qnInsertion = value; }
         public bool AQNInsertion { get => aqnInsertion; set => aqnInsertion = value; }
         public bool CCInsertion { get => ccInsertion; set => ccInsertion = value; }
+        public Enumeration Numbering { get => numbering; set => numbering = value; }
+        public ReadOutOptions NrFormat { get => nrFormat; set => nrFormat = value; }
+        public string Title { get => title; set => title = value; }
+        public string Languages { get => languages; set => languages = value; }
+        public string Groups { get => groups; set => groups = value; }
+        public string Mode { get => mode; set => mode = value; }
+        public int Cc { get => cc; set => cc = value; }
         #endregion
 
 

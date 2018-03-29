@@ -78,7 +78,8 @@ namespace ITCSurveyReport
                     SR.Surveys[0].Primary = true;
                 }
                 //MessageBox.Show(SR.ToString());
-                SR.SurveyCompare.ShowDeletedFields = true;
+               
+                SR.Surveys[0].QNInsertion = true;
 
                 int result;
                 result = SR.GenerateSurveyReport();
@@ -223,10 +224,12 @@ namespace ITCSurveyReport
         private void cmdAddSurvey_Click(object sender, EventArgs e)
         {
             // add survey to the SurveyReport object
-            Survey s = new Survey()
-            {
-                SurveyCode = cboSurveys.SelectedValue.ToString()
-            };
+            //Survey s = new Survey()
+            //{
+            //    SurveyCode = cboSurveys.SelectedValue.ToString()
+            //};
+            Survey s = new Survey(cboSurveys.SelectedValue.ToString());
+
             SR.AddSurvey(s);
             SR.AutoSetPrimary();
             lstSelectedSurveys.DataSource = null;

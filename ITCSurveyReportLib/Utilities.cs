@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Windows.Forms;
 using Word = Microsoft.Office.Interop.Word;
+using System.Text.RegularExpressions;
 
 namespace ITCSurveyReport
 {
+    public enum VarNameFormat { NoCC, WithCC, NonStd}
     public static class Utilities
     {
         public static DataTable CreateDataTable(String name, String[] fields, String[] types)   
@@ -171,6 +173,96 @@ namespace ITCSurveyReport
                 numLines++;
             }
             return numLines;
+        }
+
+        // returns the first record matching the criteria
+        public static string DTLookup(DataTable dt, string field, string criteria)
+        {
+
+            DataRow[] dr = dt.Select(criteria);
+            string result = "";
+            if (dr.Length == 0)
+            {
+                result = "";
+            }
+            else
+            { 
+                result = (string)dr[0][field];
+            }
+            
+
+            return result;
+        }
+
+        //public static int DTLookup(DataTable dt, string field, string criteria)
+        //{
+        //    int result = 0;
+        //    return result;
+        //}
+
+        public static string ChangeCC (string varname, int cc = 0)
+        {
+            string result = "";
+            VarNameFormat format = GetVarNameFormat(varname);
+            
+            
+
+            if (varname.Equals("") || cc <0 || cc>99) { result = ""; }
+
+            if (format == VarNameFormat.NonStd) { result = varname; }
+
+            if (cc == 0)
+            {
+                if (format == VarNameFormat.NoCC)
+                {
+                    result = varname;
+                }else if (format== VarNameFormat.WithCC)
+                {
+                    result = varname.Substring(0, 2) + varname.Substring(5);
+                }
+                
+            } else
+            {
+                if (format == VarNameFormat.NoCC)
+                {
+                    result = varname.Substring(0,2) + cc + varname.Substring(2);
+                }
+                else if (format == VarNameFormat.WithCC)
+                {
+                    result = varname.Substring(1, 2) + varname.Substring(5);
+                }
+            }
+
+            return result;
+            
+
+        }
+        
+        public static VarNameFormat GetVarNameFormat (string varname)
+        {
+            VarNameFormat result;
+            Regex rx;
+
+            rx = new Regex("[A-Z]{2}\\d{3}");
+
+            if (rx.Match(varname).Success)
+            {
+                result = VarNameFormat.NoCC;
+            }
+            else
+            {
+                rx = new Regex("[A-Z]{2}\\d{5}");
+                if (rx.Match(varname).Success)
+                {
+                    result = VarNameFormat.WithCC;
+                }
+                else
+                {
+                    result = VarNameFormat.NonStd;
+                }
+            }
+
+            return result;
         }
     }
 }
