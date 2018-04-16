@@ -264,5 +264,17 @@ namespace ITCSurveyReport
 
             return result;
         }
+
+        public static string ExtractVarName (string input)
+        {
+            string var = "";
+            Regex rx = new Regex("[A-Z]{2}\\d{3}");
+
+            if (rx.Match(input).Success)
+            {
+                var = rx.Matches(input)[0].Value;
+            }
+            return var;
+        }
     }
 }

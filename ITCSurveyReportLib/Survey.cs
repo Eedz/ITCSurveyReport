@@ -13,7 +13,10 @@ using System.Text.RegularExpressions;
 
 namespace ITCSurveyReport
 {
-    public class Survey // make a base class called Survey, and another called ReportSurvey (or something) which extends Survey
+    // TODO make a base class called Survey, and another called SurveyDataTable which extends DataTable and make it a member of Survey 
+    // SurveyDataTable will have all the methods that act on the rawTable 
+    // Survey will have the methods that act on the final table and other auxilliary tables
+    public class Survey 
     {
         #region Survey Properties
         // properties for the base class
@@ -22,18 +25,22 @@ namespace ITCSurveyReport
         string title;
         string groups;
         string mode;
-        int cc; 
+        int cc;
+        bool hasQID;    // this flag is true if the survey records have an ID field at the chosen date TODO implement in GetSurveyTable/GetBackupTable
 
         SqlDataAdapter sql;
         SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
 
+        SurveyDataTable rawTable2;
+        
         DataSet SurveyDataSet;
         // data tables for this survey 
         public DataTable rawTable;              // raw survey content, separated into fields
         public DataTable commentTable;          // table holding comments
-        public List<DataTable> translationTables;    // tables holding translation data
+        public DataTable translationTable;      // table holding all translations
         public DataTable filterTable;           // table holding filters
-        public DataTable finalTable;            // table holding the final output
+        // table holding the final output, this would be a combination of fields from rawTable, merged with commentTable, translationTable, and filterTable
+        public DataTable finalTable;            
 
         public DataTable qnumTable;             // table holding the complete list of Qnums, AltQnums for each VarName (used if the rawTable is filtered)
 
@@ -62,7 +69,12 @@ namespace ITCSurveyReport
         List<String> commentFields;
         List<String> transFields;
         List<String> stdFields;
+        List<String> stdFieldsChosen;
         bool varlabelCol;
+        bool domainLabelCol;
+        bool topicLabelCol;
+        bool contentLabelCol;
+        bool productLabelCol;
         bool filterCol;
         bool commentCol;
 
@@ -80,8 +92,10 @@ namespace ITCSurveyReport
         bool qnInsertion;
         bool aqnInsertion;
         bool ccInsertion;
+        bool inlineRouting;
         Enumeration numbering;
         ReadOutOptions nrFormat;
+
         // errors and results
         // qnu list
 
@@ -89,7 +103,7 @@ namespace ITCSurveyReport
 
         #region Constructors
         // blank constructor
-        // TODO create constructors for quick reports + auto surveys (create an enum?)
+        // TODO create constructors for quick reports + auto surveys
         public Survey() {
             
 
@@ -128,6 +142,9 @@ namespace ITCSurveyReport
             };
             
             varlabelCol = false;
+            domainLabelCol = false;
+            topicLabelCol = false;
+            contentLabelCol = false;
             filterCol = false;
             commentCol = false;
 
@@ -201,6 +218,9 @@ namespace ITCSurveyReport
             };
 
             varlabelCol = false;
+            domainLabelCol = false;
+            topicLabelCol = false;
+            contentLabelCol = false;
             filterCol = false;
             commentCol = false;
 
@@ -226,49 +246,41 @@ namespace ITCSurveyReport
 
         #region Methods and Functions
 
-        // source tables
-        // create rawTable, commentTable, translationTables
-        
+        /// <summary>
+        /// Fills the rawTable object with all the questions for this particular survey. Corrected wordings are applied if necessary. 
+        /// DataTables are created for comments, translations and filters if requested. Essential questions are also collected.
+        /// </summary>
         public void GenerateSourceTable() {
-            bool useBackup = false ;
-            if (backend != DateTime.Today) { useBackup = true; }
-                // create survey table (from backup or current)
-
-            if (useBackup)
+        
+            // create survey table (from backup or current)
+            if (backend != DateTime.Today)
             {
                 //GetBackupTable();
                 GetSurveyTable();
             }
             else
             {
+                hasQID = true;
                 GetSurveyTable();
             }
 
             // get corrected wordings
-            if (corrected) { GetCorrectedWordings(); }
+            if (corrected)
+                GetCorrectedWordings(); 
 
-            // delete correctedflag column (or leave it in until the end?)
-            //rawTable.Columns.Remove("CorrectedFlag");
-
-            // insert comments into raw table
-            if (commentCol) {
+            // create comment table
+            if (commentCol) 
                 MakeCommentTable();
-                rawTable.Merge(commentTable, false, MissingSchemaAction.Add);
-                // deallocate comment table
-                commentTable.Dispose();
-            }
-
-            // insert filters into raw table
-            if (filterCol) {
+                
+            // create filter table
+            if (filterCol) 
                 MakeFilterTable();
-                // deallocate filter table
-                //filterTable.Dispose();
-            }
 
+            // create translation table
             if (transFields != null && transFields.Count != 0)
             {
                 //if !(useSingleField) 
-                if (useBackup)
+                if (backend != DateTime.Today)
                 {
                     MakeTranslationTableBackup();
                 }
@@ -276,33 +288,31 @@ namespace ITCSurveyReport
                 {
                     MakeTranslationTable();
                 }
-                // insert translations now? or later?
             }
 
             // get essential question list
             GetEssentialQuestions();
-            
-            
 
-
-            
-            
         }
 
-        // Create the raw survey table containing words, corrected and table flags, and varlabel (if needed) from a backup
-        // This could be achieved by changing the FROM clause in GetSurveyTable but often there are columns that don't exist in the backups, due to their age
-        // and all the changes that have happened to the database over the years. 
+        /// <summary>
+        /// Fills the raw survey table with wordings, labels, corrected and table flags from a backup database.
+        /// </summary>
+        /// <remarks>
+        /// This could be achieved by changing the FROM clause in GetSurveyTable but often there are columns that don't exist in the backups, due to 
+        /// their age and all the changes that have happened to the database over the years. 
+        /// </remarks>
         public void GetBackupTable() { }
 
-        // Create the raw survey table containing wordings, corrected and table flags, and varlabel (if needed)
+        /// <summary>
+        /// Fills the raw survey table with wordings, labels, corrected and table flags.
+        /// </summary>
         public void GetSurveyTable() {
             String query = "";
-            String where = "";
-            String strQFilter;
             
             // form the query
             // standard fields
-            query = "SELECT ID, Qnum AS SortBy, Survey, VarName, refVarName, Qnum, AltQnum, CorrectedFlag, TableFormat ";
+            query = "SELECT ID, Qnum AS SortBy, Survey, VarName, refVarName, Qnum, AltQnum, CorrectedFlag, TableFormat, Domain, Topic, Content, VarLabel, Product ";
 
             // wording fields, replace &gt; &lt; and &nbsp; right away
             for (int i = 0; i < stdFields.Count; i++)
@@ -311,17 +321,11 @@ namespace ITCSurveyReport
             }
             
             query = query.TrimEnd(',', ' ');
-            // other fields
-            if (varlabelCol) { query = query + ", VarLabel"; }
 
             // FROM and WHERE
             query = query + " FROM qrySurveyQuestions WHERE Survey ='" + surveyCode + "'";
-
-            // question range WHERE
-            strQFilter = GetQuestionFilter();
-            if (strQFilter != "") { where = " AND " + strQFilter; }
-
-            query = query + where + " ORDER BY Qnum ASC";
+            // ORDER BY
+            query = query + " ORDER BY Qnum ASC";
 
             // run the query and fill the data table
             conn.Open();
@@ -330,20 +334,19 @@ namespace ITCSurveyReport
             
             conn.Close();
             rawTable.PrimaryKey = new DataColumn[] { rawTable.Columns["ID"] };
-            // clear varlabel from heading rows
-            if (varlabelCol)
-            {
-                String refVar;
-                foreach (DataRow row in rawTable.Rows)
-                {
-                    refVar = row["refVarName"].ToString();
-                    if (refVar.StartsWith ("Z")) { row["VarLabel"] = ""; }
-                }
-            }
 
+            // clear varlabel from heading rows
+            
+            foreach (DataRow row in rawTable.Rows)
+            {
+                if (row["refVarName"].ToString().StartsWith ("Z"))
+                    row["VarLabel"] = ""; 
+            }
         }
 
-        // Look up and apply corrected wordings to the raw table
+        /// <summary>
+        /// Look up and apply corrected wordings to the raw table. 
+        /// </summary>        
         public void GetCorrectedWordings() {
             DataTable corrTable;
             
@@ -361,16 +364,18 @@ namespace ITCSurveyReport
             corrTable.Dispose();
         }
 
-        // Create a table for each translation language (OR combine them right here?) (TODO)
+        /// <summary>
+        /// Creates a DataTable for each translation language. TODO convert line breaks. 
+        /// </summary>
         public void MakeTranslationTable() {
             String query = "";
             String where = "";
             String whereLang = "";
             String strQFilter;
 
-            // instantiate the data tables
-            translationTables = new List<DataTable>();
-
+            // instantiate the data tables list
+            List<DataTable> translationTables = new List<DataTable>();
+            
             // create the filter for the query
             where = "WHERE Survey = '" + surveyCode + "'";
             strQFilter = GetQuestionFilter();
@@ -383,7 +388,10 @@ namespace ITCSurveyReport
                 t = new DataTable();
                 whereLang = " AND Lang ='" + transFields[i] + "'";
 
-                query = "SELECT QID AS ID, Survey, VarName, refVarName, Replace(Replace(Replace(Translation, '&gt;', '>'), '&lt;', '<'), '&nbsp;', ' ') AS [" + transFields[i] + "] FROM qrySurveyQuestionsTranslation " + where + whereLang;
+                query = "SELECT QID AS ID, VarName, refVarName, " + 
+                    "Replace(Replace(Replace(Translation, '&gt;', '>'), '&lt;', '<'), '&nbsp;', ' ') AS [" + transFields[i] + "] " + 
+                    "FROM qrySurveyQuestionsTranslations " + where + whereLang;
+
                 
                 // run the query and fill the data table
                 conn.Open();
@@ -395,18 +403,25 @@ namespace ITCSurveyReport
                 t.PrimaryKey = new DataColumn[] { t.Columns["ID"] };
 
                 // TODO get corrected wordings (see GetCorrectedWordings)
-                // get headings
+                // TODO get headings
 
                 translationTables.Add(t);
             }
+            // merge all translations into one table
+            translationTable = new DataTable();
+            foreach (DataTable t in translationTables)
+                translationTable.Merge(t);
+
+            
         }
 
         public void MakeTranslationTableBackup() { }
 
         public void MakeTranslationTableFromFields() { }
 
-        // Fills the commentTable DataTable with comments for this survey
-        // TODO: make comment table local 
+        /// <summary>
+        /// Fills the commentTable DataTable with comments for this survey       
+        /// </summary>
         public void MakeCommentTable() {
             commentTable = new DataTable();
             String cmdText = "SELECT ID, VarName, Comments FROM tvf_surveyVarComments(@survey";
@@ -461,10 +476,66 @@ namespace ITCSurveyReport
             
         }
 
-        public void MakeFilterTable() { }
+        // TODO
+        // TODO also need to get non-standard vars
+        // TODO check for response codes mentioned in filter and only show those
+        /// <summary>
+        /// Creates a data table which contains each question who's filter references a variable.
+        /// </summary>
+        public void MakeFilterTable() {
+            filterTable = new DataTable("FilterTable" + ID);
+            string filterList = "";
+            string filterVar;
+            string filterRO;
+            string filterNR;
+            string filterLabel;
+            DataRow toInsert;
+            Regex rx1 = new Regex("[A-Z][A-Z][0-9][0-9][0-9]");
 
-        // final table (TODO)
-        // Combine fields into question column.
+            // get any rows that contain a variable
+            var refVars =  from r in rawTable.AsEnumerable()
+                        where r.Field<string>("PreP") != null && rx1.IsMatch(r.Field<string>("PreP"))
+                        select r;
+
+            if (!refVars.Any())
+                return;
+
+            // now that we know there are some rows with filters, add columns to the filter table            
+            filterTable.Columns.Add("refVarName", typeof(string));
+            filterTable.PrimaryKey = new DataColumn[] { filterTable.Columns["refVarName"] };
+            filterTable.Columns.Add("VarName", typeof(string));
+            filterTable.Columns.Add("Filters", typeof(string));
+
+            foreach (var item in refVars)
+            {
+                QuestionFilter qf = new QuestionFilter(item["PreP"].ToString());
+
+                for (int i = 0; i < qf.FilterVars.Count; i++)
+                {
+                    filterVar = qf.FilterVars[i].Varname;
+                    filterRO = Utilities.DTLookup(rawTable, "RespOptions", "refVarName ='" + filterVar + "'");
+                    filterNR = Utilities.DTLookup(rawTable, "NRCodes", "refVarName ='" + filterVar + "'");
+                    filterLabel = Utilities.DTLookup(rawTable, "VarLabel", "refVarName ='" + filterVar + "'");
+
+                    filterList += "<strong>" + filterVar.Substring(0,2) + "." + filterVar.Substring(2) + "</strong>\r\n<em>" + 
+                        filterLabel + "</em>\r\n" + filterRO + "\r\n" + filterNR + "\r\n";
+                }
+                // create a new row object that will be filled with the VarName and filter list of each row in the refVars table
+                toInsert = filterTable.NewRow();
+                toInsert["Filters"] = filterList;
+                toInsert["VarName"] = item["VarName"];
+                toInsert["refVarName"] = item["refVarName"];
+                filterTable.Rows.Add(toInsert);
+                filterList = "";
+            }
+
+        }
+
+        // TODO
+        /// <summary>
+        /// Combines fields from rawTable into a single question field. Merges auxilliary tables with finalTable. Filters finalTable so it contains
+        /// only the requested variables.
+        /// </summary>
         public void MakeReportTable() {
 
             RemoveRepeats();
@@ -479,13 +550,18 @@ namespace ITCSurveyReport
             List<String> columnTypes = new List<String>();
             String questionColumnName = "";
             String colName = "";
+
             // construct finalTable
             // determine the fields that will appear in finalTable
+            // eliminate Survey, SortBy, and wording fields right away
             for (int i = 0; i < rawTable.Columns.Count; i++)
             {
                 switch (rawTable.Columns[i].Caption)
                 {
                     case "ID":
+                        columnNames.Add(rawTable.Columns[i].Caption);
+                        columnTypes.Add("int");
+                        break;
                     case "SortBy":
                     case "Survey":
                     case "PreP":
@@ -496,13 +572,11 @@ namespace ITCSurveyReport
                     case "PstP":
                     case "RespOptions":
                     case "NRCodes":
-                    
                         break;
                     default:
                         columnNames.Add(rawTable.Columns[i].Caption);
                         columnTypes.Add("string");
                         break;
-
                 }
                 
             }
@@ -537,7 +611,8 @@ namespace ITCSurveyReport
                     var currentValue = row[colName]; 
                     switch (colName)
                     {
-                        case "ID":
+                        //case "ID":
+
                         case "SortBy":
                         case "Survey":
                             break;
@@ -663,6 +738,13 @@ namespace ITCSurveyReport
 
 
                 }
+
+                // in-line routing
+                if (inlineRouting && row["PstP"] != null)
+                {
+                    FormatRouting(row);
+                }
+
                 // if this is varname BI104, set essential questions list
                 if (row["refVarName"].Equals( "BI104"))
                 {
@@ -675,22 +757,138 @@ namespace ITCSurveyReport
                 finalTable.Rows.Add(newrow);
             }
 
-            // check enumeration and delete or keep Qnum/AltQnum
-            finalTable.Columns.Remove("AltQnum");
+            // merge auxilliary tables based on ID (or varname if ID not present)
 
 
-            // delete unneeded fields
+
+            // TODO merge with comment table, untested
+            if (commentFields.Count > 0)
+                finalTable.Merge(commentTable, false, MissingSchemaAction.Add);
+            
+            // merge with translation table
+            if (transFields.Count > 0)
+                finalTable.Merge(translationTable, false, MissingSchemaAction.Add);
+            
+            // merge with filter table
+            if (filterCol)
+                finalTable.Merge(filterTable, false, MissingSchemaAction.Add);
+
+            // TODO apply question filters
+
+            // change the primary key to be the VarName column
+            finalTable.PrimaryKey = new DataColumn[] { finalTable.Columns["VarName"] };
+
+            // remove unneeded fields
+            // check enumeration and delete AltQnum
+            if (numbering == Enumeration.Qnum)
+                finalTable.Columns.Remove("AltQnum");
+
+            if (!domainLabelCol)
+                finalTable.Columns.Remove("Domain");
+
+            if (!topicLabelCol)
+                finalTable.Columns.Remove("Topic");
+
+            if (!contentLabelCol)
+                finalTable.Columns.Remove("Content");
+
+            if (!varlabelCol)
+                finalTable.Columns.Remove("VarLabel");
+
+            if (!productLabelCol)
+                finalTable.Columns.Remove("Product");
+
+
+
             finalTable.Columns.Remove("CorrectedFlag");
             finalTable.Columns.Remove("TableFormat");
-            //finalTable.Columns.Remove("refVarName");
+            finalTable.Columns.Remove("refVarName");
+            finalTable.Columns.Remove("ID");
 
-            DataColumn[] pk = new DataColumn[1];
-            pk[0] = finalTable.Columns["refVarName"];
-            finalTable.PrimaryKey = pk;
-
-
-
+            
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="row"></param>
+        private void FormatRouting(DataRow row)
+        {
+            string r;
+            string[] routing;
+            string[] options;
+            string[] routingNumbers;
+            string destination;
+            string numbers;
+            string[] numbersArray;
+            RoutingType routingType;
+            string respNum;
+            string finalRouting;
+            Regex rx = new Regex("go to ([A-Z][A-Z][A-Z]/|[0-9][0-9][0-9][a-z]*/)*[a-zA-z][a-zA-z](\\d{5}|\\d{3})");
+            MatchCollection results;
+            Match m;
+
+            // split the routing and options into arrays
+            r = (string)row["PstP"];
+            routing = r.Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries);
+            r = (string)row["RespOptions"] + "\r\n" + (string)row["NRCodes"];
+            options = r.Split (new string[] { "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+            routingNumbers = new string[options.Length];
+
+            for (int i = 0; i < routing.Length; i++)
+            {
+                // get routing type, if 1 or 2, this instruction will be removed from the routing field and its routing destination will be
+                // appended to the appropriate response option, if 3, this routing may be moved to the response option location
+                if (routing[i].StartsWith ("If response"))
+                {
+                    routingType = RoutingType.IfResponse;
+                } else if (routing[i].StartsWith("Otherwise"))
+                {
+                    routingType = RoutingType.Otherwise;
+                } else if (routing[i].StartsWith("If"))
+                {
+                    routingType = RoutingType.If;
+                }
+                else
+                {
+                    routingType = RoutingType.Other;
+                }
+
+                // start with the destination
+                results = rx.Matches(routing[i]);
+                // go to next line of routing if there is no match for our pattern
+                if (results.Count == 0)
+                    continue;
+
+                m = results[0];
+
+                // the destination varname (or sometimes, section) (anything after the destination variable is formatting with a smaller font)
+                destination = routing[i].Substring(m.Index, m.Length + 1) + "<Font Size=8>" + routing[i].Substring(m.Index + m.Length + 1) + "</Font>";
+
+                if (routingType == RoutingType.IfResponse)
+                {
+                    /* the most common style (If response)
+                     get the numbers referenced by this instruction
+                     this list of numbers should be all the numbers that would route to this instruction's destination
+                    */
+
+                    numbers = GetRoutingNumbers(routing[i], (string)row["RespOptions"]);
+                    numbersArray = numbers.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    // now for each option, check if it starts with one of the referenced numbers
+                    // if so, add it to the routingNumbers array, and clear this instruction from the PstP
+
+
+                }
+
+            }
+        }
+
+        private string GetRoutingNumbers(string routingInstruction, string responseOptions)
+        {
+            return "";
+        }
+
 
         // TODO remove whitespace around each option before adding read out instruction
         private string FormatNR (string wording)
@@ -849,6 +1047,10 @@ namespace ITCSurveyReport
             return questionText;
         }
 
+        /// <summary>
+        /// Returns the name of the column, in the final survey table, containing the question text.
+        /// </summary>
+        /// <returns>Returns: string.</returns>
         private String GetQuestionColumnName()
         {
             String column = "";
@@ -899,9 +1101,13 @@ namespace ITCSurveyReport
         public override String ToString() { return "ID: " + ID + "\r\n" + "Survey: " + SurveyCode + "\r\n" + "Backend: " + Backend; }
 
         // sets the essentialList property
+        /// <summary>
+        /// Sets the 'essentialList' property by compiling a list of VarNames that contain the special routing instruction that only essential 
+        /// questions have.
+        /// </summary>
         public void GetEssentialQuestions() {
             String varlist = "";
-            System.Text.RegularExpressions.Regex rx = new System.Text.RegularExpressions.Regex("go to [A-Z][A-Z][0-9][0-9][0-9], then BI9");
+            Regex rx = new Regex("go to [A-Z][A-Z][0-9][0-9][0-9], then BI9");
 
             var query = from r in rawTable.AsEnumerable()
                         where r.Field<string>("PstP") != null && rx.IsMatch(r.Field<string>("PstP"))
@@ -919,7 +1125,9 @@ namespace ITCSurveyReport
             essentialList = varlist;
         }
 
-        // Remove repeated values from the wording fields (PreP, PreI, PreA, LitQ, PstI, Pstp, RespOptions, NRCodes) unless they are requested.
+        /// <summary>
+        /// Remove repeated values from the wording fields (PreP, PreI, PreA, LitQ, PstI, Pstp, RespOptions, NRCodes) unless they are requested. 
+        /// </summary>
         public void RemoveRepeats() {
             int mainQnum = 0;
             String currQnum = "";

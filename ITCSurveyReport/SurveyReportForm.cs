@@ -30,7 +30,7 @@ namespace ITCSurveyReport
         {
             InitializeComponent();
 
-            //chkDoCompare.DataBindings.Add("Checked", surveyReportBindingSource, "SurveyCompare.DoCompare");
+            
 
 
         }
@@ -69,19 +69,14 @@ namespace ITCSurveyReport
             
             if (lstSelectedSurveys.SelectedIndex != -1)
             {
-                if (SR.Surveys.Count > 1)
-                {
-                    SR.Surveys[1].Primary = true;
-                }
-                else
-                {
-                    SR.Surveys[0].Primary = true;
-                }
-                //MessageBox.Show(SR.ToString());
-               
-                SR.Surveys[0].QNInsertion = true;
-
                 int result;
+                //MessageBox.Show(SR.ToString());
+
+
+                SR.Surveys[0].Qnum = true;
+                
+
+                
                 result = SR.GenerateSurveyReport();
                 switch (result)
                 {
@@ -96,8 +91,8 @@ namespace ITCSurveyReport
                 }
 
 
-                //surveyView.DataSource = SR.Surveys[1].finalTable;
-                surveyView.DataSource = SR.reportTable;
+
+                surveyView.DataSource = SR.Surveys[0].finalTable;
 
 
             }

@@ -222,7 +222,7 @@
             // 
             this.cboSurveys.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
             this.cboSurveys.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-            this.cboSurveys.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+            this.cboSurveys.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.cboSurveys.DisplayMember = "Survey";
             this.cboSurveys.FormattingEnabled = true;
             this.cboSurveys.ImeMode = System.Windows.Forms.ImeMode.NoControl;
@@ -230,7 +230,6 @@
             this.cboSurveys.Name = "cboSurveys";
             this.cboSurveys.Size = new System.Drawing.Size(108, 21);
             this.cboSurveys.TabIndex = 0;
-            this.cboSurveys.UseWaitCursor = true;
             this.cboSurveys.ValueMember = "Survey";
             // 
             // cmdAddSurvey

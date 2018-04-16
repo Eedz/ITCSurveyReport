@@ -44,6 +44,10 @@ namespace ITCSurveyReport
             f.Replacement.ClearFormatting();
             f.Replacement.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
             FindAndReplace(doc, "\\[center\\](*)\\[/center\\]", f);
+
+            //f.Replacement.ClearFormatting();
+            //f.Replacement.Text = System.Environment.NewLine;
+            //FindAndReplace(doc, "<br>", f);
         }
 
         public void InterpretFontTags(Word.Document doc) {

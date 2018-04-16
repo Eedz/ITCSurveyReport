@@ -15,6 +15,7 @@ namespace ITCSurveyReport
     public enum ReportTemplate { Standard, Comparison, Automatic }
     public enum Enumeration { Qnum, AltQnum, Both }
     public enum ReadOutOptions { DontRead, DontReadOut, Neither }
+    public enum RoutingType { Other, IfResponse, Otherwise, If }
     public class SurveyReport
     {
         #region Survey Report Properties
@@ -164,6 +165,7 @@ namespace ITCSurveyReport
                 
                 //SurveyReportData.Tables.Add(s.finalTable);
             }
+
             // TODO
             // compile final tables into report
             // merge tables into one
@@ -171,7 +173,8 @@ namespace ITCSurveyReport
             reportTable = surveys[0].finalTable.Copy();
             if (surveys.Count > 1)
             {
-                reportTable.Merge(surveys[1].finalTable, false, MissingSchemaAction.Add);
+                foreach(Survey s in Surveys)
+                    reportTable.Merge(s.finalTable, false, MissingSchemaAction.Add);
             }
 
             // for now, just set the reportTable to the first survey's final table
@@ -181,10 +184,9 @@ namespace ITCSurveyReport
             //reportTable = surveys[0].finalTable;
 
             // remove refVarName column before outputting 
-            DataColumn[] pk = new DataColumn[1];
-            pk[0] = reportTable.Columns["VarName"];
-            reportTable.PrimaryKey = pk;
-            reportTable.Columns.Remove("refVarName");
+            
+            reportTable.PrimaryKey = new DataColumn[] { reportTable.Columns["VarName"] };
+            
 
             // output report
             // at this point the reportTable should be exactly how we want it to appear, minus interpreting tags
@@ -307,7 +309,8 @@ namespace ITCSurveyReport
 
             // create an instance of Word
             appWord = new Word.Application();
-
+            appWord.Options.CheckSpellingAsYouType = false;
+            appWord.Options.CheckGrammarAsYouType = false;
             // create the document
             docReport = appWord.Documents.Add("\\\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Access\\Reports\\Templates\\SMGLandLet.dotx");
 
@@ -327,7 +330,7 @@ namespace ITCSurveyReport
                     docReport.Tables[1].Cell(r+2, c+1).Range.Text = reportTable.Rows[r][c].ToString();
                 }
             }
-
+            //appWord.Visible = true;
             // table style
             docReport.Tables[1].Rows.AllowBreakAcrossPages = -1;
             docReport.Tables[1].Rows.Alignment = 0;
@@ -382,11 +385,11 @@ namespace ITCSurveyReport
             // format column names and widths
             FormatColumns(docReport);
 
-            // format subset tables
+            // TODO format subset tables
             if (tables && numbering == Enumeration.Qnum && reportType == 1) { }
 
             // create TOC
-            if (layoutoptions.ToC != 1) { }
+            if (layoutoptions.ToC != 1) { MakeToC(docReport); }
 
             // create title page
             if (layoutoptions.CoverPage) { MakeTitlePage(docReport); }
@@ -401,19 +404,19 @@ namespace ITCSurveyReport
             // update TOC due to formatting changes (see if the section headings can be done first, then the TOC could update itself)
             if (layoutoptions.ToC == 3 && docReport.TablesOfContents.Count > 0 ) { docReport.TablesOfContents[1].Update(); }
 
-            // add survey notes appendix
+            // TODO add survey notes appendix
             if (survNotes) { MakeSurveyNotesAppendix(); }
 
-            // add varname changes as appendix
+            // TODO add varname changes as appendix
             if (varChangesApp) { MakeVarChangesAppendix(); }
 
             // interpret formatting tags
             formatting.FormatTags(appWord, docReport, surveycompare.Highlight);
             
-            // convert TC tags into real tracked changes
+            // TODO convert TC tags into real tracked changes
             if (surveycompare.ConvertTrackedChanges) { formatting.ConvertTC(docReport); }
 
-            // format shading for order comparisons
+            // TODO format shading for order comparisons
             if (reportType == 3) { formatting.FormatShading(docReport); }
 
             fileName += ReportFileName() + ", " + DateTime.Today.ToString("d").Replace("-", "") ;
@@ -430,18 +433,26 @@ namespace ITCSurveyReport
             
         }
 
-        public void FormatColumns() { }
-
+        // TODO might not be needed at all
         public void MergeSurveyTables() { }
 
+        // TODO 
         public void IncludeOrderChanges() { }
 
+        // TODO 
         public void IncludeDeletedQuestions() { }
 
+        // TODO 
         public void MarkOrderChanges() { }
-
+  
         public String GetReInsertedComments() { return ""; }
 
+
+        /// <summary>
+        /// Creates a new section at the beginning of the document. Adds a table containing the ITC logo, the survey title and additional information
+        ///about the survey.
+        /// </summary>
+        /// <param name="doc"></param>
         public void MakeTitlePage(Word.Document doc) {
             Word.Table t;
             Survey s = GetPrimarySurvey();
@@ -460,6 +471,7 @@ namespace ITCSurveyReport
             t.Range.Font.Size = 18;
             t.Rows.VerticalPosition = 1.8f;
             // add info to table
+            // TODO see if the resource file can be used here
             t.Rows[1].Cells[1].Range.InlineShapes.AddPicture(@"\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Access\\logo.JPG", false, true);
             t.Rows[2].Cells[1].Range.Text = s.Title;
             t.Rows[3].Cells[1].Range.Text = "Survey Code: " + s.SurveyCode;
@@ -473,11 +485,66 @@ namespace ITCSurveyReport
 
         }
 
+        /// <summary>
+        /// Creates a new section at the top of the document. Adds a table of contens in 1 of 2 ways. Either a TableOfContents object is created and 
+        /// based on the headings in the document, or the text and Qnums for each heading are listed in a table.
+        /// </summary>
+        /// <param name="doc">Document object</param>
         public void MakeToC(Word.Document doc) {
+            // exit if no headings found
+            if (Utilities.DTLookup(reportTable, "Qnum", "Qnum = 'reghead'").Equals(""))
+                return;
 
+            DataRow[] headingRows;
+            string[,] headings;
+            Survey qnumSurvey = QnumSurvey();
+            object missingType = Type.Missing;
+            switch (LayoutOptions.ToC)
+            {
+                case 1:
+                    break;
+                case 2:
 
+                    headingRows = qnumSurvey.finalTable.Select("VarName Like 'Z%'");
+                    headings = new string[headingRows.Length, 2];
+                    
+                    for (int i = 0; i < headingRows.Length; i ++) 
+                    {
+                        headings[i, 0] = (string) headingRows[i]["PreP"];
+                        headings[i, 1] = (string)headingRows[i]["SortBy"];
+                        headings[i, 1] = headings[i, 1].Substring(0, 3);
+                    }
+                    // create new section in document
+                    doc.Range(0, 0).InsertBreak(Word.WdBreakType.wdSectionBreakNextPage);
+                    // create table of contents
+                    doc.Tables.Add(doc.Range(0, 0), headings.GetUpperBound(0) + 1, 2, Word.WdDefaultTableBehavior.wdWord8TableBehavior, Word.WdAutoFitBehavior.wdAutoFitContent);
+                    // format table
+                    doc.Sections[1].Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                    doc.Sections[1].Range.Font.Name = "Cambria (Headings)";
+                    doc.Sections[1].Range.Font.Size = 12;
+
+                    // fill table
+                    doc.Tables[1].Cell(1, 1).Range.Text = "TABLE OF CONTENTS";
+                    doc.Tables[1].Cell(1, 1).Range.Font.Bold = -1;
+                    for (int i = 0; i < headings.GetUpperBound(0); i++)
+                    {
+                        doc.Tables[1].Cell(i + 2, 1).Range.Text = headings[i, 0];
+                        doc.Tables[1].Cell(i + 2, 2).Range.Text = headings[i, 1];
+                        doc.Tables[1].Cell(i + 2, 2).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphRight;
+                    }
+                    doc.Tables[1].Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
+                    doc.Tables[1].Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
+
+                    break;
+                case 3:
+                    // create new section in document
+                    doc.Range(0, 0).InsertBreak(Word.WdBreakType.wdSectionBreakNextPage);
+                    doc.TablesOfContents.Add(doc.Range(0, 0), true, 1, 3, false, missingType, missingType, missingType, missingType, true);
+                    break;
+            }
 
         }
+
 
         public void MakeSurveyNotesAppendix() { }
 
@@ -496,13 +563,18 @@ namespace ITCSurveyReport
 
         }
 
-        // getSurveyTitle
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="addDate"></param>
+        /// <returns>String</returns>
         public String ReportTitle(bool addDate = false) {
             String title = "";
             String surveyCodes = "";
 
             if (surveys.Count == 1) {
-                title = surveys[0].WebName;
+                title = surveys[0].Title;
                 if (surveys[0].Backend != DateTime.Today) { surveyCodes += " on " + surveys[0].Backend.ToString(); }
                 return title;
             }
@@ -522,6 +594,10 @@ namespace ITCSurveyReport
         }
 
         // getSurveyFileName
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public String ReportFileName() {
             String finalfilename = "";
             String surveyCodes = "";
@@ -558,7 +634,10 @@ namespace ITCSurveyReport
 
         public bool IsCompleteSurvey() { return true; }
 
-        // Format the header row so with the appropriate widths and titles
+        /// <summary>
+        /// Format the header row so with the appropriate widths and titles
+        /// </summary>
+        /// <param name="doc"></param>
         public void FormatColumns(Word.Document doc)
         {
             double widthLeft;
@@ -632,6 +711,7 @@ namespace ITCSurveyReport
                         //doc.Tables[1].Columns[i].Width = commentWidth * 72;
                         widthLeft -= commentWidth;
                         break;
+                    
                     default: // question column
                         if (header.Contains(DateTime.Today.ToString("d").Replace("-", "")))
                         {

@@ -68,6 +68,27 @@ namespace ITCSurveyReport
             hybridHighlight = false;
         }
 
+
+        public void CompareByMerge(List<Survey> SurveyList)
+        {
+            DataTable primary = new DataTable();
+            DataTable other = new DataTable();
+
+            foreach (Survey s in SurveyList)
+            {
+                if (s.Primary)
+                {
+                    primary = s.rawTable;
+                    break;
+                }
+            }
+
+            foreach (Survey s in SurveyList)
+            {
+
+            }
+        }
+
         public void CompareByVarName(List<Survey> SurveyList) {
             DataTable primary = new DataTable();
             DataTable other = new DataTable();
