@@ -740,7 +740,7 @@ namespace ITCSurveyReport
                 }
 
                 // in-line routing
-                if (inlineRouting && row["PstP"] != null)
+                if (InlineRouting && row["PstP"] != null)
                 {
                     FormatRouting(row);
                 }
@@ -814,80 +814,16 @@ namespace ITCSurveyReport
         /// <param name="row"></param>
         private void FormatRouting(DataRow row)
         {
-            string r;
-            string[] routing;
-            string[] options;
-            string[] routingNumbers;
-            string destination;
-            string numbers;
-            string[] numbersArray;
-            RoutingType routingType;
-            string respNum;
-            string finalRouting;
-            Regex rx = new Regex("go to ([A-Z][A-Z][A-Z]/|[0-9][0-9][0-9][a-z]*/)*[a-zA-z][a-zA-z](\\d{5}|\\d{3})");
-            MatchCollection results;
-            Match m;
+            QuestionRouting qr;
 
-            // split the routing and options into arrays
-            r = (string)row["PstP"];
-            routing = r.Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries);
-            r = (string)row["RespOptions"] + "\r\n" + (string)row["NRCodes"];
-            options = r.Split (new string[] { "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
-            routingNumbers = new string[options.Length];
+            qr = new QuestionRouting((string)row["PstP"], row["RespOptions"] + "\r\n" + row["NRCodes"]);
 
-            for (int i = 0; i < routing.Length; i++)
-            {
-                // get routing type, if 1 or 2, this instruction will be removed from the routing field and its routing destination will be
-                // appended to the appropriate response option, if 3, this routing may be moved to the response option location
-                if (routing[i].StartsWith ("If response"))
-                {
-                    routingType = RoutingType.IfResponse;
-                } else if (routing[i].StartsWith("Otherwise"))
-                {
-                    routingType = RoutingType.Otherwise;
-                } else if (routing[i].StartsWith("If"))
-                {
-                    routingType = RoutingType.If;
-                }
-                else
-                {
-                    routingType = RoutingType.Other;
-                }
-
-                // start with the destination
-                results = rx.Matches(routing[i]);
-                // go to next line of routing if there is no match for our pattern
-                if (results.Count == 0)
-                    continue;
-
-                m = results[0];
-
-                // the destination varname (or sometimes, section) (anything after the destination variable is formatting with a smaller font)
-                destination = routing[i].Substring(m.Index, m.Length + 1) + "<Font Size=8>" + routing[i].Substring(m.Index + m.Length + 1) + "</Font>";
-
-                if (routingType == RoutingType.IfResponse)
-                {
-                    /* the most common style (If response)
-                     get the numbers referenced by this instruction
-                     this list of numbers should be all the numbers that would route to this instruction's destination
-                    */
-
-                    numbers = GetRoutingNumbers(routing[i], (string)row["RespOptions"]);
-                    numbersArray = numbers.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                    // now for each option, check if it starts with one of the referenced numbers
-                    // if so, add it to the routingNumbers array, and clear this instruction from the PstP
-
-
-                }
-
-            }
+            row["PstP"] = string.Join("\r\n", qr.RoutingText);
+            row["RespOptions"] = qr.ToString();
+            row.AcceptChanges();
         }
 
-        private string GetRoutingNumbers(string routingInstruction, string responseOptions)
-        {
-            return "";
-        }
+        
 
 
         // TODO remove whitespace around each option before adding read out instruction
@@ -1247,6 +1183,7 @@ namespace ITCSurveyReport
         public string Groups { get => groups; set => groups = value; }
         public string Mode { get => mode; set => mode = value; }
         public int Cc { get => cc; set => cc = value; }
+        public bool InlineRouting { get => inlineRouting; set => inlineRouting = value; }
         #endregion
 
 

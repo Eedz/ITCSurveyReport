@@ -49,6 +49,7 @@
     <Compile Include="QuestionRouting.cs" />
     <Compile Include="ReportFormatting.cs" />
     <Compile Include="ReportLayout.cs" />
+    <Compile Include="RoutingVar.cs" />
     <Compile Include="Survey.cs" />
     <Compile Include="SurveyDataTable.cs">
       <SubType>Component</SubType>

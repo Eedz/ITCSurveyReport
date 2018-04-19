@@ -14,10 +14,10 @@ namespace ITCSurveyReport
     /// </summary>
     class QuestionRouting
     {
-        string routingText;  // the complete text of the routing
+        string [] routingText;  // the complete text of the routing
         string [] responseOptions; // the response options for the question
         bool hasVar;        // true if the routing contains a variable name
-        List<FilterVar> routingVars;      // list of varname destinations that appear in this routing instruction
+        List<RoutingVar> routingVars;      // list of varname destinations that appear in this routing instruction
 
         public QuestionRouting()
         {
@@ -36,13 +36,22 @@ namespace ITCSurveyReport
         public QuestionRouting(string routing, string respOptions)
         {
             string var = Utilities.ExtractVarName(routing);
-            routingText = routing;
+            routingText = routing.Split('\r', '\n');
             responseOptions = respOptions.Split('\r','\n');
+            routingVars = new List<RoutingVar>();
             // check for vars to set hasVar flag
             if (!var.Equals(""))
+            {
                 hasVar = true;
+            }
+            else
+            {
+                return;
+            }
+
+            
             // populate filterVars list
-            routingVars = new List<FilterVar>();
+            
             GetRoutingVars();
         }
 
@@ -51,15 +60,17 @@ namespace ITCSurveyReport
         /// </summary>
         private void GetRoutingVars()
         {
-            string r;
-            string[] routing;
+            RoutingVar rv;
+           
+            
             string[] options;
             string[] routingNumbers;
             string destination;
             string numbers;
             string[] numbersArray;
+            int[] numbersArrayInt;
             RoutingType routingType;
-            string respNum;
+            int respNum;
             string finalRouting;
             Regex rx = new Regex("go to ([A-Z][A-Z][A-Z]/|[0-9][0-9][0-9][a-z]*/)*[a-zA-z][a-zA-z](\\d{5}|\\d{3})");
             MatchCollection results;
@@ -73,18 +84,18 @@ namespace ITCSurveyReport
 
             string[] routingOptionsList;
  
-            // split the routing and options into arrays
             
-            routing = routingText.Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries);
+            
+           
 
-            for (int i = 0; i < routing.Length; i++)
+            for (int i = 0; i < routingText.Length; i++)
             {
                 // get routing type, if 1 or 2, this instruction will be removed from the routing field and its routing destination will be
                 // appended to the appropriate response option, if 3, this routing may be moved to the response option location
-                routingType = GetRoutingType(routing[i]);
+                routingType = GetRoutingType(routingText[i]);
 
                 // start with the destination
-                results = rx.Matches(routing[i]);
+                results = rx.Matches(routingText[i]);
                 // go to next line of routing if there is no match for our pattern
                 if (results.Count == 0)
                     continue;
@@ -92,9 +103,9 @@ namespace ITCSurveyReport
                 m = results[0];
 
                 // the destination varname (or sometimes, section) (anything after the destination variable is formatting with a smaller font)
-                destination = routing[i].Substring(m.Index, m.Length + 1) + "<Font Size=8>" + routing[i].Substring(m.Index + m.Length + 1) + "</Font>";
-
-                switch(routingType)
+                destination = routingText[i].Substring(m.Index, m.Length + 1) + "<Font Size=8>" + routingText[i].Substring(m.Index + m.Length + 1) + "</Font>";
+                rv = new RoutingVar();
+                switch (routingType)
                 {
                     case RoutingType.IfResponse:
                         
@@ -104,15 +115,41 @@ namespace ITCSurveyReport
                          this list of numbers should be all the numbers that would route to this instruction's destination
                         */
 
-                        numbers = GetRoutingNumbers(routing[i]);
+                        numbers = GetRoutingNumbers(routingText[i]);
                         numbersArray = numbers.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        numbersArrayInt = Array.ConvertAll(numbersArray, int.Parse);
+                        
+                        
 
-                        // now for each option, check if it starts with one of the referenced numbers
-                        // if so, add it to the routingNumbers array, and clear this instruction from the PstP
+                        
+                       
+                                    
+                        rv.Varname = destination;
+                        rv.ResponseCodes = numbersArrayInt.ToList<int>();
+                        if (!routingVars.Contains(rv))
+                            routingVars.Add(rv);
+
+
+                        routingText[i] = "";
                         break;
                     case RoutingType.Otherwise:
+                        rv.Varname = destination;
+                        for (int r = 0; r < routingVars.Count; r++)
+                        {
+                            for (int s = 0; s < responseOptions.Length; s++)
+                            {
+                                if (!routingVars[r].ResponseCodes.Contains(ResponseNumber(responseOptions[s])))
+                                {
+                                    rv.ResponseCodes.Add(ResponseNumber(responseOptions[s]));
+                                }
+                            }
+                        }
+                        if (!routingVars.Contains(rv))
+                            routingVars.Add(rv);
                         break;
                     case RoutingType.If:
+                        rv.Varname = destination;
+                        rv.ResponseCodes.Add(0);
                         break;
                     case RoutingType.Other:
                         break;
@@ -120,6 +157,8 @@ namespace ITCSurveyReport
                 }
 
             }
+
+            
         }
 
         /// <summary>
@@ -140,8 +179,6 @@ namespace ITCSurveyReport
             if (ifResponsePos == 0 && gotoPos == 0)
                 return "";
 
-
-
             routingNumbers = routingInstruction.Substring(ifResponsePos, gotoPos);
             routingNumbers = Regex.Replace(routingNumbers, "[^0-9 =<->,]", "");
             // get the operation before the list of numbers (=, >, or <)
@@ -151,7 +188,7 @@ namespace ITCSurveyReport
             {
                 routingNumbers = FillRange(routingNumbers);
             }
-            routingNumbers = Regex.Replace(routingNumbers, ",", " ");
+            routingNumbers = Regex.Replace(routingNumbers, "[^0-9 ]", " ");
             numberArr = routingNumbers.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             // depending on the operation, get the numbers that will lead to this routing instruction
             switch (oper)
@@ -210,6 +247,7 @@ namespace ITCSurveyReport
                 ineq += s.Substring(1,1);
                 s = s.Substring(2);
             }
+            ineq = Regex.Replace(ineq, ",", "");
             return ineq;
         }
 
@@ -274,13 +312,13 @@ namespace ITCSurveyReport
         /// </summary>
         /// <param name="respOption"></param>
         /// <returns>int</returns>
-        public int ResponseNumber (string respOption)
+        public int ResponseNumber(string respOption)
         {
             Double d = 0;
-            string number="";
+            string number = "";
             for (int i = 0; i < respOption.Length; i++)
             {
-                if (!Double.TryParse(respOption.Substring(i, 1), out d))
+                if (Double.TryParse(respOption.Substring(i, 1), out d))
                 {
                     number += respOption.Substring(i, 1);
                 }
@@ -288,9 +326,27 @@ namespace ITCSurveyReport
             return Int32.Parse(number);
         }
 
-        public string FilterText { get => routingText; set => routingText = value; }
+        public override string ToString()
+        {
+            string output = "";
+            for (int i = 0; i < responseOptions.Length; i++)
+            {
+                foreach (RoutingVar rv in routingVars)
+                {
+                    if (rv.ResponseCodes.Contains(ResponseNumber(responseOptions[i])))
+                    {
+                        output += responseOptions[i] + " => " + rv.Varname;
+                        break;
+                    }
+                }
+            }
+            
+            return output;
+        }
+
+        public string[] RoutingText { get => routingText; set => routingText = value; }
         public bool HasVar { get => hasVar; }
-        internal List<FilterVar> RoutingVars { get => routingVars; set => routingVars = value; }
+        internal List<RoutingVar> RoutingVars { get => routingVars; set => routingVars = value; }
     }
 }
 

@@ -74,7 +74,8 @@ namespace ITCSurveyReport
 
 
                 SR.Surveys[0].Qnum = true;
-                
+                SR.Surveys[0].InlineRouting = true;
+                SR.InlineRouting = true;
 
                 
                 result = SR.GenerateSurveyReport();
