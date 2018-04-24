@@ -134,6 +134,9 @@ namespace ITCSurveyReport
         public void FormatHeadings(Word.Document doc, int c, bool subheads)
         {
             String txt;
+
+            if (c != 3) c = 2;
+
             for (int i = 1; i <= doc.Tables[1].Rows.Count; i++)
             {
                 txt = doc.Tables[1].Cell(i, 0).Range.Text;

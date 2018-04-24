@@ -46,7 +46,7 @@ namespace ITCSurveyReport
 
         //Dictionary<int, Variable> questions;  // Variable object not yet implemented
 
-        int id;                                 // unique id
+        int id;                                 // unique id, NOT the database ID
         String surveyCode;
         
         DateTime backend;                         // file name of backup
@@ -95,6 +95,7 @@ namespace ITCSurveyReport
         bool inlineRouting;
         Enumeration numbering;
         ReadOutOptions nrFormat;
+        bool showAllQnums;
 
         // errors and results
         // qnu list
@@ -159,6 +160,7 @@ namespace ITCSurveyReport
             excludeTempNames = true;
             numbering = Enumeration.Qnum;
             nrFormat = ReadOutOptions.Neither;
+            showAllQnums = false;
         }
 
         public Survey(string code)
@@ -236,6 +238,7 @@ namespace ITCSurveyReport
 
             numbering = Enumeration.Qnum;
             nrFormat = ReadOutOptions.Neither;
+            showAllQnums = false;
         }
 
         public Survey (ReportTemplate repTemplate)
@@ -599,7 +602,7 @@ namespace ITCSurveyReport
             {
                 
 
-                // inline routing
+                
                 // semitel
                 // table format tags
 
@@ -611,7 +614,7 @@ namespace ITCSurveyReport
                     var currentValue = row[colName]; 
                     switch (colName)
                     {
-                        //case "ID":
+                        
 
                         case "SortBy":
                         case "Survey":
@@ -677,7 +680,7 @@ namespace ITCSurveyReport
                                 row.AcceptChanges();
                             }
                             break;
-                            // inline routing
+                            
                             // semi tel
                             // table format
                             
@@ -699,6 +702,10 @@ namespace ITCSurveyReport
                             break;
                         case "Qnum":
                             
+                            newrow[colName] = row[colName];
+                            break;
+                        case "AltQnum":
+
                             newrow[colName] = row[colName];
                             break;
                         case "VarName":
@@ -783,6 +790,9 @@ namespace ITCSurveyReport
             if (numbering == Enumeration.Qnum)
                 finalTable.Columns.Remove("AltQnum");
 
+            if (numbering == Enumeration.AltQnum)
+                finalTable.Columns.Remove("Qnum");
+
             if (!domainLabelCol)
                 finalTable.Columns.Remove("Domain");
 
@@ -827,6 +837,7 @@ namespace ITCSurveyReport
 
 
         // TODO remove whitespace around each option before adding read out instruction
+        // TODO check for tags before adding readOut string
         private string FormatNR (string wording)
         {
             string[] options;
@@ -1184,6 +1195,7 @@ namespace ITCSurveyReport
         public string Mode { get => mode; set => mode = value; }
         public int Cc { get => cc; set => cc = value; }
         public bool InlineRouting { get => inlineRouting; set => inlineRouting = value; }
+        public bool ShowAllQnums { get => showAllQnums; set => showAllQnums = value; }
         #endregion
 
 

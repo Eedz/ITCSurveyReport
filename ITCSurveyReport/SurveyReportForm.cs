@@ -74,8 +74,8 @@ namespace ITCSurveyReport
 
 
                 SR.Surveys[0].Qnum = true;
-                SR.Surveys[0].InlineRouting = true;
-                SR.InlineRouting = true;
+                //SR.Surveys[0].InlineRouting = true;
+                //SR.InlineRouting = true;
 
                 
                 result = SR.GenerateSurveyReport();
@@ -402,5 +402,28 @@ namespace ITCSurveyReport
         }
 
         #endregion
+
+        #region Order and Numbering tab
+        private void enumerationRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton r = sender as RadioButton;
+            int sel = Convert.ToInt32 (r.Tag);
+
+            SR.Numbering = (Enumeration) sel;
+            
+        }
+
+        #endregion
+
+        #region Output Tab
+        private void FileFormat_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton r = sender as RadioButton;
+            int sel = Convert.ToInt32(r.Tag);
+
+            SR.LayoutOptions.FileFormat = (FileFormats)sel;
+        }
+        #endregion
+
     }
 }

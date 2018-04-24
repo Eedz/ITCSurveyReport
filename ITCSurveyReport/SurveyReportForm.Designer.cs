@@ -103,11 +103,13 @@
             this.doCompareCheckBox = new System.Windows.Forms.CheckBox();
             this.matchOnRenameCheckBox = new System.Windows.Forms.CheckBox();
             this.pgOrder = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.radioButton5 = new System.Windows.Forms.RadioButton();
-            this.radioButton4 = new System.Windows.Forms.RadioButton();
-            this.radioButton3 = new System.Windows.Forms.RadioButton();
-            this.showAllQnumsCheckBox = new System.Windows.Forms.CheckBox();
+            this.dataGridView2 = new System.Windows.Forms.DataGridView();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.groupEnumeration = new System.Windows.Forms.GroupBox();
+            this.optQnumAltQnum = new System.Windows.Forms.RadioButton();
+            this.optAltQnumOnly = new System.Windows.Forms.RadioButton();
+            this.optQnumOnly = new System.Windows.Forms.RadioButton();
+            this.chkShowAllQnums = new System.Windows.Forms.CheckBox();
             this.pgFormatting = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -151,7 +153,7 @@
             this.radioButton10 = new System.Windows.Forms.RadioButton();
             this.radioButton9 = new System.Windows.Forms.RadioButton();
             this.radioButton8 = new System.Windows.Forms.RadioButton();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.groupFileFormat = new System.Windows.Forms.GroupBox();
             this.radioButton7 = new System.Windows.Forms.RadioButton();
             this.radioButton6 = new System.Windows.Forms.RadioButton();
             this.pgFileName = new System.Windows.Forms.TabPage();
@@ -182,7 +184,9 @@
             this.groupHighlightStyle.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPrimarySurvey)).BeginInit();
             this.pgOrder.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.groupEnumeration.SuspendLayout();
             this.pgFormatting.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -194,7 +198,7 @@
             this.groupBox8.SuspendLayout();
             this.groupBox7.SuspendLayout();
             this.groupBox6.SuspendLayout();
-            this.groupBox5.SuspendLayout();
+            this.groupFileFormat.SuspendLayout();
             this.pgFileName.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.surveyView)).BeginInit();
             this.SuspendLayout();
@@ -991,68 +995,93 @@
             // pgOrder
             // 
             this.pgOrder.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(170)))), ((int)(((byte)(136)))));
-            this.pgOrder.Controls.Add(this.groupBox2);
+            this.pgOrder.Controls.Add(this.dataGridView2);
+            this.pgOrder.Controls.Add(this.dataGridView1);
+            this.pgOrder.Controls.Add(this.groupEnumeration);
             this.pgOrder.Location = new System.Drawing.Point(4, 22);
             this.pgOrder.Name = "pgOrder";
             this.pgOrder.Size = new System.Drawing.Size(465, 503);
             this.pgOrder.TabIndex = 3;
             this.pgOrder.Text = "Order and Numbering";
             // 
-            // groupBox2
+            // dataGridView2
             // 
-            this.groupBox2.Controls.Add(this.radioButton5);
-            this.groupBox2.Controls.Add(this.radioButton4);
-            this.groupBox2.Controls.Add(this.radioButton3);
-            this.groupBox2.Controls.Add(this.showAllQnumsCheckBox);
-            this.groupBox2.Location = new System.Drawing.Point(155, 227);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(182, 121);
-            this.groupBox2.TabIndex = 53;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Enumeration";
+            this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView2.Location = new System.Drawing.Point(49, 189);
+            this.dataGridView2.Name = "dataGridView2";
+            this.dataGridView2.Size = new System.Drawing.Size(154, 76);
+            this.dataGridView2.TabIndex = 55;
             // 
-            // radioButton5
+            // dataGridView1
             // 
-            this.radioButton5.AutoSize = true;
-            this.radioButton5.Location = new System.Drawing.Point(25, 62);
-            this.radioButton5.Name = "radioButton5";
-            this.radioButton5.Size = new System.Drawing.Size(85, 17);
-            this.radioButton5.TabIndex = 55;
-            this.radioButton5.TabStop = true;
-            this.radioButton5.Text = "radioButton5";
-            this.radioButton5.UseVisualStyleBackColor = true;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Location = new System.Drawing.Point(51, 59);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.Size = new System.Drawing.Size(242, 88);
+            this.dataGridView1.TabIndex = 54;
             // 
-            // radioButton4
+            // groupEnumeration
             // 
-            this.radioButton4.AutoSize = true;
-            this.radioButton4.Location = new System.Drawing.Point(26, 38);
-            this.radioButton4.Name = "radioButton4";
-            this.radioButton4.Size = new System.Drawing.Size(85, 17);
-            this.radioButton4.TabIndex = 54;
-            this.radioButton4.TabStop = true;
-            this.radioButton4.Text = "radioButton4";
-            this.radioButton4.UseVisualStyleBackColor = true;
+            this.groupEnumeration.Controls.Add(this.optQnumAltQnum);
+            this.groupEnumeration.Controls.Add(this.optAltQnumOnly);
+            this.groupEnumeration.Controls.Add(this.optQnumOnly);
+            this.groupEnumeration.Controls.Add(this.chkShowAllQnums);
+            this.groupEnumeration.Location = new System.Drawing.Point(257, 189);
+            this.groupEnumeration.Name = "groupEnumeration";
+            this.groupEnumeration.Size = new System.Drawing.Size(122, 121);
+            this.groupEnumeration.TabIndex = 53;
+            this.groupEnumeration.TabStop = false;
+            this.groupEnumeration.Text = "Enumeration";
             // 
-            // radioButton3
+            // optQnumAltQnum
             // 
-            this.radioButton3.AutoSize = true;
-            this.radioButton3.Location = new System.Drawing.Point(30, 17);
-            this.radioButton3.Name = "radioButton3";
-            this.radioButton3.Size = new System.Drawing.Size(85, 17);
-            this.radioButton3.TabIndex = 53;
-            this.radioButton3.TabStop = true;
-            this.radioButton3.Text = "radioButton3";
-            this.radioButton3.UseVisualStyleBackColor = true;
+            this.optQnumAltQnum.AutoSize = true;
+            this.optQnumAltQnum.Location = new System.Drawing.Point(25, 61);
+            this.optQnumAltQnum.Name = "optQnumAltQnum";
+            this.optQnumAltQnum.Size = new System.Drawing.Size(47, 17);
+            this.optQnumAltQnum.TabIndex = 55;
+            this.optQnumAltQnum.TabStop = true;
+            this.optQnumAltQnum.Tag = "3";
+            this.optQnumAltQnum.Text = "Both";
+            this.optQnumAltQnum.UseVisualStyleBackColor = true;
+            this.optQnumAltQnum.CheckedChanged += new System.EventHandler(this.enumerationRadioButton_CheckedChanged);
             // 
-            // showAllQnumsCheckBox
+            // optAltQnumOnly
             // 
-            this.showAllQnumsCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "ShowAllQnums", true));
-            this.showAllQnumsCheckBox.Location = new System.Drawing.Point(39, 91);
-            this.showAllQnumsCheckBox.Name = "showAllQnumsCheckBox";
-            this.showAllQnumsCheckBox.Size = new System.Drawing.Size(104, 24);
-            this.showAllQnumsCheckBox.TabIndex = 52;
-            this.showAllQnumsCheckBox.Text = "Show All Qnums";
-            this.showAllQnumsCheckBox.UseVisualStyleBackColor = true;
+            this.optAltQnumOnly.AutoSize = true;
+            this.optAltQnumOnly.Location = new System.Drawing.Point(25, 38);
+            this.optAltQnumOnly.Name = "optAltQnumOnly";
+            this.optAltQnumOnly.Size = new System.Drawing.Size(65, 17);
+            this.optAltQnumOnly.TabIndex = 54;
+            this.optAltQnumOnly.TabStop = true;
+            this.optAltQnumOnly.Tag = "2";
+            this.optAltQnumOnly.Text = "AltQnum";
+            this.optAltQnumOnly.UseVisualStyleBackColor = true;
+            this.optAltQnumOnly.CheckedChanged += new System.EventHandler(this.enumerationRadioButton_CheckedChanged);
+            // 
+            // optQnumOnly
+            // 
+            this.optQnumOnly.AutoSize = true;
+            this.optQnumOnly.Checked = true;
+            this.optQnumOnly.Location = new System.Drawing.Point(25, 15);
+            this.optQnumOnly.Name = "optQnumOnly";
+            this.optQnumOnly.Size = new System.Drawing.Size(53, 17);
+            this.optQnumOnly.TabIndex = 53;
+            this.optQnumOnly.TabStop = true;
+            this.optQnumOnly.Tag = "1";
+            this.optQnumOnly.Text = "Qnum";
+            this.optQnumOnly.UseVisualStyleBackColor = true;
+            this.optQnumOnly.CheckedChanged += new System.EventHandler(this.enumerationRadioButton_CheckedChanged);
+            // 
+            // chkShowAllQnums
+            // 
+            this.chkShowAllQnums.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "ShowAllQnums", true));
+            this.chkShowAllQnums.Location = new System.Drawing.Point(12, 91);
+            this.chkShowAllQnums.Name = "chkShowAllQnums";
+            this.chkShowAllQnums.Size = new System.Drawing.Size(104, 24);
+            this.chkShowAllQnums.TabIndex = 52;
+            this.chkShowAllQnums.Text = "Show All Qnums";
+            this.chkShowAllQnums.UseVisualStyleBackColor = true;
             // 
             // pgFormatting
             // 
@@ -1246,7 +1275,7 @@
             this.groupBox4.Controls.Add(this.groupBox8);
             this.groupBox4.Controls.Add(this.groupBox7);
             this.groupBox4.Controls.Add(this.groupBox6);
-            this.groupBox4.Controls.Add(this.groupBox5);
+            this.groupBox4.Controls.Add(this.groupFileFormat);
             this.groupBox4.Location = new System.Drawing.Point(15, 18);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(349, 451);
@@ -1363,7 +1392,7 @@
             this.varChangesColCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.varChangesColCheckBox.Name = "varChangesColCheckBox";
             this.varChangesColCheckBox.Padding = new System.Windows.Forms.Padding(1);
-            this.varChangesColCheckBox.Size = new System.Drawing.Size(183, 24);
+            this.varChangesColCheckBox.Size = new System.Drawing.Size(218, 24);
             this.varChangesColCheckBox.TabIndex = 68;
             this.varChangesColCheckBox.Text = "VarName Changes (in VarName column)";
             this.varChangesColCheckBox.UseVisualStyleBackColor = true;
@@ -1409,7 +1438,7 @@
             this.radioButton17.Name = "radioButton17";
             this.radioButton17.Size = new System.Drawing.Size(99, 17);
             this.radioButton17.TabIndex = 2;
-            this.radioButton17.TabStop = true;
+            this.radioButton17.Tag = "2";
             this.radioButton17.Text = "Don\'t Read Out";
             this.radioButton17.UseVisualStyleBackColor = true;
             // 
@@ -1420,18 +1449,20 @@
             this.radioButton16.Name = "radioButton16";
             this.radioButton16.Size = new System.Drawing.Size(79, 17);
             this.radioButton16.TabIndex = 1;
-            this.radioButton16.TabStop = true;
+            this.radioButton16.Tag = "1";
             this.radioButton16.Text = "Don\'t Read";
             this.radioButton16.UseVisualStyleBackColor = true;
             // 
             // radioButton15
             // 
             this.radioButton15.AutoSize = true;
+            this.radioButton15.Checked = true;
             this.radioButton15.Location = new System.Drawing.Point(11, 18);
             this.radioButton15.Name = "radioButton15";
             this.radioButton15.Size = new System.Drawing.Size(59, 17);
             this.radioButton15.TabIndex = 0;
             this.radioButton15.TabStop = true;
+            this.radioButton15.Tag = "0";
             this.radioButton15.Text = "Neither";
             this.radioButton15.UseVisualStyleBackColor = true;
             // 
@@ -1455,7 +1486,7 @@
             this.radioButton14.Name = "radioButton14";
             this.radioButton14.Size = new System.Drawing.Size(38, 17);
             this.radioButton14.TabIndex = 3;
-            this.radioButton14.TabStop = true;
+            this.radioButton14.Tag = "4";
             this.radioButton14.Text = "A4";
             this.radioButton14.UseVisualStyleBackColor = true;
             // 
@@ -1466,7 +1497,7 @@
             this.radioButton13.Name = "radioButton13";
             this.radioButton13.Size = new System.Drawing.Size(54, 17);
             this.radioButton13.TabIndex = 2;
-            this.radioButton13.TabStop = true;
+            this.radioButton13.Tag = "3";
             this.radioButton13.Text = "11x17";
             this.radioButton13.UseVisualStyleBackColor = true;
             // 
@@ -1477,18 +1508,20 @@
             this.radioButton12.Name = "radioButton12";
             this.radioButton12.Size = new System.Drawing.Size(51, 17);
             this.radioButton12.TabIndex = 1;
-            this.radioButton12.TabStop = true;
+            this.radioButton12.Tag = "2";
             this.radioButton12.Text = "Legal";
             this.radioButton12.UseVisualStyleBackColor = true;
             // 
             // radioButton11
             // 
             this.radioButton11.AutoSize = true;
+            this.radioButton11.Checked = true;
             this.radioButton11.Location = new System.Drawing.Point(13, 17);
             this.radioButton11.Name = "radioButton11";
             this.radioButton11.Size = new System.Drawing.Size(52, 17);
             this.radioButton11.TabIndex = 0;
             this.radioButton11.TabStop = true;
+            this.radioButton11.Tag = "1";
             this.radioButton11.Text = "Letter";
             this.radioButton11.UseVisualStyleBackColor = true;
             // 
@@ -1511,7 +1544,7 @@
             this.radioButton10.Name = "radioButton10";
             this.radioButton10.Size = new System.Drawing.Size(95, 17);
             this.radioButton10.TabIndex = 2;
-            this.radioButton10.TabStop = true;
+            this.radioButton10.Tag = "2";
             this.radioButton10.Text = "Page Numbers";
             this.radioButton10.UseVisualStyleBackColor = true;
             // 
@@ -1522,31 +1555,33 @@
             this.radioButton9.Name = "radioButton9";
             this.radioButton9.Size = new System.Drawing.Size(112, 17);
             this.radioButton9.TabIndex = 1;
-            this.radioButton9.TabStop = true;
+            this.radioButton9.Tag = "1";
             this.radioButton9.Text = "Question Numbers";
             this.radioButton9.UseVisualStyleBackColor = true;
             // 
             // radioButton8
             // 
             this.radioButton8.AutoSize = true;
+            this.radioButton8.Checked = true;
             this.radioButton8.Location = new System.Drawing.Point(13, 21);
             this.radioButton8.Name = "radioButton8";
             this.radioButton8.Size = new System.Drawing.Size(51, 17);
             this.radioButton8.TabIndex = 0;
             this.radioButton8.TabStop = true;
+            this.radioButton8.Tag = "0";
             this.radioButton8.Text = "None";
             this.radioButton8.UseVisualStyleBackColor = true;
             // 
-            // groupBox5
+            // groupFileFormat
             // 
-            this.groupBox5.Controls.Add(this.radioButton7);
-            this.groupBox5.Controls.Add(this.radioButton6);
-            this.groupBox5.Location = new System.Drawing.Point(43, 35);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(95, 88);
-            this.groupBox5.TabIndex = 0;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "File Format";
+            this.groupFileFormat.Controls.Add(this.radioButton7);
+            this.groupFileFormat.Controls.Add(this.radioButton6);
+            this.groupFileFormat.Location = new System.Drawing.Point(43, 35);
+            this.groupFileFormat.Name = "groupFileFormat";
+            this.groupFileFormat.Size = new System.Drawing.Size(95, 88);
+            this.groupFileFormat.TabIndex = 0;
+            this.groupFileFormat.TabStop = false;
+            this.groupFileFormat.Text = "File Format";
             // 
             // radioButton7
             // 
@@ -1555,20 +1590,24 @@
             this.radioButton7.Name = "radioButton7";
             this.radioButton7.Size = new System.Drawing.Size(46, 17);
             this.radioButton7.TabIndex = 1;
-            this.radioButton7.TabStop = true;
+            this.radioButton7.Tag = "2";
             this.radioButton7.Text = "PDF";
             this.radioButton7.UseVisualStyleBackColor = true;
+            this.radioButton7.CheckedChanged += new System.EventHandler(this.FileFormat_CheckedChanged);
             // 
             // radioButton6
             // 
             this.radioButton6.AutoSize = true;
+            this.radioButton6.Checked = true;
             this.radioButton6.Location = new System.Drawing.Point(9, 20);
             this.radioButton6.Name = "radioButton6";
             this.radioButton6.Size = new System.Drawing.Size(51, 17);
             this.radioButton6.TabIndex = 0;
             this.radioButton6.TabStop = true;
+            this.radioButton6.Tag = "1";
             this.radioButton6.Text = "Word";
             this.radioButton6.UseVisualStyleBackColor = true;
+            this.radioButton6.CheckedChanged += new System.EventHandler(this.FileFormat_CheckedChanged);
             // 
             // pgFileName
             // 
@@ -1732,8 +1771,10 @@
             this.groupHighlightStyle.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPrimarySurvey)).EndInit();
             this.pgOrder.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.groupEnumeration.ResumeLayout(false);
+            this.groupEnumeration.PerformLayout();
             this.pgFormatting.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -1750,8 +1791,8 @@
             this.groupBox7.PerformLayout();
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
+            this.groupFileFormat.ResumeLayout(false);
+            this.groupFileFormat.PerformLayout();
             this.pgFileName.ResumeLayout(false);
             this.pgFileName.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.surveyView)).EndInit();
@@ -1828,7 +1869,7 @@
         private System.Windows.Forms.TextBox fileNameTextBox;
         private System.Windows.Forms.CheckBox inlineRoutingCheckBox;
         private System.Windows.Forms.CheckBox semiTelCheckBox;
-        private System.Windows.Forms.CheckBox showAllQnumsCheckBox;
+        private System.Windows.Forms.CheckBox chkShowAllQnums;
         private System.Windows.Forms.CheckBox survNotesCheckBox;
         private System.Windows.Forms.CheckBox tablesCheckBox;
         private System.Windows.Forms.CheckBox tablesTranslationCheckBox;
@@ -1837,10 +1878,10 @@
         private System.Windows.Forms.CheckBox webCheckBox;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.RadioButton radioButton5;
-        private System.Windows.Forms.RadioButton radioButton4;
-        private System.Windows.Forms.RadioButton radioButton3;
+        private System.Windows.Forms.GroupBox groupEnumeration;
+        private System.Windows.Forms.RadioButton optQnumAltQnum;
+        private System.Windows.Forms.RadioButton optAltQnumOnly;
+        private System.Windows.Forms.RadioButton optQnumOnly;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.CheckBox repeatedHeadingsCheckBox;
@@ -1860,7 +1901,7 @@
         private System.Windows.Forms.RadioButton radioButton10;
         private System.Windows.Forms.RadioButton radioButton9;
         private System.Windows.Forms.RadioButton radioButton8;
-        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.GroupBox groupFileFormat;
         private System.Windows.Forms.RadioButton radioButton7;
         private System.Windows.Forms.RadioButton radioButton6;
         private System.Windows.Forms.RadioButton radioButton14;
@@ -1898,6 +1939,8 @@
         private System.Windows.Forms.DataGridView surveyView;
         private System.Windows.Forms.BindingSource surveyReportBindingSource;
         private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.DataGridView dataGridView2;
+        private System.Windows.Forms.DataGridView dataGridView1;
     }
 }
 
