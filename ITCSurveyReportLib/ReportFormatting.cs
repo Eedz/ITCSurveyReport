@@ -131,16 +131,25 @@ namespace ITCSurveyReport
            
         }
 
-        public void FormatHeadings(Word.Document doc, int c, bool subheads)
+        
+        public void FormatHeadings(Word.Document doc, int enumeration, bool keepVarNames, bool keepQnums, bool subheads)
         {
             String txt;
+            int varCol = -1, qnumCol = -1, altQnumCol = -1;
 
-            if (c != 3) c = 2;
+            // determine the Qnum, AltQnum and VarName columns
+            for (int i = 1; i < doc.Tables[1].Columns.Count; i ++)
+            {
+                txt = doc.Tables[1].Cell(1, i).Range.Text;
+                if (txt.StartsWith("Q#")) qnumCol = i;
+                if (txt.Contains("AltQ#")) altQnumCol = i;
+                if (txt.Contains("VarName")) varCol = i;
+            }
 
             for (int i = 1; i <= doc.Tables[1].Rows.Count; i++)
             {
-                txt = doc.Tables[1].Cell(i, 0).Range.Text;
-                if (txt.Contains("head") || txt.Contains("!"))
+                txt = doc.Tables[1].Cell(i, varCol).Range.Text;
+                if (txt.StartsWith("Z"))
                 {
                     // set heading style and properties
                     doc.Tables[1].Rows[i].Range.Paragraphs.set_Style(Word.WdBuiltinStyle.wdStyleHeading1);
@@ -152,19 +161,23 @@ namespace ITCSurveyReport
                     doc.Tables[1].Rows[i].Range.Font.Bold = 1;
                     doc.Tables[1].Rows[i].Range.Font.Size = 12;
                     doc.Tables[1].Rows[i].Range.Font.Color = Word.WdColor.wdColorBlack;
-                    // clear text in all cells up to c
-                    for (int j = 0; j <= c; j++)
+
+                    if (!keepVarNames)
+                        doc.Tables[1].Cell(i, varCol).Range.Text = "";
+                    
+                    if (!keepQnums)
                     {
-                        doc.Tables[1].Cell(i, j).Range.Text = "";
+                        if (qnumCol != -1) doc.Tables[1].Cell(i, qnumCol).Range.Text = "";
+                        if (altQnumCol!= -1) doc.Tables[1].Cell(i, altQnumCol).Range.Text = "";
                     }
                 }
 
 
-                if (txt.Contains("subhead") && subheads)
+                if (txt.StartsWith("Z") && txt.EndsWith("s") && subheads)
                 {
                     doc.Tables[1].Rows[i].Shading.ForegroundPatternColor = Word.WdColor.wdColorSkyBlue;
                 }
-                else if (txt.Contains("head") || txt.Contains("!"))
+                else if (txt.StartsWith("Z"))
                 {
                     doc.Tables[1].Rows[i].Shading.ForegroundPatternColor = Word.WdColor.wdColorRose;
                 }

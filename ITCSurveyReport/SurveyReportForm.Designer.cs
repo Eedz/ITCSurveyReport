@@ -141,9 +141,9 @@
             this.varChangesAppCheckBox = new System.Windows.Forms.CheckBox();
             this.excludeTempChangesCheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.radioButton17 = new System.Windows.Forms.RadioButton();
-            this.radioButton16 = new System.Windows.Forms.RadioButton();
-            this.radioButton15 = new System.Windows.Forms.RadioButton();
+            this.optNRFormatDontReadOut = new System.Windows.Forms.RadioButton();
+            this.optNRFormatDontRead = new System.Windows.Forms.RadioButton();
+            this.optNRFormatNeither = new System.Windows.Forms.RadioButton();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.radioButton14 = new System.Windows.Forms.RadioButton();
             this.radioButton13 = new System.Windows.Forms.RadioButton();
@@ -1148,6 +1148,7 @@
             // 
             // qNInsertionCheckBox
             // 
+            this.qNInsertionCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "QNInsertion", true));
             this.qNInsertionCheckBox.Location = new System.Drawing.Point(3, 78);
             this.qNInsertionCheckBox.Name = "qNInsertionCheckBox";
             this.qNInsertionCheckBox.Size = new System.Drawing.Size(104, 19);
@@ -1185,6 +1186,7 @@
             // 
             // aQNInsertionCheckBox
             // 
+            this.aQNInsertionCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "AQNInsertion", true));
             this.aQNInsertionCheckBox.Location = new System.Drawing.Point(170, 78);
             this.aQNInsertionCheckBox.Name = "aQNInsertionCheckBox";
             this.aQNInsertionCheckBox.Size = new System.Drawing.Size(104, 19);
@@ -1204,6 +1206,7 @@
             // 
             // cCInsertionCheckBox
             // 
+            this.cCInsertionCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "CCInsertion", true));
             this.cCInsertionCheckBox.Location = new System.Drawing.Point(3, 103);
             this.cCInsertionCheckBox.Name = "cCInsertionCheckBox";
             this.cCInsertionCheckBox.Size = new System.Drawing.Size(120, 19);
@@ -1213,6 +1216,7 @@
             // 
             // tablesCheckBox
             // 
+            this.tablesCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "Tables", true));
             this.tablesCheckBox.Location = new System.Drawing.Point(3, 128);
             this.tablesCheckBox.Name = "tablesCheckBox";
             this.tablesCheckBox.Size = new System.Drawing.Size(132, 19);
@@ -1222,6 +1226,7 @@
             // 
             // inlineRoutingCheckBox
             // 
+            this.inlineRoutingCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "InlineRouting", true));
             this.inlineRoutingCheckBox.Location = new System.Drawing.Point(3, 153);
             this.inlineRoutingCheckBox.Name = "inlineRoutingCheckBox";
             this.inlineRoutingCheckBox.Size = new System.Drawing.Size(104, 19);
@@ -1249,6 +1254,7 @@
             // 
             // tablesTranslationCheckBox
             // 
+            this.tablesTranslationCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "TablesTranslation", true));
             this.tablesTranslationCheckBox.Location = new System.Drawing.Point(170, 128);
             this.tablesTranslationCheckBox.Name = "tablesTranslationCheckBox";
             this.tablesTranslationCheckBox.Size = new System.Drawing.Size(104, 19);
@@ -1421,9 +1427,9 @@
             // 
             // groupBox8
             // 
-            this.groupBox8.Controls.Add(this.radioButton17);
-            this.groupBox8.Controls.Add(this.radioButton16);
-            this.groupBox8.Controls.Add(this.radioButton15);
+            this.groupBox8.Controls.Add(this.optNRFormatDontReadOut);
+            this.groupBox8.Controls.Add(this.optNRFormatDontRead);
+            this.groupBox8.Controls.Add(this.optNRFormatNeither);
             this.groupBox8.Location = new System.Drawing.Point(173, 127);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(131, 101);
@@ -1431,40 +1437,43 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "NR Format";
             // 
-            // radioButton17
+            // optNRFormatDontReadOut
             // 
-            this.radioButton17.AutoSize = true;
-            this.radioButton17.Location = new System.Drawing.Point(11, 64);
-            this.radioButton17.Name = "radioButton17";
-            this.radioButton17.Size = new System.Drawing.Size(99, 17);
-            this.radioButton17.TabIndex = 2;
-            this.radioButton17.Tag = "2";
-            this.radioButton17.Text = "Don\'t Read Out";
-            this.radioButton17.UseVisualStyleBackColor = true;
+            this.optNRFormatDontReadOut.AutoSize = true;
+            this.optNRFormatDontReadOut.Location = new System.Drawing.Point(11, 64);
+            this.optNRFormatDontReadOut.Name = "optNRFormatDontReadOut";
+            this.optNRFormatDontReadOut.Size = new System.Drawing.Size(99, 17);
+            this.optNRFormatDontReadOut.TabIndex = 2;
+            this.optNRFormatDontReadOut.Tag = "2";
+            this.optNRFormatDontReadOut.Text = "Don\'t Read Out";
+            this.optNRFormatDontReadOut.UseVisualStyleBackColor = true;
+            this.optNRFormatDontReadOut.CheckedChanged += new System.EventHandler(this.NRFormat_CheckedChanged);
             // 
-            // radioButton16
+            // optNRFormatDontRead
             // 
-            this.radioButton16.AutoSize = true;
-            this.radioButton16.Location = new System.Drawing.Point(11, 41);
-            this.radioButton16.Name = "radioButton16";
-            this.radioButton16.Size = new System.Drawing.Size(79, 17);
-            this.radioButton16.TabIndex = 1;
-            this.radioButton16.Tag = "1";
-            this.radioButton16.Text = "Don\'t Read";
-            this.radioButton16.UseVisualStyleBackColor = true;
+            this.optNRFormatDontRead.AutoSize = true;
+            this.optNRFormatDontRead.Location = new System.Drawing.Point(11, 41);
+            this.optNRFormatDontRead.Name = "optNRFormatDontRead";
+            this.optNRFormatDontRead.Size = new System.Drawing.Size(79, 17);
+            this.optNRFormatDontRead.TabIndex = 1;
+            this.optNRFormatDontRead.Tag = "1";
+            this.optNRFormatDontRead.Text = "Don\'t Read";
+            this.optNRFormatDontRead.UseVisualStyleBackColor = true;
+            this.optNRFormatDontRead.CheckedChanged += new System.EventHandler(this.NRFormat_CheckedChanged);
             // 
-            // radioButton15
+            // optNRFormatNeither
             // 
-            this.radioButton15.AutoSize = true;
-            this.radioButton15.Checked = true;
-            this.radioButton15.Location = new System.Drawing.Point(11, 18);
-            this.radioButton15.Name = "radioButton15";
-            this.radioButton15.Size = new System.Drawing.Size(59, 17);
-            this.radioButton15.TabIndex = 0;
-            this.radioButton15.TabStop = true;
-            this.radioButton15.Tag = "0";
-            this.radioButton15.Text = "Neither";
-            this.radioButton15.UseVisualStyleBackColor = true;
+            this.optNRFormatNeither.AutoSize = true;
+            this.optNRFormatNeither.Checked = true;
+            this.optNRFormatNeither.Location = new System.Drawing.Point(11, 18);
+            this.optNRFormatNeither.Name = "optNRFormatNeither";
+            this.optNRFormatNeither.Size = new System.Drawing.Size(59, 17);
+            this.optNRFormatNeither.TabIndex = 0;
+            this.optNRFormatNeither.TabStop = true;
+            this.optNRFormatNeither.Tag = "0";
+            this.optNRFormatNeither.Text = "Neither";
+            this.optNRFormatNeither.UseVisualStyleBackColor = true;
+            this.optNRFormatNeither.CheckedChanged += new System.EventHandler(this.NRFormat_CheckedChanged);
             // 
             // groupBox7
             // 
@@ -1731,8 +1740,9 @@
             this.surveyView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.surveyView.Location = new System.Drawing.Point(488, 186);
             this.surveyView.Name = "surveyView";
+            this.surveyView.ReadOnly = true;
             this.surveyView.RowHeadersVisible = false;
-            this.surveyView.Size = new System.Drawing.Size(444, 248);
+            this.surveyView.Size = new System.Drawing.Size(444, 504);
             this.surveyView.TabIndex = 52;
             // 
             // SurveyReportForm
@@ -1908,9 +1918,9 @@
         private System.Windows.Forms.RadioButton radioButton13;
         private System.Windows.Forms.RadioButton radioButton12;
         private System.Windows.Forms.RadioButton radioButton11;
-        private System.Windows.Forms.RadioButton radioButton17;
-        private System.Windows.Forms.RadioButton radioButton16;
-        private System.Windows.Forms.RadioButton radioButton15;
+        private System.Windows.Forms.RadioButton optNRFormatDontReadOut;
+        private System.Windows.Forms.RadioButton optNRFormatDontRead;
+        private System.Windows.Forms.RadioButton optNRFormatNeither;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label13;

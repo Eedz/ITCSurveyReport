@@ -123,7 +123,7 @@ namespace ITCSurveyReport
             varChangesApp = false ;
             varChangesCol = false;
             excludeTempChanges = true;
-            ShowAllQnums1 = false;
+            showAllQnums = false;
  
             nrFormat = ReadOutOptions.Neither;
             web = false;
@@ -190,16 +190,33 @@ namespace ITCSurveyReport
             // remove refVarName column before outputting 
             
             reportTable.PrimaryKey = new DataColumn[] { reportTable.Columns["VarName"] };
-            
 
+            // ensure that the first 2-3 columns are in the right order
+            if (numbering == Enumeration.AltQnum)
+            {
+                reportTable.Columns["AltQnum"].SetOrdinal(0);
+                reportTable.Columns["VarName"].SetOrdinal(1);
+
+            }
+            else if (numbering == Enumeration.Qnum)
+            {
+                reportTable.Columns["Qnum"].SetOrdinal(0);
+                reportTable.Columns["VarName"].SetOrdinal(1);
+            }
+            else
+            {
+                reportTable.Columns["Qnum"].SetOrdinal(0);
+                reportTable.Columns["AltQnum"].SetOrdinal(1);
+                reportTable.Columns["VarName"].SetOrdinal(2);
+            }
             // output report
             // at this point the reportTable should be exactly how we want it to appear, minus interpreting tags
             //#if DEBUG
             //#else     
 
 
-            OutputReportTable();
-//#endif
+            //OutputReportTable();
+            //#endif
             return 0;
         }
 
@@ -306,24 +323,9 @@ namespace ITCSurveyReport
 
             int rowCount = reportTable.Rows.Count;
             int columnCount = reportTable.Columns.Count;
+            int clearCols; // the number of columns that should have their contents cleared, for headings
 
-            // ensure that the first 2-3 columns are in the right order
-            if (numbering == Enumeration.AltQnum)
-            {
-                reportTable.Columns["AltQnum"].SetOrdinal(0);
-                reportTable.Columns["VarName"].SetOrdinal(1);
-            }
-            else if (numbering == Enumeration.Qnum)
-            {
-                reportTable.Columns["Qnum"].SetOrdinal(0);
-                reportTable.Columns["VarName"].SetOrdinal(1);
-            }
-            else
-            {
-                reportTable.Columns["Qnum"].SetOrdinal(0);
-                reportTable.Columns["AltQnum"].SetOrdinal(1);
-                reportTable.Columns["VarName"].SetOrdinal(2);
-            }
+            
 
 
 
@@ -418,8 +420,9 @@ namespace ITCSurveyReport
             // format section headings
             if (reportType == 1)
             {
-                // process headings TODO use enumeration for 2nd arg
-                formatting.FormatHeadings(docReport, (int)numbering, colorSubs);
+
+                // process headings
+                formatting.FormatHeadings(docReport, (int) numbering, false, showAllQnums, colorSubs);
             }
 
             // update TOC due to formatting changes (see if the section headings can be done first, then the TOC could update itself)
@@ -547,8 +550,8 @@ namespace ITCSurveyReport
         /// <param name="doc">Document object</param>
         public void MakeToC(Word.Document doc) {
             // exit if no headings found
-            if (Utilities.DTLookup(reportTable, "Qnum", "Qnum = 'reghead'").Equals(""))
-                return;
+            //if (Utilities.DTLookup(reportTable, "Qnum", "Qnum = 'reghead'").Equals(""))
+            //    return;
 
             DataRow[] headingRows;
             string[,] headings;
@@ -827,8 +830,10 @@ namespace ITCSurveyReport
         public bool Compare { get => compare; set => compare = value; }
         
         public String[] RepeatedFields { get => repeatedFields; set => repeatedFields = value; }
-        public bool InlineRouting {
-            get => inlineRouting; set
+        public bool InlineRouting
+        {
+            get => inlineRouting;
+            set
             {
                 foreach (Survey s in surveys)
                 {
@@ -837,7 +842,18 @@ namespace ITCSurveyReport
                 inlineRouting = value;
             }
         }
-        public bool ShowLongLists { get => showLongLists; set => showLongLists = value; }
+        public bool ShowLongLists
+        {
+            get => showLongLists;
+            set
+            {
+                foreach (Survey s in surveys)
+                {
+                    s.ShowLongLists = value;
+                }
+                showLongLists = value;
+            }
+        }
         public bool QNInsertion
         {
             get => qnInsertion;
@@ -875,8 +891,25 @@ namespace ITCSurveyReport
         }
         public bool SemiTel { get => semiTel; set => semiTel = value; }
         public bool SingleField { get => singleField; set => singleField = value; }
-        public bool Tables { get => tables; set => tables = value; }
-        public bool TablesTranslation { get => tablesTranslation; set => tablesTranslation = value; }
+        public bool Tables { get => tables;
+            set
+            {
+                foreach (Survey s in surveys)
+                {
+                    s.SubsetTables = value;
+                }
+                tables = value;
+            }
+        }
+        public bool TablesTranslation { get => tablesTranslation; set
+            {
+                foreach (Survey s in surveys)
+                {
+                    s.SubsetTablesTranslation = value;
+                }
+                tablesTranslation = value;
+            }
+        }
         public String ColOrder { get => colOrder; set => colOrder = value; }
         public bool RepeatedHeadings { get => repeatedHeadings; set => repeatedHeadings = value; }
         public ReadOutOptions NrFormat

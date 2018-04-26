@@ -74,8 +74,7 @@ namespace ITCSurveyReport
 
 
                 SR.Surveys[0].Qnum = true;
-                //SR.Surveys[0].InlineRouting = true;
-                //SR.InlineRouting = true;
+                
 
                 
                 result = SR.GenerateSurveyReport();
@@ -91,9 +90,11 @@ namespace ITCSurveyReport
 
                 }
 
-
-
+                
+                surveyView.DataSource = null;
                 surveyView.DataSource = SR.Surveys[0].finalTable;
+                surveyView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+                surveyView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
 
             }
@@ -423,7 +424,16 @@ namespace ITCSurveyReport
 
             SR.LayoutOptions.FileFormat = (FileFormats)sel;
         }
+
+        private void NRFormat_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton r = sender as RadioButton;
+            int sel = Convert.ToInt32(r.Tag);
+
+            SR.NrFormat = (ReadOutOptions)sel;
+        }
         #endregion
+
 
     }
 }

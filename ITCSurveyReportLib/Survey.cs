@@ -96,6 +96,9 @@ namespace ITCSurveyReport
         Enumeration numbering;
         ReadOutOptions nrFormat;
         bool showAllQnums;
+        bool subsetTables;
+        bool subsetTablesTranslation;
+        bool showLongLists;
 
         // errors and results
         // qnu list
@@ -161,6 +164,9 @@ namespace ITCSurveyReport
             numbering = Enumeration.Qnum;
             nrFormat = ReadOutOptions.Neither;
             showAllQnums = false;
+            subsetTables = false;
+            subsetTablesTranslation = false;
+            showLongLists = false;
         }
 
         public Survey(string code)
@@ -239,6 +245,10 @@ namespace ITCSurveyReport
             numbering = Enumeration.Qnum;
             nrFormat = ReadOutOptions.Neither;
             showAllQnums = false;
+            subsetTables = false;
+            subsetTablesTranslation = false;
+            showLongLists = false;
+
         }
 
         public Survey (ReportTemplate repTemplate)
@@ -544,9 +554,8 @@ namespace ITCSurveyReport
             RemoveRepeats();
             // TODO remove repeats for translation (split only)
 
-            // TODO QN insertion
-            
-            // TODO CC insertion
+      
+      
             
             
             List<String> columnNames = new List<String>();
@@ -590,137 +599,132 @@ namespace ITCSurveyReport
             finalTable = Utilities.CreateDataTable(surveyCode + ID + "_Final", columnNames.ToArray(), columnTypes.ToArray());
             DataRow newrow;
 
-
-            
-
             // TODO use DataRow[] dr = rawTable.Select to get all records for each operation
             
 
-
-            // insert fields into finalTable from rawTable
+            // insert rows into finalTable from rawTable
             foreach (DataRow row in rawTable.Rows)
             {
                 
+                // insert Qnums before variable names
+                if (qnInsertion)
+                {
+                    row["PreP"] = InsertQnums((string)row["PreP"]);
+                    row["PreI"] = InsertQnums((string)row["PreI"]);
+                    row["PreA"] = InsertQnums((string)row["PreA"]);
+                    row["LitQ"] = InsertQnums((string)row["LitQ"]);
+                    row["PstI"] = InsertQnums((string)row["PstI"]);
+                    row["PstP"] = InsertQnums((string)row["PstP"]);
+                    row["RespOptions"] = InsertQnums((string)row["RespOptions"]);
+                    row["NRCodes"] = InsertQnums((string)row["NRCodes"]);
+                    row.AcceptChanges();
+                }
+                // TODO insert Qnums before non-standard variable names
 
-                
-                // semitel
-                // table format tags
+                // insert Country codes into variable names
+                if (ccInsertion)
+                {
+                    row["PreP"] = InsertCountryCodes((string)row["PreP"]);
+                    row["PreI"] = InsertCountryCodes((string)row["PreI"]);
+                    row["PreA"] = InsertCountryCodes((string)row["PreA"]);
+                    row["LitQ"] = InsertCountryCodes((string)row["LitQ"]);
+                    row["PstI"] = InsertCountryCodes((string)row["PstI"]);
+                    row["PstP"] = InsertCountryCodes((string)row["PstP"]);
+                    row["RespOptions"] = InsertCountryCodes((string)row["RespOptions"]);
+                    row["NRCodes"] = InsertCountryCodes((string)row["NRCodes"]);
+                    row.AcceptChanges();
+                }
+
+                // remove long lists in response option column
+                if (!showLongLists && !row.IsNull("RespOptions"))
+                {
+                    
+                    if (Utilities.CountLines((String)row["RespOptions"].ToString()) >= 25)
+                    {
+                        row["RespOptions"] = "[center](Response options omitted)[/center]";
+                        row.AcceptChanges();
+                    }
+                }
+
+                // NRFormat
+                if (nrFormat != ReadOutOptions.Neither && !row.IsNull("NRCodes"))
+                {
+                    row["NRCodes"] = FormatNR((string)row["NRCodes"]);
+                    row.AcceptChanges();
+                }
+
+                // semi tel
+
+                // in-line routing
+                if (InlineRouting && row["PstP"] != null)
+                {
+                    FormatRouting(row);
+                }
+
+                // subset tables
+                if (subsetTables)
+                {
+                    if (subsetTablesTranslation)
+                    {
+                        // TODO translation subset tables
+                    }
+                    else
+                    {
+                        if ((bool)row["TableFormat"] && row["Qnum"].ToString().EndsWith("a"))
+                        {
+                            row["RespOptions"] = "[TBLROS]" + row["RespOptions"];
+                            row["NRCodes"] = row["NRCodes"] + "[TBLROE]";
+                            row["LitQ"] = "[LitQ]" + row["LitQ"] + "[/LitQ]";
+                            row.AcceptChanges();
+                        }
+
+                    }
+                }
 
                 newrow = finalTable.NewRow();
                 foreach (DataColumn col in row.Table.Columns)
                 {
                     colName = col.Caption;
                     col.AllowDBNull = true;
-                    var currentValue = row[colName]; 
+                    var currentValue = row[colName];
+
                     switch (colName)
                     {
-                        
-
                         case "SortBy":
+                        //    row[colName] = (string)row[colName].ToString().Replace("!", "z");
+                        //    row.AcceptChanges();
+                        //    break;
                         case "Survey":
-                            break;
                         case "PreP":
-                            if (qnInsertion) {
-                                row[colName] = InsertQnums((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            break;
                         case "PreI":
-                            // semi tel
-                            if (qnInsertion)
-                            {
-                                row[colName] = InsertQnums((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            break;
                         case "PreA":
-                            if (qnInsertion)
-                            {
-                                row[colName] = InsertQnums((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            break;
                         case "LitQ":
-                            if (qnInsertion)
-                            {
-                                row[colName] = InsertQnums((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            break;
-                        // semi tel
-                        // table format
                         case "PstI":
-                            if (qnInsertion)
-                            {
-                                row[colName] = InsertQnums((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            break;
                         case "PstP":
-                            if (qnInsertion)
-                            {
-                                row[colName] = InsertQnums((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            break;
                         case "RespOptions":
-                            // long lists
-                            if (!row.IsNull(colName))
-                            {
-                                int lines = Utilities.CountLines((String)row[colName].ToString());
-                                if (lines >= 25)
-                                {
-                                    row[colName] = "[center](Response options omitted)[/center]";
-                                    row.AcceptChanges();
-                                }
-                            }
-                            if (qnInsertion)
-                            {
-                                row[colName] = InsertQnums((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            break;
-                            
-                            // semi tel
-                            // table format
-                            
                         case "NRCodes":
-                            if (qnInsertion)
-                            {
-                                row[colName] = InsertQnums((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            
-                            // NRFormat
-                            if (nrFormat != ReadOutOptions.Neither)
-                            {
-                                row[colName] = FormatNR((string)row[colName]);
-                                row.AcceptChanges();
-                            }
-                            // inline routing
-                            // table format
                             break;
                         case "Qnum":
-                            
                             newrow[colName] = row[colName];
                             break;
                         case "AltQnum":
-
                             newrow[colName] = row[colName];
                             break;
                         case "VarName":
                             // headings
-                            if (currentValue.ToString().StartsWith("Z") && !currentValue.ToString().EndsWith("s"))
-                            {
-                                row["Qnum"] = "reghead";
-                                row.AcceptChanges();
-                            }
+                            //if (currentValue.ToString().StartsWith("Z") && !currentValue.ToString().EndsWith("s") && !showAllQnums)
+                            //{
+                            //    row["Qnum"] = "reghead";
+                            //    row["AltQnum"] = "reghead";
+                            //    row.AcceptChanges();
+                            //}
 
-                            if (currentValue.ToString().StartsWith("Z") && currentValue.ToString().EndsWith("s"))
-                            {
-                                row["Qnum"] = "subhead";
-                                row.AcceptChanges();
-                            }
+                            //if (currentValue.ToString().StartsWith("Z") && currentValue.ToString().EndsWith("s") && !showAllQnums)
+                            //{
+                            //    row["Qnum"] = "subhead";
+                            //    row["AltQnum"] = "subhead";
+                            //    row.AcceptChanges();
+                            //}
 
 
 
@@ -746,14 +750,8 @@ namespace ITCSurveyReport
 
                 }
 
-                // in-line routing
-                if (InlineRouting && row["PstP"] != null)
-                {
-                    FormatRouting(row);
-                }
-
-                // if this is varname BI104, set essential questions list
-                if (row["refVarName"].Equals( "BI104"))
+                // concatenate the question fields, and if this is varname BI104, attach the essential questions list
+                if (row["refVarName"].Equals("BI104"))
                 {
                     newrow[questionColumnName] = GetQuestionText(row) + "\r\n<strong>" + essentialList + "</strong>";
                 }
@@ -761,6 +759,9 @@ namespace ITCSurveyReport
                 {
                     newrow[questionColumnName] = GetQuestionText(row);
                 }
+
+                // now add a new row to the finalTable DataTable
+                // the new row will be a susbet of columns in the rawTable, after the above modifications have been applied
                 finalTable.Rows.Add(newrow);
             }
 
@@ -844,7 +845,7 @@ namespace ITCSurveyReport
             string result = wording;
             string readOut = new string (' ',3);
 
-            options = wording.Split('\n', '\r');
+            options = wording.Split(new string[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             switch (nrFormat)
             {
                 case ReadOutOptions.DontRead:
@@ -867,7 +868,14 @@ namespace ITCSurveyReport
             return result;
         }
 
-        // TODO if there are filters on the rawTable look up from qnumTable
+        /// <summary>
+        /// Searches a string for a VarName pattern and, if found, looks up and inserts the Qnum right before the VarName. If a Qnum can not be found,
+        /// "QNU" (Qnum Unknown) is used instead.
+        /// TODO: Could be optimized - exit if no match is found in the whole string, before looking at each word in the string.
+        /// </summary>
+        /// <remarks> Each word in the string is compared to the VarName pattern.</remarks>
+        /// <param name="wording"></param>
+        /// <returns></returns>
         private string InsertQnums (string wording)
         {
             string newwording = wording;
@@ -878,8 +886,6 @@ namespace ITCSurveyReport
             Regex rx = new Regex("[A-Z]{2}\\d{3}");
             // split the wording into words            
             words = newwording.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries);
-            
-            // check for filters here TODO
 
             for (int i = 0; i < words.Length; i++)
             {
@@ -902,7 +908,7 @@ namespace ITCSurveyReport
                             break;
                     }
 
-                    if (!qnum.Equals(""))
+                    if (qnum.Equals(""))
                         qnum = "QNU";
                     
                     words[i] = rx.Replace(words[i], qnum + "/" + varname); 
@@ -923,8 +929,6 @@ namespace ITCSurveyReport
             Regex rx = new Regex("[A-Z]{2}\\d{3}");
             // split the wording into words            
             words = newwording.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries);
-            
-            // check for filters here TODO
 
             for (int i = 0; i < words.Length; i++)
             {
@@ -934,8 +938,6 @@ namespace ITCSurveyReport
                     m = rx.Matches(words[i]);
                     varname = m[0].Groups[0].Value;
                     varname = Utilities.ChangeCC(varname, cc);
-
-                    
 
                     words[i] = rx.Replace(words[i], varname);
                 }
@@ -1139,11 +1141,7 @@ namespace ITCSurveyReport
 
         public int TranslationCount() { return TransFields.Count; }
 
-        public void ReplaceQN() { }
-
         public void ReplaceQN2() { }
-
-        public void InsertCC() { }
 
         // possible unneeded once comments are retrieved with server function
         public void RemoveRepeatedComments() { }
@@ -1196,6 +1194,9 @@ namespace ITCSurveyReport
         public int Cc { get => cc; set => cc = value; }
         public bool InlineRouting { get => inlineRouting; set => inlineRouting = value; }
         public bool ShowAllQnums { get => showAllQnums; set => showAllQnums = value; }
+        public bool SubsetTables { get => subsetTables; set => subsetTables = value; }
+        public bool SubsetTablesTranslation { get => subsetTablesTranslation; set => subsetTablesTranslation = value; }
+        public bool ShowLongLists { get => showLongLists; set => showLongLists = value; }
         #endregion
 
 
