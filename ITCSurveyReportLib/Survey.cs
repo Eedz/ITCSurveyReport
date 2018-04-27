@@ -923,7 +923,6 @@ namespace ITCSurveyReport
         {
             string newwording = wording;
             string[] words;
-            string qnum;
             string varname;
             MatchCollection m;
             Regex rx = new Regex("[A-Z]{2}\\d{3}");
@@ -1197,6 +1196,10 @@ namespace ITCSurveyReport
         public bool SubsetTables { get => subsetTables; set => subsetTables = value; }
         public bool SubsetTablesTranslation { get => subsetTablesTranslation; set => subsetTablesTranslation = value; }
         public bool ShowLongLists { get => showLongLists; set => showLongLists = value; }
+        public bool DomainLabelCol { get => domainLabelCol; set => domainLabelCol = value; }
+        public bool TopicLabelCol { get => topicLabelCol; set => topicLabelCol = value; }
+        public bool ContentLabelCol { get => contentLabelCol; set => contentLabelCol = value; }
+        public bool ProductLabelCol { get => productLabelCol; set => productLabelCol = value; }
         #endregion
 
 

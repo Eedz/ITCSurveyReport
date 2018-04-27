@@ -181,13 +181,9 @@ namespace ITCSurveyReport
                     reportTable.Merge(s.finalTable, false, MissingSchemaAction.Add);
             }
 
-            // for now, just set the reportTable to the first survey's final table
-            // this way the SurveyReport object is only set up to generate a single survey, the first one defined in the surveys list.
+            
             // this could also be where we remove the primary survey if hidePrimary is true
             // this is also where we would sort the report
-            //reportTable = surveys[0].finalTable;
-
-            // remove refVarName column before outputting 
             
             reportTable.PrimaryKey = new DataColumn[] { reportTable.Columns["VarName"] };
 
@@ -209,6 +205,12 @@ namespace ITCSurveyReport
                 reportTable.Columns["AltQnum"].SetOrdinal(1);
                 reportTable.Columns["VarName"].SetOrdinal(2);
             }
+
+            if (LayoutOptions.BlankColumn)
+                reportTable.Columns.Add(new DataColumn("Comments", Type.GetType("System.String")));
+
+            // TODO set the column order as defined by the ColumnOrder property
+
             // output report
             // at this point the reportTable should be exactly how we want it to appear, minus interpreting tags
             //#if DEBUG

@@ -53,6 +53,10 @@
             this.cboPrefixes = new System.Windows.Forms.ComboBox();
             this.lstPrefixes = new System.Windows.Forms.ListBox();
             this.pgFields = new System.Windows.Forms.TabPage();
+            this.chkProductCol = new System.Windows.Forms.CheckBox();
+            this.chkDomainCol = new System.Windows.Forms.CheckBox();
+            this.chkContentCol = new System.Windows.Forms.CheckBox();
+            this.chkTopicCol = new System.Windows.Forms.CheckBox();
             this.lstSelTransFields = new System.Windows.Forms.ListBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.chkCorrected = new System.Windows.Forms.CheckBox();
@@ -150,9 +154,9 @@
             this.radioButton12 = new System.Windows.Forms.RadioButton();
             this.radioButton11 = new System.Windows.Forms.RadioButton();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.radioButton10 = new System.Windows.Forms.RadioButton();
-            this.radioButton9 = new System.Windows.Forms.RadioButton();
-            this.radioButton8 = new System.Windows.Forms.RadioButton();
+            this.optToCPgNum = new System.Windows.Forms.RadioButton();
+            this.optToCQnum = new System.Windows.Forms.RadioButton();
+            this.optToCNone = new System.Windows.Forms.RadioButton();
             this.groupFileFormat = new System.Windows.Forms.GroupBox();
             this.radioButton7 = new System.Windows.Forms.RadioButton();
             this.radioButton6 = new System.Windows.Forms.RadioButton();
@@ -443,6 +447,10 @@
             // pgFields
             // 
             this.pgFields.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(170)))), ((int)(((byte)(136)))));
+            this.pgFields.Controls.Add(this.chkProductCol);
+            this.pgFields.Controls.Add(this.chkDomainCol);
+            this.pgFields.Controls.Add(this.chkContentCol);
+            this.pgFields.Controls.Add(this.chkTopicCol);
             this.pgFields.Controls.Add(this.lstSelTransFields);
             this.pgFields.Controls.Add(this.panel1);
             this.pgFields.Controls.Add(this.chkBlankCol);
@@ -465,6 +473,54 @@
             this.pgFields.Size = new System.Drawing.Size(465, 503);
             this.pgFields.TabIndex = 1;
             this.pgFields.Text = "Fields";
+            // 
+            // chkProductCol
+            // 
+            this.chkProductCol.AutoSize = true;
+            this.chkProductCol.Location = new System.Drawing.Point(163, 399);
+            this.chkProductCol.Name = "chkProductCol";
+            this.chkProductCol.Size = new System.Drawing.Size(130, 17);
+            this.chkProductCol.TabIndex = 25;
+            this.chkProductCol.Text = "Product Label Column";
+            this.chkProductCol.UseVisualStyleBackColor = true;
+            this.chkProductCol.Visible = false;
+            this.chkProductCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
+            // 
+            // chkDomainCol
+            // 
+            this.chkDomainCol.AutoSize = true;
+            this.chkDomainCol.Location = new System.Drawing.Point(163, 307);
+            this.chkDomainCol.Name = "chkDomainCol";
+            this.chkDomainCol.Size = new System.Drawing.Size(129, 17);
+            this.chkDomainCol.TabIndex = 24;
+            this.chkDomainCol.Text = "Domain Label Column";
+            this.chkDomainCol.UseVisualStyleBackColor = true;
+            this.chkDomainCol.Visible = false;
+            this.chkDomainCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
+            // 
+            // chkContentCol
+            // 
+            this.chkContentCol.AutoSize = true;
+            this.chkContentCol.Location = new System.Drawing.Point(163, 353);
+            this.chkContentCol.Name = "chkContentCol";
+            this.chkContentCol.Size = new System.Drawing.Size(130, 17);
+            this.chkContentCol.TabIndex = 23;
+            this.chkContentCol.Text = "Content Label Column";
+            this.chkContentCol.UseVisualStyleBackColor = true;
+            this.chkContentCol.Visible = false;
+            this.chkContentCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
+            // 
+            // chkTopicCol
+            // 
+            this.chkTopicCol.AutoSize = true;
+            this.chkTopicCol.Location = new System.Drawing.Point(163, 330);
+            this.chkTopicCol.Name = "chkTopicCol";
+            this.chkTopicCol.Size = new System.Drawing.Size(120, 17);
+            this.chkTopicCol.TabIndex = 22;
+            this.chkTopicCol.Text = "Topic Label Column";
+            this.chkTopicCol.UseVisualStyleBackColor = true;
+            this.chkTopicCol.Visible = false;
+            this.chkTopicCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
             // 
             // lstSelTransFields
             // 
@@ -499,6 +555,7 @@
             this.chkCorrected.TabIndex = 18;
             this.chkCorrected.Text = "Use Corrected Wordings";
             this.chkCorrected.UseVisualStyleBackColor = true;
+            this.chkCorrected.CheckedChanged += new System.EventHandler(this.CorrectedWordings_CheckedChanged);
             // 
             // label9
             // 
@@ -561,7 +618,7 @@
             // 
             // chkBlankCol
             // 
-            this.chkBlankCol.Location = new System.Drawing.Point(163, 327);
+            this.chkBlankCol.Location = new System.Drawing.Point(286, 287);
             this.chkBlankCol.Margin = new System.Windows.Forms.Padding(0);
             this.chkBlankCol.Name = "chkBlankCol";
             this.chkBlankCol.Padding = new System.Windows.Forms.Padding(1);
@@ -570,6 +627,7 @@
             this.chkBlankCol.Text = "Blank Column";
             this.chkBlankCol.UseVisualStyleBackColor = true;
             this.chkBlankCol.Visible = false;
+            this.chkBlankCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
             // 
             // lstSelCommentFields
             // 
@@ -584,13 +642,14 @@
             // chkVarLabelCol
             // 
             this.chkVarLabelCol.AutoSize = true;
-            this.chkVarLabelCol.Location = new System.Drawing.Point(164, 307);
+            this.chkVarLabelCol.Location = new System.Drawing.Point(163, 376);
             this.chkVarLabelCol.Name = "chkVarLabelCol";
             this.chkVarLabelCol.Size = new System.Drawing.Size(106, 17);
             this.chkVarLabelCol.TabIndex = 17;
             this.chkVarLabelCol.Text = "VarLabel Column";
             this.chkVarLabelCol.UseVisualStyleBackColor = true;
             this.chkVarLabelCol.Visible = false;
+            this.chkVarLabelCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
             // 
             // chkFilterCol
             // 
@@ -602,6 +661,7 @@
             this.chkFilterCol.Text = "Filter Column";
             this.chkFilterCol.UseVisualStyleBackColor = true;
             this.chkFilterCol.Visible = false;
+            this.chkFilterCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
             // 
             // lblTransFields
             // 
@@ -1236,6 +1296,7 @@
             // 
             // semiTelCheckBox
             // 
+            this.semiTelCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SemiTel", true));
             this.semiTelCheckBox.Location = new System.Drawing.Point(3, 178);
             this.semiTelCheckBox.Name = "semiTelCheckBox";
             this.semiTelCheckBox.Size = new System.Drawing.Size(104, 19);
@@ -1383,6 +1444,7 @@
             // 
             // survNotesCheckBox
             // 
+            this.survNotesCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurvNotes", true));
             this.survNotesCheckBox.Location = new System.Drawing.Point(1, 1);
             this.survNotesCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.survNotesCheckBox.Name = "survNotesCheckBox";
@@ -1394,6 +1456,7 @@
             // 
             // varChangesColCheckBox
             // 
+            this.varChangesColCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "VarChangesCol", true));
             this.varChangesColCheckBox.Location = new System.Drawing.Point(1, 25);
             this.varChangesColCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.varChangesColCheckBox.Name = "varChangesColCheckBox";
@@ -1405,6 +1468,7 @@
             // 
             // varChangesAppCheckBox
             // 
+            this.varChangesAppCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "VarChangesApp", true));
             this.varChangesAppCheckBox.Location = new System.Drawing.Point(1, 49);
             this.varChangesAppCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.varChangesAppCheckBox.Name = "varChangesAppCheckBox";
@@ -1416,6 +1480,7 @@
             // 
             // excludeTempChangesCheckBox
             // 
+            this.excludeTempChangesCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "ExcludeTempChanges", true));
             this.excludeTempChangesCheckBox.Location = new System.Drawing.Point(1, 73);
             this.excludeTempChangesCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.excludeTempChangesCheckBox.Name = "excludeTempChangesCheckBox";
@@ -1498,6 +1563,7 @@
             this.radioButton14.Tag = "4";
             this.radioButton14.Text = "A4";
             this.radioButton14.UseVisualStyleBackColor = true;
+            this.radioButton14.CheckedChanged += new System.EventHandler(this.PaperSize_CheckedChanged);
             // 
             // radioButton13
             // 
@@ -1509,6 +1575,7 @@
             this.radioButton13.Tag = "3";
             this.radioButton13.Text = "11x17";
             this.radioButton13.UseVisualStyleBackColor = true;
+            this.radioButton13.CheckedChanged += new System.EventHandler(this.PaperSize_CheckedChanged);
             // 
             // radioButton12
             // 
@@ -1520,6 +1587,7 @@
             this.radioButton12.Tag = "2";
             this.radioButton12.Text = "Legal";
             this.radioButton12.UseVisualStyleBackColor = true;
+            this.radioButton12.CheckedChanged += new System.EventHandler(this.PaperSize_CheckedChanged);
             // 
             // radioButton11
             // 
@@ -1533,12 +1601,13 @@
             this.radioButton11.Tag = "1";
             this.radioButton11.Text = "Letter";
             this.radioButton11.UseVisualStyleBackColor = true;
+            this.radioButton11.CheckedChanged += new System.EventHandler(this.PaperSize_CheckedChanged);
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.radioButton10);
-            this.groupBox6.Controls.Add(this.radioButton9);
-            this.groupBox6.Controls.Add(this.radioButton8);
+            this.groupBox6.Controls.Add(this.optToCPgNum);
+            this.groupBox6.Controls.Add(this.optToCQnum);
+            this.groupBox6.Controls.Add(this.optToCNone);
             this.groupBox6.Location = new System.Drawing.Point(173, 35);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(131, 88);
@@ -1546,40 +1615,43 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Table of Contents";
             // 
-            // radioButton10
+            // optToCPgNum
             // 
-            this.radioButton10.AutoSize = true;
-            this.radioButton10.Location = new System.Drawing.Point(13, 60);
-            this.radioButton10.Name = "radioButton10";
-            this.radioButton10.Size = new System.Drawing.Size(95, 17);
-            this.radioButton10.TabIndex = 2;
-            this.radioButton10.Tag = "2";
-            this.radioButton10.Text = "Page Numbers";
-            this.radioButton10.UseVisualStyleBackColor = true;
+            this.optToCPgNum.AutoSize = true;
+            this.optToCPgNum.Location = new System.Drawing.Point(13, 60);
+            this.optToCPgNum.Name = "optToCPgNum";
+            this.optToCPgNum.Size = new System.Drawing.Size(95, 17);
+            this.optToCPgNum.TabIndex = 2;
+            this.optToCPgNum.Tag = "2";
+            this.optToCPgNum.Text = "Page Numbers";
+            this.optToCPgNum.UseVisualStyleBackColor = true;
+            this.optToCPgNum.CheckedChanged += new System.EventHandler(this.ToC_CheckedChanged);
             // 
-            // radioButton9
+            // optToCQnum
             // 
-            this.radioButton9.AutoSize = true;
-            this.radioButton9.Location = new System.Drawing.Point(13, 39);
-            this.radioButton9.Name = "radioButton9";
-            this.radioButton9.Size = new System.Drawing.Size(112, 17);
-            this.radioButton9.TabIndex = 1;
-            this.radioButton9.Tag = "1";
-            this.radioButton9.Text = "Question Numbers";
-            this.radioButton9.UseVisualStyleBackColor = true;
+            this.optToCQnum.AutoSize = true;
+            this.optToCQnum.Location = new System.Drawing.Point(13, 39);
+            this.optToCQnum.Name = "optToCQnum";
+            this.optToCQnum.Size = new System.Drawing.Size(112, 17);
+            this.optToCQnum.TabIndex = 1;
+            this.optToCQnum.Tag = "1";
+            this.optToCQnum.Text = "Question Numbers";
+            this.optToCQnum.UseVisualStyleBackColor = true;
+            this.optToCQnum.CheckedChanged += new System.EventHandler(this.ToC_CheckedChanged);
             // 
-            // radioButton8
+            // optToCNone
             // 
-            this.radioButton8.AutoSize = true;
-            this.radioButton8.Checked = true;
-            this.radioButton8.Location = new System.Drawing.Point(13, 21);
-            this.radioButton8.Name = "radioButton8";
-            this.radioButton8.Size = new System.Drawing.Size(51, 17);
-            this.radioButton8.TabIndex = 0;
-            this.radioButton8.TabStop = true;
-            this.radioButton8.Tag = "0";
-            this.radioButton8.Text = "None";
-            this.radioButton8.UseVisualStyleBackColor = true;
+            this.optToCNone.AutoSize = true;
+            this.optToCNone.Checked = true;
+            this.optToCNone.Location = new System.Drawing.Point(13, 21);
+            this.optToCNone.Name = "optToCNone";
+            this.optToCNone.Size = new System.Drawing.Size(51, 17);
+            this.optToCNone.TabIndex = 0;
+            this.optToCNone.TabStop = true;
+            this.optToCNone.Tag = "0";
+            this.optToCNone.Text = "None";
+            this.optToCNone.UseVisualStyleBackColor = true;
+            this.optToCNone.CheckedChanged += new System.EventHandler(this.ToC_CheckedChanged);
             // 
             // groupFileFormat
             // 
@@ -1908,9 +1980,9 @@
         private System.Windows.Forms.GroupBox groupBox8;
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.RadioButton radioButton10;
-        private System.Windows.Forms.RadioButton radioButton9;
-        private System.Windows.Forms.RadioButton radioButton8;
+        private System.Windows.Forms.RadioButton optToCPgNum;
+        private System.Windows.Forms.RadioButton optToCQnum;
+        private System.Windows.Forms.RadioButton optToCNone;
         private System.Windows.Forms.GroupBox groupFileFormat;
         private System.Windows.Forms.RadioButton radioButton7;
         private System.Windows.Forms.RadioButton radioButton6;
@@ -1951,6 +2023,10 @@
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.DataGridView dataGridView2;
         private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.CheckBox chkTopicCol;
+        private System.Windows.Forms.CheckBox chkContentCol;
+        private System.Windows.Forms.CheckBox chkProductCol;
+        private System.Windows.Forms.CheckBox chkDomainCol;
     }
 }
 
