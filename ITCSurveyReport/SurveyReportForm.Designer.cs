@@ -53,32 +53,29 @@
             this.cboPrefixes = new System.Windows.Forms.ComboBox();
             this.lstPrefixes = new System.Windows.Forms.ListBox();
             this.pgFields = new System.Windows.Forms.TabPage();
+            this.panelOtherFields = new System.Windows.Forms.Panel();
+            this.label8 = new System.Windows.Forms.Label();
             this.chkProductCol = new System.Windows.Forms.CheckBox();
             this.chkDomainCol = new System.Windows.Forms.CheckBox();
             this.chkContentCol = new System.Windows.Forms.CheckBox();
             this.chkTopicCol = new System.Windows.Forms.CheckBox();
-            this.lstSelTransFields = new System.Windows.Forms.ListBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.chkCorrected = new System.Windows.Forms.CheckBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.lstStdFields = new System.Windows.Forms.ListBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.lstSelStdFields = new System.Windows.Forms.ListBox();
-            this.surveyReportBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.chkBlankCol = new System.Windows.Forms.CheckBox();
-            this.lstSelCommentFields = new System.Windows.Forms.ListBox();
             this.chkVarLabelCol = new System.Windows.Forms.CheckBox();
             this.chkFilterCol = new System.Windows.Forms.CheckBox();
-            this.lblTransFields = new System.Windows.Forms.Label();
-            this.lstTransFields = new System.Windows.Forms.ListBox();
+            this.panelCommentFilters = new System.Windows.Forms.Panel();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.lblCommentFields = new System.Windows.Forms.Label();
             this.dateTimeCommentsSince = new System.Windows.Forms.DateTimePicker();
             this.lstCommentSources = new System.Windows.Forms.ListBox();
             this.lstCommentAuthors = new System.Windows.Forms.ListBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.lstStdFields = new System.Windows.Forms.ListBox();
+            this.chkCorrected = new System.Windows.Forms.CheckBox();
+            this.lblTransFields = new System.Windows.Forms.Label();
+            this.lstTransFields = new System.Windows.Forms.ListBox();
+            this.lblCommentFields = new System.Windows.Forms.Label();
             this.lstCommentFields = new System.Windows.Forms.ListBox();
             this.cmdToggleExtraFields = new System.Windows.Forms.Button();
             this.pgCompare = new System.Windows.Forms.TabPage();
@@ -86,6 +83,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.hidePrimaryCheckBox = new System.Windows.Forms.CheckBox();
+            this.surveyReportBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.hideIdenticalWordingsCheckBox = new System.Windows.Forms.CheckBox();
             this.beforeAfterReportCheckBox = new System.Windows.Forms.CheckBox();
             this.groupHighlightOptions = new System.Windows.Forms.GroupBox();
@@ -98,7 +96,7 @@
             this.reInsertDeletionsCheckBox = new System.Windows.Forms.CheckBox();
             this.showOrderChangesCheckBox = new System.Windows.Forms.CheckBox();
             this.groupHighlightStyle = new System.Windows.Forms.GroupBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.cboHighlightScheme = new System.Windows.Forms.ComboBox();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.convertTrackedChangesCheckBox = new System.Windows.Forms.CheckBox();
@@ -107,8 +105,8 @@
             this.doCompareCheckBox = new System.Windows.Forms.CheckBox();
             this.matchOnRenameCheckBox = new System.Windows.Forms.CheckBox();
             this.pgOrder = new System.Windows.Forms.TabPage();
-            this.dataGridView2 = new System.Windows.Forms.DataGridView();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.gridQnumSurvey = new System.Windows.Forms.DataGridView();
+            this.gridColumnOrder = new System.Windows.Forms.DataGridView();
             this.groupEnumeration = new System.Windows.Forms.GroupBox();
             this.optQnumAltQnum = new System.Windows.Forms.RadioButton();
             this.optAltQnumOnly = new System.Windows.Forms.RadioButton();
@@ -173,23 +171,27 @@
             this.dateBackend = new System.Windows.Forms.DateTimePicker();
             this.lblBackend = new System.Windows.Forms.Label();
             this.surveyView = new System.Windows.Forms.DataGridView();
+            this.surveyView2 = new System.Windows.Forms.DataGridView();
+            this.gridFinalReport = new System.Windows.Forms.DataGridView();
+            this.txtOptions = new System.Windows.Forms.TextBox();
             detailsLabel = new System.Windows.Forms.Label();
             fileNameLabel = new System.Windows.Forms.Label();
             this.tabControlOptions.SuspendLayout();
             this.pgFilters.SuspendLayout();
             this.pgFields.SuspendLayout();
-            this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).BeginInit();
+            this.panelOtherFields.SuspendLayout();
+            this.panelCommentFilters.SuspendLayout();
             this.pgCompare.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).BeginInit();
             this.groupHighlightOptions.SuspendLayout();
             this.flowHighlightOptions.SuspendLayout();
             this.groupHighlightStyle.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPrimarySurvey)).BeginInit();
             this.pgOrder.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridQnumSurvey)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridColumnOrder)).BeginInit();
             this.groupEnumeration.SuspendLayout();
             this.pgFormatting.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -205,6 +207,8 @@
             this.groupFileFormat.SuspendLayout();
             this.pgFileName.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.surveyView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.surveyView2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridFinalReport)).BeginInit();
             this.SuspendLayout();
             // 
             // detailsLabel
@@ -228,7 +232,7 @@
             // 
             // cboSurveys
             // 
-            this.cboSurveys.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Append;
+            this.cboSurveys.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
             this.cboSurveys.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.cboSurveys.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.cboSurveys.DisplayMember = "Survey";
@@ -239,6 +243,7 @@
             this.cboSurveys.Size = new System.Drawing.Size(108, 21);
             this.cboSurveys.TabIndex = 0;
             this.cboSurveys.ValueMember = "Survey";
+            this.cboSurveys.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cboSurveys_KeyDown);
             // 
             // cmdAddSurvey
             // 
@@ -273,11 +278,11 @@
             // 
             // cmdCheckOptions
             // 
-            this.cmdCheckOptions.Location = new System.Drawing.Point(533, 48);
+            this.cmdCheckOptions.Location = new System.Drawing.Point(488, 65);
             this.cmdCheckOptions.Name = "cmdCheckOptions";
             this.cmdCheckOptions.Size = new System.Drawing.Size(88, 33);
             this.cmdCheckOptions.TabIndex = 4;
-            this.cmdCheckOptions.Text = "Check Options";
+            this.cmdCheckOptions.Text = "Generate";
             this.cmdCheckOptions.UseVisualStyleBackColor = true;
             this.cmdCheckOptions.Click += new System.EventHandler(this.cmdCheckOptions_Click);
             // 
@@ -295,6 +300,7 @@
             this.tabControlOptions.SelectedIndex = 0;
             this.tabControlOptions.Size = new System.Drawing.Size(473, 529);
             this.tabControlOptions.TabIndex = 5;
+            this.tabControlOptions.Visible = false;
             // 
             // pgFilters
             // 
@@ -368,7 +374,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(86, 33);
+            this.label3.Location = new System.Drawing.Point(57, 38);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(10, 13);
             this.label3.TabIndex = 8;
@@ -376,14 +382,14 @@
             // 
             // txtQrangeHigh
             // 
-            this.txtQrangeHigh.Location = new System.Drawing.Point(102, 33);
+            this.txtQrangeHigh.Location = new System.Drawing.Point(73, 38);
             this.txtQrangeHigh.Name = "txtQrangeHigh";
             this.txtQrangeHigh.Size = new System.Drawing.Size(38, 20);
             this.txtQrangeHigh.TabIndex = 7;
             // 
             // txtQrangeLow
             // 
-            this.txtQrangeLow.Location = new System.Drawing.Point(43, 32);
+            this.txtQrangeLow.Location = new System.Drawing.Point(15, 38);
             this.txtQrangeLow.Name = "txtQrangeLow";
             this.txtQrangeLow.Size = new System.Drawing.Size(38, 20);
             this.txtQrangeLow.TabIndex = 6;
@@ -447,24 +453,14 @@
             // pgFields
             // 
             this.pgFields.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(170)))), ((int)(((byte)(136)))));
-            this.pgFields.Controls.Add(this.chkProductCol);
-            this.pgFields.Controls.Add(this.chkDomainCol);
-            this.pgFields.Controls.Add(this.chkContentCol);
-            this.pgFields.Controls.Add(this.chkTopicCol);
-            this.pgFields.Controls.Add(this.lstSelTransFields);
-            this.pgFields.Controls.Add(this.panel1);
-            this.pgFields.Controls.Add(this.chkBlankCol);
-            this.pgFields.Controls.Add(this.lstSelCommentFields);
-            this.pgFields.Controls.Add(this.chkVarLabelCol);
-            this.pgFields.Controls.Add(this.chkFilterCol);
+            this.pgFields.Controls.Add(this.panelOtherFields);
+            this.pgFields.Controls.Add(this.panelCommentFilters);
+            this.pgFields.Controls.Add(this.label2);
+            this.pgFields.Controls.Add(this.lstStdFields);
+            this.pgFields.Controls.Add(this.chkCorrected);
             this.pgFields.Controls.Add(this.lblTransFields);
             this.pgFields.Controls.Add(this.lstTransFields);
-            this.pgFields.Controls.Add(this.label6);
-            this.pgFields.Controls.Add(this.label5);
             this.pgFields.Controls.Add(this.lblCommentFields);
-            this.pgFields.Controls.Add(this.dateTimeCommentsSince);
-            this.pgFields.Controls.Add(this.lstCommentSources);
-            this.pgFields.Controls.Add(this.lstCommentAuthors);
             this.pgFields.Controls.Add(this.lstCommentFields);
             this.pgFields.Controls.Add(this.cmdToggleExtraFields);
             this.pgFields.Location = new System.Drawing.Point(4, 22);
@@ -474,151 +470,78 @@
             this.pgFields.TabIndex = 1;
             this.pgFields.Text = "Fields";
             // 
+            // panelOtherFields
+            // 
+            this.panelOtherFields.Controls.Add(this.label8);
+            this.panelOtherFields.Controls.Add(this.chkProductCol);
+            this.panelOtherFields.Controls.Add(this.chkDomainCol);
+            this.panelOtherFields.Controls.Add(this.chkContentCol);
+            this.panelOtherFields.Controls.Add(this.chkTopicCol);
+            this.panelOtherFields.Controls.Add(this.chkBlankCol);
+            this.panelOtherFields.Controls.Add(this.chkVarLabelCol);
+            this.panelOtherFields.Controls.Add(this.chkFilterCol);
+            this.panelOtherFields.Location = new System.Drawing.Point(163, 158);
+            this.panelOtherFields.Name = "panelOtherFields";
+            this.panelOtherFields.Size = new System.Drawing.Size(142, 248);
+            this.panelOtherFields.TabIndex = 28;
+            this.panelOtherFields.Visible = false;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(-3, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(63, 13);
+            this.label8.TabIndex = 26;
+            this.label8.Text = "Other Fields";
+            // 
             // chkProductCol
             // 
             this.chkProductCol.AutoSize = true;
-            this.chkProductCol.Location = new System.Drawing.Point(163, 399);
+            this.chkProductCol.Location = new System.Drawing.Point(2, 173);
             this.chkProductCol.Name = "chkProductCol";
             this.chkProductCol.Size = new System.Drawing.Size(130, 17);
             this.chkProductCol.TabIndex = 25;
             this.chkProductCol.Text = "Product Label Column";
             this.chkProductCol.UseVisualStyleBackColor = true;
-            this.chkProductCol.Visible = false;
-            this.chkProductCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
+            this.chkProductCol.CheckedChanged += new System.EventHandler(this.chkProductCol_CheckedChanged);
             // 
             // chkDomainCol
             // 
             this.chkDomainCol.AutoSize = true;
-            this.chkDomainCol.Location = new System.Drawing.Point(163, 307);
+            this.chkDomainCol.Location = new System.Drawing.Point(2, 81);
             this.chkDomainCol.Name = "chkDomainCol";
             this.chkDomainCol.Size = new System.Drawing.Size(129, 17);
             this.chkDomainCol.TabIndex = 24;
             this.chkDomainCol.Text = "Domain Label Column";
             this.chkDomainCol.UseVisualStyleBackColor = true;
-            this.chkDomainCol.Visible = false;
-            this.chkDomainCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
+            this.chkDomainCol.CheckedChanged += new System.EventHandler(this.chkDomainCol_CheckedChanged);
             // 
             // chkContentCol
             // 
             this.chkContentCol.AutoSize = true;
-            this.chkContentCol.Location = new System.Drawing.Point(163, 353);
+            this.chkContentCol.Location = new System.Drawing.Point(2, 127);
             this.chkContentCol.Name = "chkContentCol";
             this.chkContentCol.Size = new System.Drawing.Size(130, 17);
             this.chkContentCol.TabIndex = 23;
             this.chkContentCol.Text = "Content Label Column";
             this.chkContentCol.UseVisualStyleBackColor = true;
-            this.chkContentCol.Visible = false;
-            this.chkContentCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
+            this.chkContentCol.CheckedChanged += new System.EventHandler(this.chkContentCol_CheckedChanged);
             // 
             // chkTopicCol
             // 
             this.chkTopicCol.AutoSize = true;
-            this.chkTopicCol.Location = new System.Drawing.Point(163, 330);
+            this.chkTopicCol.Location = new System.Drawing.Point(2, 104);
             this.chkTopicCol.Name = "chkTopicCol";
             this.chkTopicCol.Size = new System.Drawing.Size(120, 17);
             this.chkTopicCol.TabIndex = 22;
             this.chkTopicCol.Text = "Topic Label Column";
             this.chkTopicCol.UseVisualStyleBackColor = true;
-            this.chkTopicCol.Visible = false;
-            this.chkTopicCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
-            // 
-            // lstSelTransFields
-            // 
-            this.lstSelTransFields.FormattingEnabled = true;
-            this.lstSelTransFields.Location = new System.Drawing.Point(286, 170);
-            this.lstSelTransFields.Name = "lstSelTransFields";
-            this.lstSelTransFields.Size = new System.Drawing.Size(119, 108);
-            this.lstSelTransFields.TabIndex = 21;
-            this.lstSelTransFields.Visible = false;
-            this.lstSelTransFields.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstSelTransFields_MouseDoubleClick);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.chkCorrected);
-            this.panel1.Controls.Add(this.label9);
-            this.panel1.Controls.Add(this.label8);
-            this.panel1.Controls.Add(this.label7);
-            this.panel1.Controls.Add(this.lstStdFields);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.lstSelStdFields);
-            this.panel1.Location = new System.Drawing.Point(3, 10);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(152, 209);
-            this.panel1.TabIndex = 20;
-            // 
-            // chkCorrected
-            // 
-            this.chkCorrected.AutoSize = true;
-            this.chkCorrected.Location = new System.Drawing.Point(7, 164);
-            this.chkCorrected.Name = "chkCorrected";
-            this.chkCorrected.Size = new System.Drawing.Size(142, 17);
-            this.chkCorrected.TabIndex = 18;
-            this.chkCorrected.Text = "Use Corrected Wordings";
-            this.chkCorrected.UseVisualStyleBackColor = true;
-            this.chkCorrected.CheckedChanged += new System.EventHandler(this.CorrectedWordings_CheckedChanged);
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(4, 144);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(145, 13);
-            this.label9.TabIndex = 13;
-            this.label9.Text = "Double-click to Add/Remove";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(76, 17);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(49, 13);
-            this.label8.TabIndex = 12;
-            this.label8.Text = "Selected";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(0, 17);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(50, 13);
-            this.label7.TabIndex = 11;
-            this.label7.Text = "Available";
-            // 
-            // lstStdFields
-            // 
-            this.lstStdFields.FormattingEnabled = true;
-            this.lstStdFields.Location = new System.Drawing.Point(3, 33);
-            this.lstStdFields.Name = "lstStdFields";
-            this.lstStdFields.Size = new System.Drawing.Size(70, 108);
-            this.lstStdFields.TabIndex = 10;
-            this.lstStdFields.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstStdFields_MouseDoubleClick);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(37, 4);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(80, 13);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Standard Fields";
-            // 
-            // lstSelStdFields
-            // 
-            this.lstSelStdFields.DataSource = this.surveyReportBindingSource;
-            this.lstSelStdFields.FormattingEnabled = true;
-            this.lstSelStdFields.Location = new System.Drawing.Point(79, 33);
-            this.lstSelStdFields.Name = "lstSelStdFields";
-            this.lstSelStdFields.Size = new System.Drawing.Size(70, 108);
-            this.lstSelStdFields.TabIndex = 1;
-            this.lstSelStdFields.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstSelStdFields_MouseDoubleClick);
-            // 
-            // surveyReportBindingSource
-            // 
-            this.surveyReportBindingSource.DataSource = typeof(ITCSurveyReport.SurveyReport);
+            this.chkTopicCol.CheckedChanged += new System.EventHandler(this.chkTopicCol_CheckedChanged);
             // 
             // chkBlankCol
             // 
-            this.chkBlankCol.Location = new System.Drawing.Point(286, 287);
+            this.chkBlankCol.Location = new System.Drawing.Point(2, 33);
             this.chkBlankCol.Margin = new System.Windows.Forms.Padding(0);
             this.chkBlankCol.Name = "chkBlankCol";
             this.chkBlankCol.Padding = new System.Windows.Forms.Padding(1);
@@ -626,47 +549,155 @@
             this.chkBlankCol.TabIndex = 11;
             this.chkBlankCol.Text = "Blank Column";
             this.chkBlankCol.UseVisualStyleBackColor = true;
-            this.chkBlankCol.Visible = false;
-            this.chkBlankCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
-            // 
-            // lstSelCommentFields
-            // 
-            this.lstSelCommentFields.FormattingEnabled = true;
-            this.lstSelCommentFields.Location = new System.Drawing.Point(287, 43);
-            this.lstSelCommentFields.Name = "lstSelCommentFields";
-            this.lstSelCommentFields.Size = new System.Drawing.Size(118, 108);
-            this.lstSelCommentFields.TabIndex = 19;
-            this.lstSelCommentFields.Visible = false;
-            this.lstSelCommentFields.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstSelCommentFields_MouseDoubleClick);
+            this.chkBlankCol.CheckedChanged += new System.EventHandler(this.chkBlankCol_CheckedChanged);
             // 
             // chkVarLabelCol
             // 
             this.chkVarLabelCol.AutoSize = true;
-            this.chkVarLabelCol.Location = new System.Drawing.Point(163, 376);
+            this.chkVarLabelCol.Location = new System.Drawing.Point(2, 150);
             this.chkVarLabelCol.Name = "chkVarLabelCol";
             this.chkVarLabelCol.Size = new System.Drawing.Size(106, 17);
             this.chkVarLabelCol.TabIndex = 17;
             this.chkVarLabelCol.Text = "VarLabel Column";
             this.chkVarLabelCol.UseVisualStyleBackColor = true;
-            this.chkVarLabelCol.Visible = false;
-            this.chkVarLabelCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
+            this.chkVarLabelCol.CheckedChanged += new System.EventHandler(this.chkVarLabelCol_CheckedChanged);
             // 
             // chkFilterCol
             // 
             this.chkFilterCol.AutoSize = true;
-            this.chkFilterCol.Location = new System.Drawing.Point(164, 284);
+            this.chkFilterCol.Location = new System.Drawing.Point(2, 58);
             this.chkFilterCol.Name = "chkFilterCol";
             this.chkFilterCol.Size = new System.Drawing.Size(86, 17);
             this.chkFilterCol.TabIndex = 16;
             this.chkFilterCol.Text = "Filter Column";
             this.chkFilterCol.UseVisualStyleBackColor = true;
-            this.chkFilterCol.Visible = false;
-            this.chkFilterCol.CheckedChanged += new System.EventHandler(this.ExtraColumn_CheckedChanged);
+            this.chkFilterCol.CheckedChanged += new System.EventHandler(this.chkFilterCol_CheckedChanged);
+            // 
+            // panelCommentFilters
+            // 
+            this.panelCommentFilters.Controls.Add(this.label7);
+            this.panelCommentFilters.Controls.Add(this.label16);
+            this.panelCommentFilters.Controls.Add(this.label6);
+            this.panelCommentFilters.Controls.Add(this.label5);
+            this.panelCommentFilters.Controls.Add(this.dateTimeCommentsSince);
+            this.panelCommentFilters.Controls.Add(this.lstCommentSources);
+            this.panelCommentFilters.Controls.Add(this.lstCommentAuthors);
+            this.panelCommentFilters.Location = new System.Drawing.Point(308, 158);
+            this.panelCommentFilters.Name = "panelCommentFilters";
+            this.panelCommentFilters.Size = new System.Drawing.Size(118, 248);
+            this.panelCommentFilters.TabIndex = 27;
+            this.panelCommentFilters.Visible = false;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(-3, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(81, 13);
+            this.label7.TabIndex = 28;
+            this.label7.Text = "Comment Filters";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(0, 17);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(84, 13);
+            this.label16.TabIndex = 26;
+            this.label16.Text = "Comments since";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(3, 158);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(46, 13);
+            this.label6.TabIndex = 9;
+            this.label6.Text = "Sources";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(0, 62);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(43, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Authors";
+            // 
+            // dateTimeCommentsSince
+            // 
+            this.dateTimeCommentsSince.Checked = false;
+            this.dateTimeCommentsSince.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dateTimeCommentsSince.Location = new System.Drawing.Point(3, 33);
+            this.dateTimeCommentsSince.Name = "dateTimeCommentsSince";
+            this.dateTimeCommentsSince.ShowCheckBox = true;
+            this.dateTimeCommentsSince.Size = new System.Drawing.Size(116, 20);
+            this.dateTimeCommentsSince.TabIndex = 5;
+            this.dateTimeCommentsSince.ValueChanged += new System.EventHandler(this.dateTimeCommentsSince_ValueChanged);
+            // 
+            // lstCommentSources
+            // 
+            this.lstCommentSources.FormattingEnabled = true;
+            this.lstCommentSources.Location = new System.Drawing.Point(6, 174);
+            this.lstCommentSources.Name = "lstCommentSources";
+            this.lstCommentSources.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.lstCommentSources.Size = new System.Drawing.Size(116, 69);
+            this.lstCommentSources.TabIndex = 4;
+            this.lstCommentSources.Click += new System.EventHandler(this.lstCommentSources_Click);
+            // 
+            // lstCommentAuthors
+            // 
+            this.lstCommentAuthors.FormattingEnabled = true;
+            this.lstCommentAuthors.Location = new System.Drawing.Point(3, 78);
+            this.lstCommentAuthors.Name = "lstCommentAuthors";
+            this.lstCommentAuthors.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.lstCommentAuthors.Size = new System.Drawing.Size(116, 69);
+            this.lstCommentAuthors.TabIndex = 3;
+            this.lstCommentAuthors.Click += new System.EventHandler(this.lstCommentAuthors_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(7, 14);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(80, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Standard Fields";
+            // 
+            // lstStdFields
+            // 
+            this.lstStdFields.FormattingEnabled = true;
+            this.lstStdFields.Items.AddRange(new object[] {
+            "PreP",
+            "PreI",
+            "PreA",
+            "LitQ",
+            "PstI",
+            "PstP",
+            "RespOptions",
+            "NRCodes"});
+            this.lstStdFields.Location = new System.Drawing.Point(10, 30);
+            this.lstStdFields.Name = "lstStdFields";
+            this.lstStdFields.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
+            this.lstStdFields.Size = new System.Drawing.Size(72, 108);
+            this.lstStdFields.TabIndex = 10;
+            this.lstStdFields.Click += new System.EventHandler(this.lstStdFields_Click);
+            // 
+            // chkCorrected
+            // 
+            this.chkCorrected.AutoSize = true;
+            this.chkCorrected.Location = new System.Drawing.Point(10, 144);
+            this.chkCorrected.Name = "chkCorrected";
+            this.chkCorrected.Size = new System.Drawing.Size(142, 17);
+            this.chkCorrected.TabIndex = 18;
+            this.chkCorrected.Text = "Use Corrected Wordings";
+            this.chkCorrected.UseVisualStyleBackColor = true;
+            this.chkCorrected.CheckedChanged += new System.EventHandler(this.CorrectedWordings_CheckedChanged);
             // 
             // lblTransFields
             // 
             this.lblTransFields.AutoSize = true;
-            this.lblTransFields.Location = new System.Drawing.Point(161, 154);
+            this.lblTransFields.Location = new System.Drawing.Point(162, 28);
             this.lblTransFields.Name = "lblTransFields";
             this.lblTransFields.Size = new System.Drawing.Size(89, 13);
             this.lblTransFields.TabIndex = 15;
@@ -676,79 +707,34 @@
             // lstTransFields
             // 
             this.lstTransFields.FormattingEnabled = true;
-            this.lstTransFields.Location = new System.Drawing.Point(163, 170);
+            this.lstTransFields.Location = new System.Drawing.Point(164, 44);
             this.lstTransFields.Name = "lstTransFields";
+            this.lstTransFields.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.lstTransFields.Size = new System.Drawing.Size(117, 108);
             this.lstTransFields.TabIndex = 14;
             this.lstTransFields.Visible = false;
-            this.lstTransFields.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstTransFields_MouseDoubleClick);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(408, 90);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(46, 13);
-            this.label6.TabIndex = 9;
-            this.label6.Text = "Sources";
-            this.label6.Visible = false;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(411, 28);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(43, 13);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "Authors";
-            this.label5.Visible = false;
+            this.lstTransFields.Click += new System.EventHandler(this.lstTransFields_Click);
             // 
             // lblCommentFields
             // 
             this.lblCommentFields.AutoSize = true;
-            this.lblCommentFields.Location = new System.Drawing.Point(160, 27);
+            this.lblCommentFields.Location = new System.Drawing.Point(305, 28);
             this.lblCommentFields.Name = "lblCommentFields";
             this.lblCommentFields.Size = new System.Drawing.Size(81, 13);
             this.lblCommentFields.TabIndex = 7;
             this.lblCommentFields.Text = "Comment Fields";
             this.lblCommentFields.Visible = false;
             // 
-            // dateTimeCommentsSince
-            // 
-            this.dateTimeCommentsSince.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dateTimeCommentsSince.Location = new System.Drawing.Point(315, 21);
-            this.dateTimeCommentsSince.Name = "dateTimeCommentsSince";
-            this.dateTimeCommentsSince.Size = new System.Drawing.Size(90, 20);
-            this.dateTimeCommentsSince.TabIndex = 5;
-            this.dateTimeCommentsSince.Visible = false;
-            // 
-            // lstCommentSources
-            // 
-            this.lstCommentSources.FormattingEnabled = true;
-            this.lstCommentSources.Location = new System.Drawing.Point(411, 108);
-            this.lstCommentSources.Name = "lstCommentSources";
-            this.lstCommentSources.Size = new System.Drawing.Size(43, 43);
-            this.lstCommentSources.TabIndex = 4;
-            this.lstCommentSources.Visible = false;
-            // 
-            // lstCommentAuthors
-            // 
-            this.lstCommentAuthors.FormattingEnabled = true;
-            this.lstCommentAuthors.Location = new System.Drawing.Point(411, 44);
-            this.lstCommentAuthors.Name = "lstCommentAuthors";
-            this.lstCommentAuthors.Size = new System.Drawing.Size(43, 43);
-            this.lstCommentAuthors.TabIndex = 3;
-            this.lstCommentAuthors.Visible = false;
-            // 
             // lstCommentFields
             // 
             this.lstCommentFields.FormattingEnabled = true;
-            this.lstCommentFields.Location = new System.Drawing.Point(163, 43);
+            this.lstCommentFields.Location = new System.Drawing.Point(308, 44);
             this.lstCommentFields.Name = "lstCommentFields";
+            this.lstCommentFields.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.lstCommentFields.Size = new System.Drawing.Size(118, 108);
             this.lstCommentFields.TabIndex = 2;
             this.lstCommentFields.Visible = false;
-            this.lstCommentFields.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstCommentFields_MouseDoubleClick);
+            this.lstCommentFields.Click += new System.EventHandler(this.lstCommentFields_Click);
             // 
             // cmdToggleExtraFields
             // 
@@ -819,6 +805,10 @@
             this.hidePrimaryCheckBox.TabIndex = 25;
             this.hidePrimaryCheckBox.Text = "Hide Reference Survey";
             this.hidePrimaryCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // surveyReportBindingSource
+            // 
+            this.surveyReportBindingSource.DataSource = typeof(ITCSurveyReport.SurveyReport);
             // 
             // hideIdenticalWordingsCheckBox
             // 
@@ -898,6 +888,7 @@
             // 
             // hybridHighlightCheckBox
             // 
+            this.hybridHighlightCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "SurveyCompare.HybridHighlight", true));
             this.hybridHighlightCheckBox.Location = new System.Drawing.Point(1, 41);
             this.hybridHighlightCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.hybridHighlightCheckBox.Name = "hybridHighlightCheckBox";
@@ -957,7 +948,7 @@
             // 
             // groupHighlightStyle
             // 
-            this.groupHighlightStyle.Controls.Add(this.comboBox1);
+            this.groupHighlightStyle.Controls.Add(this.cboHighlightScheme);
             this.groupHighlightStyle.Controls.Add(this.radioButton2);
             this.groupHighlightStyle.Controls.Add(this.radioButton1);
             this.groupHighlightStyle.Controls.Add(this.convertTrackedChangesCheckBox);
@@ -968,23 +959,23 @@
             this.groupHighlightStyle.TabStop = false;
             this.groupHighlightStyle.Text = "Highlight Style";
             // 
-            // comboBox1
+            // cboHighlightScheme
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(18, 88);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(103, 21);
-            this.comboBox1.TabIndex = 3;
+            this.cboHighlightScheme.FormattingEnabled = true;
+            this.cboHighlightScheme.Location = new System.Drawing.Point(18, 88);
+            this.cboHighlightScheme.Name = "cboHighlightScheme";
+            this.cboHighlightScheme.Size = new System.Drawing.Size(103, 21);
+            this.cboHighlightScheme.TabIndex = 3;
             // 
             // radioButton2
             // 
             this.radioButton2.AutoSize = true;
             this.radioButton2.Location = new System.Drawing.Point(11, 41);
             this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(85, 17);
+            this.radioButton2.Size = new System.Drawing.Size(110, 17);
             this.radioButton2.TabIndex = 1;
             this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "radioButton2";
+            this.radioButton2.Text = "Tracked Changes";
             this.radioButton2.UseVisualStyleBackColor = true;
             // 
             // radioButton1
@@ -992,10 +983,10 @@
             this.radioButton1.AutoSize = true;
             this.radioButton1.Location = new System.Drawing.Point(10, 18);
             this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(85, 17);
+            this.radioButton1.Size = new System.Drawing.Size(100, 17);
             this.radioButton1.TabIndex = 0;
             this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "radioButton1";
+            this.radioButton1.Text = "Classic highlight";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
             // convertTrackedChangesCheckBox
@@ -1033,6 +1024,7 @@
             // 
             // doCompareCheckBox
             // 
+            this.doCompareCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.surveyReportBindingSource, "Compare", true));
             this.doCompareCheckBox.Location = new System.Drawing.Point(13, 26);
             this.doCompareCheckBox.Name = "doCompareCheckBox";
             this.doCompareCheckBox.Size = new System.Drawing.Size(104, 24);
@@ -1055,8 +1047,8 @@
             // pgOrder
             // 
             this.pgOrder.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(170)))), ((int)(((byte)(136)))));
-            this.pgOrder.Controls.Add(this.dataGridView2);
-            this.pgOrder.Controls.Add(this.dataGridView1);
+            this.pgOrder.Controls.Add(this.gridQnumSurvey);
+            this.pgOrder.Controls.Add(this.gridColumnOrder);
             this.pgOrder.Controls.Add(this.groupEnumeration);
             this.pgOrder.Location = new System.Drawing.Point(4, 22);
             this.pgOrder.Name = "pgOrder";
@@ -1064,21 +1056,32 @@
             this.pgOrder.TabIndex = 3;
             this.pgOrder.Text = "Order and Numbering";
             // 
-            // dataGridView2
+            // gridQnumSurvey
             // 
-            this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView2.Location = new System.Drawing.Point(49, 189);
-            this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.Size = new System.Drawing.Size(154, 76);
-            this.dataGridView2.TabIndex = 55;
+            this.gridQnumSurvey.AllowUserToAddRows = false;
+            this.gridQnumSurvey.AllowUserToDeleteRows = false;
+            this.gridQnumSurvey.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridQnumSurvey.Location = new System.Drawing.Point(28, 168);
+            this.gridQnumSurvey.Name = "gridQnumSurvey";
+            this.gridQnumSurvey.RowHeadersVisible = false;
+            this.gridQnumSurvey.Size = new System.Drawing.Size(241, 121);
+            this.gridQnumSurvey.TabIndex = 55;
+            this.gridQnumSurvey.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.gridQnumSurvey_CellValueChanged);
+            this.gridQnumSurvey.CurrentCellChanged += new System.EventHandler(this.gridQnumSurvey_CurrentCellChanged);
+            this.gridQnumSurvey.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.gridQnumSurvey_DataBindingComplete);
             // 
-            // dataGridView1
+            // gridColumnOrder
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(51, 59);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(242, 88);
-            this.dataGridView1.TabIndex = 54;
+            this.gridColumnOrder.AllowUserToAddRows = false;
+            this.gridColumnOrder.AllowUserToDeleteRows = false;
+            this.gridColumnOrder.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridColumnOrder.Location = new System.Drawing.Point(27, 46);
+            this.gridColumnOrder.Name = "gridColumnOrder";
+            this.gridColumnOrder.ReadOnly = true;
+            this.gridColumnOrder.RowHeadersVisible = false;
+            this.gridColumnOrder.Size = new System.Drawing.Size(242, 88);
+            this.gridColumnOrder.TabIndex = 54;
+            this.gridColumnOrder.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.gridColumnOrder_DataBindingComplete);
             // 
             // groupEnumeration
             // 
@@ -1086,7 +1089,7 @@
             this.groupEnumeration.Controls.Add(this.optAltQnumOnly);
             this.groupEnumeration.Controls.Add(this.optQnumOnly);
             this.groupEnumeration.Controls.Add(this.chkShowAllQnums);
-            this.groupEnumeration.Location = new System.Drawing.Point(257, 189);
+            this.groupEnumeration.Location = new System.Drawing.Point(292, 168);
             this.groupEnumeration.Name = "groupEnumeration";
             this.groupEnumeration.Size = new System.Drawing.Size(122, 121);
             this.groupEnumeration.TabIndex = 53;
@@ -1814,15 +1817,42 @@
             this.surveyView.Name = "surveyView";
             this.surveyView.ReadOnly = true;
             this.surveyView.RowHeadersVisible = false;
-            this.surveyView.Size = new System.Drawing.Size(444, 504);
+            this.surveyView.Size = new System.Drawing.Size(318, 219);
             this.surveyView.TabIndex = 52;
+            // 
+            // surveyView2
+            // 
+            this.surveyView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.surveyView2.Location = new System.Drawing.Point(488, 423);
+            this.surveyView2.Name = "surveyView2";
+            this.surveyView2.Size = new System.Drawing.Size(318, 271);
+            this.surveyView2.TabIndex = 53;
+            // 
+            // gridFinalReport
+            // 
+            this.gridFinalReport.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridFinalReport.Location = new System.Drawing.Point(820, 186);
+            this.gridFinalReport.Name = "gridFinalReport";
+            this.gridFinalReport.Size = new System.Drawing.Size(277, 364);
+            this.gridFinalReport.TabIndex = 54;
+            // 
+            // txtOptions
+            // 
+            this.txtOptions.Location = new System.Drawing.Point(642, 19);
+            this.txtOptions.Multiline = true;
+            this.txtOptions.Name = "txtOptions";
+            this.txtOptions.Size = new System.Drawing.Size(454, 155);
+            this.txtOptions.TabIndex = 55;
             // 
             // SurveyReportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(952, 714);
+            this.ClientSize = new System.Drawing.Size(1136, 714);
+            this.Controls.Add(this.txtOptions);
+            this.Controls.Add(this.gridFinalReport);
+            this.Controls.Add(this.surveyView2);
             this.Controls.Add(this.surveyView);
             this.Controls.Add(this.lblBackend);
             this.Controls.Add(this.dateBackend);
@@ -1841,20 +1871,22 @@
             this.pgFilters.PerformLayout();
             this.pgFields.ResumeLayout(false);
             this.pgFields.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).EndInit();
+            this.panelOtherFields.ResumeLayout(false);
+            this.panelOtherFields.PerformLayout();
+            this.panelCommentFilters.ResumeLayout(false);
+            this.panelCommentFilters.PerformLayout();
             this.pgCompare.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).EndInit();
             this.groupHighlightOptions.ResumeLayout(false);
             this.flowHighlightOptions.ResumeLayout(false);
             this.groupHighlightStyle.ResumeLayout(false);
             this.groupHighlightStyle.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPrimarySurvey)).EndInit();
             this.pgOrder.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridQnumSurvey)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridColumnOrder)).EndInit();
             this.groupEnumeration.ResumeLayout(false);
             this.groupEnumeration.PerformLayout();
             this.pgFormatting.ResumeLayout(false);
@@ -1878,6 +1910,8 @@
             this.pgFileName.ResumeLayout(false);
             this.pgFileName.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.surveyView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.surveyView2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridFinalReport)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1916,30 +1950,21 @@
         private System.Windows.Forms.Button cmdToggleExtraFields;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label lblCommentFields;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DateTimePicker dateTimeCommentsSince;
         private System.Windows.Forms.ListBox lstCommentSources;
         private System.Windows.Forms.ListBox lstCommentAuthors;
         private System.Windows.Forms.ListBox lstCommentFields;
-        private System.Windows.Forms.ListBox lstSelStdFields;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.ListBox lstStdFields;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label7;
         private System.Windows.Forms.CheckBox chkVarLabelCol;
         private System.Windows.Forms.CheckBox chkFilterCol;
         private System.Windows.Forms.Label lblTransFields;
         private System.Windows.Forms.CheckBox chkCorrected;
-        private System.Windows.Forms.ListBox lstSelCommentFields;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.ListBox lstSelTransFields;
         private System.Windows.Forms.ListBox lstTransFields;
         private System.Windows.Forms.DataGridView gridPrimarySurvey;
         private System.Windows.Forms.GroupBox groupHighlightOptions;
         private System.Windows.Forms.FlowLayoutPanel flowHighlightOptions;
         private System.Windows.Forms.GroupBox groupHighlightStyle;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox cboHighlightScheme;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.CheckBox aQNInsertionCheckBox;
@@ -2021,12 +2046,22 @@
         private System.Windows.Forms.DataGridView surveyView;
         private System.Windows.Forms.BindingSource surveyReportBindingSource;
         private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.DataGridView dataGridView2;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView gridColumnOrder;
         private System.Windows.Forms.CheckBox chkTopicCol;
         private System.Windows.Forms.CheckBox chkContentCol;
         private System.Windows.Forms.CheckBox chkProductCol;
         private System.Windows.Forms.CheckBox chkDomainCol;
+        private System.Windows.Forms.DataGridView gridQnumSurvey;
+        private System.Windows.Forms.DataGridView surveyView2;
+        private System.Windows.Forms.DataGridView gridFinalReport;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ListBox lstStdFields;
+        private System.Windows.Forms.Panel panelCommentFilters;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Panel panelOtherFields;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox txtOptions;
     }
 }
 

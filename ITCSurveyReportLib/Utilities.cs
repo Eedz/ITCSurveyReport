@@ -160,6 +160,10 @@ namespace ITCSurveyReport
             {
                 input = input.Substring(0, input.Length - totrim.Length);
             }
+            while (input.StartsWith(totrim))
+            {
+                input = input.Substring(totrim.Length);
+            }
             return input;
         }
 
@@ -275,6 +279,22 @@ namespace ITCSurveyReport
                 var = rx.Matches(input)[0].Value;
             }
             return var;
+        }
+
+        public static string RemoveTags (string input)
+        {
+            string output = input;
+            output = output.Replace("[yellow]", "");
+            output = output.Replace("[/yellow]", "");
+            output = output.Replace("[brightgreen]", "");
+            output = output.Replace("[/brightgreen]", "");
+            output = output.Replace("[t]", "");
+            output = output.Replace("[s]", "");
+            output = output.Replace("[/t]", "");
+            output = output.Replace("[/s]", "");
+
+
+            return output;
         }
     }
 }

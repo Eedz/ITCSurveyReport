@@ -149,6 +149,10 @@ namespace ITCSurveyReport
             for (int i = 1; i <= doc.Tables[1].Rows.Count; i++)
             {
                 txt = doc.Tables[1].Cell(i, varCol).Range.Text;
+                txt = txt.Replace("[yellow]", "");
+                txt = txt.Replace("[/yellow]", "");
+                txt = txt.Replace("[t][s]", "");
+                txt = txt.Replace("[/t][/s]", "");
                 if (txt.StartsWith("Z"))
                 {
                     // set heading style and properties
@@ -185,3 +189,4 @@ namespace ITCSurveyReport
         }
     }
 }
+

@@ -115,19 +115,39 @@ namespace ITCSurveyReport
         /// </summary>
         public void CompareSurveyTables(DataTable dt1, DataTable dt2)
         {
-            
+            DataTable deletedQs;
             DataRow[] foundRows;
             foreach (DataRow rOther in dt2.Rows)
             {
                 foundRows = dt1.Select("refVarName = '" + rOther["refVarName"].ToString() + "'");
 
-                // if no rows are found, this row is unique to dt1, color it yellow
+                
                 if (foundRows.Length == 0)
                 {
-                    CompareVars(null, rOther);
+                    // if no matching rows are found in dt1 (primary), this row is unique to dt2 (other)
+                    if (highlightScheme == HScheme.Sequential)
+                    {
+                        
+                        if (!rOther["VarName"].Equals("")) { rOther["VarName"] = "[yellow]" + rOther["VarName"] + "[/yellow]"; }
+                        if (!rOther["PreP"].Equals("")) { rOther["PreP"] = "[yellow]" + rOther["PreP"] + "[/yellow]"; }
+                        if (!rOther["PreI"].Equals("")) { rOther["PreI"] = "[yellow]" + rOther["PreI"] + "[/yellow]"; }
+                        if (!rOther["PreA"].Equals("")) { rOther["PreA"] = "[yellow]" + rOther["PreA"] + "[/yellow]"; }
+                        if (!rOther["LitQ"].Equals("")) { rOther["LitQ"] = "[yellow]" + rOther["LitQ"] + "[/yellow]"; }
+                        if (!rOther["PstI"].Equals("")) { rOther["PstI"] = "[yellow]" + rOther["PstI"] + "[/yellow]"; }
+                        if (!rOther["PstP"].Equals("")) { rOther["PstP"] = "[yellow]" + rOther["PstP"] + "[/yellow]"; }
+                        if (!rOther["RespOptions"].Equals("")) { rOther["RespOptions"] = "[yellow]" + rOther["RespOptions"] + "[/yellow]"; }
+                        if (!rOther["NRCodes"].Equals("")) { rOther["NRCodes"] = "[yellow]" + rOther["NRCodes"] + "[/yellow]"; }
+                    }
+                    else if (highlightScheme == HScheme.AcrossCountry)
+                    {
+                        if (!rOther["VarName"].Equals("")) { rOther["VarName"] = "[yellow]" + rOther["VarName"] + "[/yellow]"; }
+                    }
+                    
+                    
                 }
                 else
                 {
+                    // if matching rows are found in dt1 (primary), compare the wording fields
                     foreach (DataRow r in foundRows)
                     {
                         CompareWordings(r, rOther, "PreP");
@@ -141,16 +161,189 @@ namespace ITCSurveyReport
                     }
                 }
             }
-
+            DataRow toAdd;
+            deletedQs = dt1.Clone();
+            // now get all rows that are unique to dt1 (primary)
             foreach (DataRow rPrime in dt1.Rows)
             {
                 
                 foundRows = dt2.Select("refVarName = '" + rPrime["refVarName"].ToString() + "'");
                 if (foundRows.Length == 0)
                 {
-                    CompareVars(rPrime, null);
+                    // row not found in dt2 (other) so add it to dt2 and colour it blue
+                    if (highlightScheme == HScheme.Sequential)
+                    {
+                        // if the extra dt1 rows are to be re-inserted, colour them blue
+                        if (reInsertDeletions)
+                        {
+                            if (!rPrime["VarName"].Equals("")) { rPrime["VarName"] = "[s][t]" + rPrime["VarName"] + "[/t][/s]"; }
+                            if (!rPrime["PreP"].Equals("")) { rPrime["PreP"] = "[s][t]" + rPrime["PreP"] + "[/t][/s]"; }
+                            if (!rPrime["PreI"].Equals("")) { rPrime["PreI"] = "[s][t]" + rPrime["PreI"] + "[/t][/s]"; }
+                            if (!rPrime["PreA"].Equals("")) { rPrime["PreA"] = "[s][t]" + rPrime["PreA"] + "[/t][/s]"; }
+                            if (!rPrime["LitQ"].Equals("")) { rPrime["LitQ"] = "[s][t]" + rPrime["LitQ"] + "[/t][/s]"; }
+                            if (!rPrime["PstI"].Equals("")) { rPrime["PstI"] = "[s][t]" + rPrime["PstI"] + "[/t][/s]"; }
+                            if (!rPrime["PstP"].Equals("")) { rPrime["PstP"] = "[s][t]" + rPrime["PstP"] + "[/t][/s]"; }
+                            if (!rPrime["RespOptions"].Equals("")) { rPrime["RespOptions"] = "[s][t]" + rPrime["RespOptions"] + "[/t][/s]"; }
+                            if (!rPrime["NRCodes"].Equals("")) { rPrime["NRCodes"] = "[s][t]" + rPrime["NRCodes"] + "[/t][/s]"; }
+                        }
+                        
+                    }
+                    else if (highlightScheme == HScheme.AcrossCountry)
+                    {
+                        if (!rPrime["VarName"].Equals("")) { rPrime["VarName"] = "[yellow]" + rPrime["VarName"] + "[/yellow]"; }
+
+                    }
+                    if (showDeletedQuestions)
+                    {
+
+                        if (reInsertDeletions)
+                        {
+                            toAdd = deletedQs.NewRow();
+                            toAdd.ItemArray = rPrime.ItemArray;
+                            toAdd["SortBy"] = "z" + toAdd["SortBy"];
+                            
+                            deletedQs.Rows.Add(toAdd);
+                            deletedQs.AcceptChanges();
+                        }
+                        rPrime.RejectChanges();
+                    }
+                    
+                    
+
+                }
+
+                
+            }
+            // if we are not re-inserting deletions, add a heading for the deleted questions, which will apear at the end of the table.
+            if (showDeletedQuestions && !reInsertDeletions)
+            {
+                toAdd = dt2.NewRow();
+                toAdd["ID"] = "-1";
+                toAdd["refVarName"] = "ZZ999";
+                toAdd["VarName"] = "ZZ999";
+                toAdd["Qnum"] = "z999";
+                toAdd["SortBy"] = "z999";
+                toAdd["PreP"] = "Unmatched Questions";
+                toAdd["TableFormat"] = false;
+                toAdd["CorrectedFlag"] = false;
+
+                dt2.Rows.Add(toAdd);
+                
+                dt2.AcceptChanges();
+
+                toAdd = dt1.NewRow();
+                toAdd["ID"] = "-1";
+                toAdd["refVarName"] = "ZZ999";
+                toAdd["VarName"] = "ZZ999";
+                toAdd["Qnum"] = "z999";
+                toAdd["SortBy"] = "z999";
+                toAdd["PreP"] = "Unmatched Questions";
+                toAdd["TableFormat"] = false;
+                toAdd["CorrectedFlag"] = false;
+
+                dt1.Rows.Add(toAdd);
+                dt1.AcceptChanges();
+            }
+
+            if (reInsertDeletions)
+            {
+                RenumberDeletions(dt1, dt2, deletedQs);
+            }
+            dt2.Merge(deletedQs);
+        }
+
+        public void RenumberDeletions (DataTable dt1, DataTable dt2, DataTable deletedQs)
+        {
+            // for each row in deletedQs where the qnum starts with z, 
+            // we need to find the last common varname between the 2 tables, set the qnum of the row to that common row's qnum + the z-qnum
+            var foundRows = deletedQs.Select("SortBy Like 'z%'");
+            string varname;
+            string previousvar;
+            string previousqnum = "";
+            foreach (DataRow r in foundRows)
+            {
+                varname = (string) r["VarName"];
+                varname = varname.Replace("[s][t]", "");
+                varname = varname.Replace("[/t][/s]", "");
+
+                for (int i = 0; i < dt1.Rows.Count; i ++)
+                {
+                    if (dt1.Rows[i]["VarName"].Equals(varname))
+                    {
+                        if (i == 0)
+                        {
+                            previousqnum = "000";
+                        }
+                        else
+                        {
+                            previousvar = (string)dt1.Rows[i - 1]["VarName"];
+                            previousqnum = GetPreviousCommonVar(dt1, dt2, varname);
+                            
+                        }
+                        break;
+                    }
+                }
+                r["SortBy"] = previousqnum + r["SortBy"];
+                r.AcceptChanges();
+            }
+
+        }
+
+        /// <summary>
+        /// Returns the VarName of the last common VarName between 2 datatables, starting from a specified VarName.
+        /// </summary>
+        /// <param name="dt1"></param>
+        /// <param name="dt2"></param>
+        /// <param name="varname"></param>
+        /// <returns></returns>
+        private string GetPreviousCommonVar (DataTable dt1, DataTable dt2, string varname)
+        {
+            string previousQnum = "";
+            string prev = "";
+            string curr = "";
+            for (int i = dt1.Rows.Count-1; i >= 0; i--)
+            {
+                curr = (string)dt1.Rows[i]["VarName"];
+                curr = curr.Replace("[s][t]", "");
+                curr = curr.Replace("[/t][/s]", "");
+
+                if (curr.Equals(varname))
+                {
+                    // get the previous var in dt1
+                    if (i == 0)
+                    {
+                        prev = "";
+                        break;
+                    }
+                    else
+                    {
+                        prev = (string)dt1.Rows[i - 1]["VarName"];
+                        prev = prev.Replace("[s][t]", "");
+                        prev = prev.Replace("[/t][/s]", "");
+                        // check if it exists in dt2
+                        var foundRow = dt2.Select("VarName = '" + prev + "'");
+
+                        if (foundRow.Length != 0)
+                        {
+                            previousQnum = (string)foundRow[0]["Qnum"];
+                            break;
+                        }
+                        else
+                        {
+                            varname = (string)dt1.Rows[i - 1]["VarName"];
+                        }
+                    }
                 }
             }
+
+            if (prev.Equals(""))
+                previousQnum = "000";
+           
+            
+
+
+            // if it does, return the var, if not, try again
+            return previousQnum;
         }
 
         public void CompareVars(DataRow rPrime, DataRow rOther)
@@ -182,6 +375,7 @@ namespace ITCSurveyReport
 
         }
 
+        // TODO ignore punctuation and spacing
         public void CompareWordings (DataRow rPrime, DataRow rOther, String fieldname)
         {
             String highlightStartNew;
@@ -222,7 +416,7 @@ namespace ITCSurveyReport
             }
             
             if (rPrime[fieldname].Equals(rOther[fieldname])){
-                if (hideIdenticalWordings) { }
+                if (hideIdenticalWordings) { rOther[fieldname] = "";}
             }
             else
             {
@@ -248,6 +442,11 @@ namespace ITCSurveyReport
             }
             rOther.AcceptChanges();
         }
+
+        #region Topic/Label Comparison
+        public void CreateTCReport() { }
+        #endregion
+
 
         #region LINQ attempts
         // Marks differences between 2 tables in the specified field

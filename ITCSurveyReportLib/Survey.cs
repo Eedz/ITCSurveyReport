@@ -62,7 +62,7 @@ namespace ITCSurveyReport
         // comment filters
         DateTime? commentDate;
         List<int> commentAuthors; // make a class of names?
-        List<int> commentSources;
+        List<string> commentSources;
 
         // fields
         List<String> repeatedFields;
@@ -102,6 +102,7 @@ namespace ITCSurveyReport
 
         // errors and results
         // qnu list
+        List<string> QNUlist;
 
         #endregion
 
@@ -127,7 +128,7 @@ namespace ITCSurveyReport
 
             commentDate = null;
             commentAuthors = new List<int>();
-            commentSources = new List<int>();
+            commentSources = new List<string>();
 
             repeatedFields = new List<String>();
             commentFields = new List<String>();
@@ -167,6 +168,8 @@ namespace ITCSurveyReport
             subsetTables = false;
             subsetTablesTranslation = false;
             showLongLists = false;
+
+            QNUlist = new List<string>();
         }
 
         public Survey(string code)
@@ -175,7 +178,6 @@ namespace ITCSurveyReport
             String query = "SELECT * FROM qrySurveyInfo WHERE Survey = @survey";
             SqlParameter param = new SqlParameter("@survey", SqlDbType.VarChar, 50);
             param.Value = code;
-            
             conn.Open();
             sql.SelectCommand = new SqlCommand(query, conn);
             sql.SelectCommand.Parameters.Add(param);
@@ -207,7 +209,7 @@ namespace ITCSurveyReport
 
             commentDate = null;
             commentAuthors = new List<int>();
-            commentSources = new List<int>();
+            commentSources = new List<string>();
 
             repeatedFields = new List<String>();
             commentFields = new List<String>();
@@ -248,7 +250,7 @@ namespace ITCSurveyReport
             subsetTables = false;
             subsetTablesTranslation = false;
             showLongLists = false;
-
+            QNUlist = new List<string>();
         }
 
         public Survey (ReportTemplate repTemplate)
@@ -402,7 +404,7 @@ namespace ITCSurveyReport
                 whereLang = " AND Lang ='" + transFields[i] + "'";
 
                 query = "SELECT QID AS ID, VarName, refVarName, " + 
-                    "Replace(Replace(Replace(Translation, '&gt;', '>'), '&lt;', '<'), '&nbsp;', ' ') AS [" + transFields[i] + "] " + 
+                    "Replace(Replace(Replace(Replace(Translation, '&gt;', '>'), '&lt;', '<'), '&nbsp;', ' '), '<br>','\r\n') AS [" + transFields[i] + "] " + 
                     "FROM qrySurveyQuestionsTranslations " + where + whereLang;
 
                 
@@ -574,7 +576,7 @@ namespace ITCSurveyReport
                         columnNames.Add(rawTable.Columns[i].Caption);
                         columnTypes.Add("int");
                         break;
-                    case "SortBy":
+                    
                     case "Survey":
                     case "PreP":
                     case "PreI":
@@ -691,9 +693,9 @@ namespace ITCSurveyReport
                     switch (colName)
                     {
                         case "SortBy":
-                        //    row[colName] = (string)row[colName].ToString().Replace("!", "z");
-                        //    row.AcceptChanges();
-                        //    break;
+
+                            newrow[colName] = row[colName];
+                            break;
                         case "Survey":
                         case "PreP":
                         case "PreI":
@@ -784,7 +786,7 @@ namespace ITCSurveyReport
             // TODO apply question filters
 
             // change the primary key to be the VarName column
-            finalTable.PrimaryKey = new DataColumn[] { finalTable.Columns["VarName"] };
+            finalTable.PrimaryKey = new DataColumn[] { finalTable.Columns["refVarName"] };
 
             // remove unneeded fields
             // check enumeration and delete AltQnum
@@ -813,7 +815,7 @@ namespace ITCSurveyReport
 
             finalTable.Columns.Remove("CorrectedFlag");
             finalTable.Columns.Remove("TableFormat");
-            finalTable.Columns.Remove("refVarName");
+            //finalTable.Columns.Remove("refVarName");
             finalTable.Columns.Remove("ID");
 
             
@@ -838,12 +840,14 @@ namespace ITCSurveyReport
 
 
         // TODO remove whitespace around each option before adding read out instruction
-        // TODO check for tags before adding readOut string
+        // TODO check for tags before adding readOut string TEST THIS
         private string FormatNR (string wording)
         {
             string[] options;
             string result = wording;
-            string readOut = new string (' ',3);
+            string readOut = new string (' ',3); // the read out instruction will be 3 spaces after the response option
+            int tagEnd=-1; // location of an end tag like [/yellow] or [/t][/s]
+            string tagText; // the actual end tag
 
             options = wording.Split(new string[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
             switch (nrFormat)
@@ -860,7 +864,16 @@ namespace ITCSurveyReport
 
             for (int i=0; i < options.Length; i++)
             {
-                options[i] += readOut;
+                tagEnd = options[i].IndexOf("[/");
+                if (tagEnd > -1)
+                {
+                    tagText = options[i].Substring(tagEnd);
+                    options[i] = options[i].Substring(0, tagEnd) + readOut + tagText;
+                }
+                else
+                {
+                    options[i] += readOut;
+                }
             }
 
             result = string.Join("\n\r", options);
@@ -909,13 +922,21 @@ namespace ITCSurveyReport
                     }
 
                     if (qnum.Equals(""))
+                    {
+                        QNUlist.Add(varname);
                         qnum = "QNU";
+                    }
                     
                     words[i] = rx.Replace(words[i], qnum + "/" + varname); 
                 }
             }
             newwording = string.Join(" ", words);
             return newwording;
+        }
+
+        private string InsertOddQnums(string wording)
+        {
+            return wording;
         }
 
         
@@ -1121,7 +1142,7 @@ namespace ITCSurveyReport
                             // if the current row's wording field matches the reference row, clear it. 
                             // otherwise, set the reference row's field to the current row's field
                             // this will cause a new reference point for that particular field, but not the fields that were identical to the original reference row
-                            if (r[i].Equals(refRow[i])) // field is identical to reference row's field, clear it
+                            if (Utilities.RemoveTags((string)r[i]).Equals(Utilities.RemoveTags((string)refRow[i]))) // field is identical to reference row's field, clear it
                             {
                                 r[i] = "";
                                 r.AcceptChanges();
@@ -1140,8 +1161,6 @@ namespace ITCSurveyReport
 
         public int TranslationCount() { return TransFields.Count; }
 
-        public void ReplaceQN2() { }
-
         // possible unneeded once comments are retrieved with server function
         public void RemoveRepeatedComments() { }
         #endregion
@@ -1156,7 +1175,7 @@ namespace ITCSurveyReport
         public List<String> Varnames { get => varnames; set => varnames = value; }
         public DateTime? CommentDate { get => commentDate; set => commentDate = value; }
         public List<int> CommentAuthors { get => commentAuthors; set => commentAuthors = value; }
-        public List<int> CommentSources { get => commentSources; set => commentSources = value; }
+        public List<string> CommentSources { get => commentSources; set => commentSources = value; }
         public List<String> CommentFields
         {
             get => commentFields;

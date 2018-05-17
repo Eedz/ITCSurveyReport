@@ -55,6 +55,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="SurveyReport.cs" />
+    <Compile Include="UserPrefs.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
