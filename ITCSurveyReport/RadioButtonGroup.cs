@@ -12,20 +12,31 @@ namespace ITCSurveyReport
 {
     public partial class RadioButtonGroup : Control
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public event EventHandler SelectedChanged = delegate { };
 
         int _selected;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public RadioButtonGroup()
         {
             InitializeComponent();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pe"></param>
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);
         }
-        
+        /// <summary>
+        /// 
+        /// </summary>
         public int Selected
         {
             get
@@ -47,7 +58,10 @@ namespace ITCSurveyReport
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);

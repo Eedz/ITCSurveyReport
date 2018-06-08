@@ -296,5 +296,39 @@ namespace ITCSurveyReport
 
             return output;
         }
+
+        public static string StripChars (string input)
+        {
+            Regex rx = new Regex("[^A-Za-z0-9 ]");
+
+            input = rx.Replace(input, string.Empty);
+
+            return input;
+        }
+
+        public static string StripChars(string input, string pattern)
+        {
+            Regex rx = new Regex(pattern);
+
+            input = rx.Replace(input, string.Empty);
+
+            return input;
+        }
+
+        // TODO test both UTF8 and ASCII
+        public static bool ContainsNonLatin(string input)
+        {
+            byte[] b;
+            b = Encoding.UTF8.GetBytes(input);
+            //b = Encoding.ASCII.GetBytes(input);
+            for (int i = 1; i < b.Length; i += 2)
+            {
+                if (b[i] > 0)
+                    return true;
+
+                break;
+            }
+            return false;
+        }
     }
 }

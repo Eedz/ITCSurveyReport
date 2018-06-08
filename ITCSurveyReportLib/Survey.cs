@@ -8,77 +8,62 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
-//using System.Runtime.CompilerServices;
+
 
 namespace ITCSurveyReport
 {
-    // TODO make a base class called Survey, and another called SurveyDataTable which extends DataTable and make it a member of Survey 
+    // IDEA: TODO make a base class called Survey, and another called SurveyDataTable which extends DataTable and make it a member of Survey 
     // SurveyDataTable will have all the methods that act on the rawTable 
     // Survey will have the methods that act on the final table and other auxilliary tables
+    //SurveyDataTable rawTable2;
+
     public class Survey 
     {
         #region Survey Properties
-        // properties for the base class
-        // TODO fill in these values during creation of object
+        
+        int id;                                 // unique id for report, NOT the database ID
+        // properties from database
+        string surveyCode;
         string languages;
         string title;
         string groups;
         string mode;
         int cc;
-        bool hasQID;    // this flag is true if the survey records have an ID field at the chosen date TODO implement in GetSurveyTable/GetBackupTable
+        string webName;                         // the long name of this survey
 
-        SqlDataAdapter sql;
-        SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
+        // report properties
+        DateTime backend;                       // date of backup
 
-        SurveyDataTable rawTable2;
-        
-        DataSet SurveyDataSet;
-        // data tables for this survey 
-        public DataTable rawTable;              // raw survey content, separated into fields
-        public DataTable commentTable;          // table holding comments
-        public DataTable translationTable;      // table holding all translations
-        public DataTable filterTable;           // table holding filters
-        // table holding the final output, this would be a combination of fields from rawTable, merged with commentTable, translationTable, and filterTable
-        public DataTable finalTable;            
-
-        public DataTable qnumTable;             // table holding the complete list of Qnums, AltQnums for each VarName (used if the rawTable is filtered)
-
-        //Dictionary<int, Variable> questions;  // Variable object not yet implemented
-
-        int id;                                 // unique id, NOT the database ID
-        String surveyCode;
-        
-        DateTime backend;                         // file name of backup
-        String webName;                         // the long name of this survey
-
-        // filters are currently report-level but that may change
+        // question filters
         int qRangeLow;
         int qRangeHigh;
-        List<String> prefixes;
-        String[] headings;
-        List<String> varnames;
+        List<string> prefixes;
+        List<string> headings;
+        List<string> varnames;
 
         // comment filters
         DateTime? commentDate;
         List<int> commentAuthors; // make a class of names?
         List<string> commentSources;
 
-        // fields
-        List<String> repeatedFields;
-        List<String> commentFields;
-        List<String> transFields;
-        List<String> stdFields;
-        List<String> stdFieldsChosen;
+        // field options
+        List<string> stdFields;
+        List<string> stdFieldsChosen;
+        List<string> repeatedFields;
+        // extra fields
+        List<string> commentFields;
+        List<string> transFields;
+
         bool varlabelCol;
         bool domainLabelCol;
         bool topicLabelCol;
         bool contentLabelCol;
         bool productLabelCol;
         bool filterCol;
-        bool commentCol;
 
-        String essentialList; // comma-separated list of essential varnames (and their Qnums) in this survey
+        string essentialList; // comma-separated list of essential varnames (and their Qnums) in this survey
 
         //attributes
         bool primary;   // true if this is the primary survey
@@ -86,7 +71,7 @@ namespace ITCSurveyReport
         bool corrected; // true if this uses corrected wordings
         bool marked;    // true if the survey contains tracked changes (for 3-way report)
 
-        // report level options
+        // other options, data to include
         bool includePrevNames;
         bool excludeTempNames;
         bool qnInsertion;
@@ -100,10 +85,31 @@ namespace ITCSurveyReport
         bool subsetTablesTranslation;
         bool showLongLists;
 
+        // data tables for this survey
+        // TODO remove public visibility
+        public DataTable rawTable;              // raw survey content, separated into fields
+        public DataTable commentTable;          // table holding comments
+        public DataTable translationTable;      // table holding all translations
+        public DataTable filterTable;           // table holding filters
+        public DataTable filteredTable;         // rawTable with filters applied
+        public DataTable finalTable;            // all tables merged with rawTable
+
         // errors and results
         // qnu list
         List<string> QNUlist;
 
+        
+
+        // helpers
+        SqlDataAdapter sql;
+        SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
+
+        // TODO not yet implemented
+        bool hasQID;    // this flag is true if the survey records have an ID field at the chosen date TODO implement in GetSurveyTable/GetBackupTable
+
+        // TODO future ideas
+        //DataSet SurveyDataSet;
+        //Dictionary<int, Variable> questions;  // Variable object not yet implemented
         #endregion
 
         #region Constructors
@@ -116,25 +122,25 @@ namespace ITCSurveyReport
             backend = DateTime.Today;
             webName = "";
 
-            SurveyDataSet = new DataSet("Survey" + id);
+            //SurveyDataSet = new DataSet("Survey" + id);
             sql = new SqlDataAdapter();
             rawTable = new DataTable();
 
             qRangeLow = 0;
             qRangeHigh = 0;
-            prefixes = new List<String>();
-            varnames = new List<String>();
-            headings = null;
+            prefixes = new List<string>();
+            varnames = new List<string>();
+            headings = new List<string>();
 
             commentDate = null;
             commentAuthors = new List<int>();
             commentSources = new List<string>();
 
-            repeatedFields = new List<String>();
-            commentFields = new List<String>();
-            transFields = new List<String>();
+            repeatedFields = new List<string>();
+            commentFields = new List<string>();
+            transFields = new List<string>();
 
-            stdFields = new List<String>
+            stdFields = new List<string>
             {
                 "PreP",
                 "PreI",
@@ -145,13 +151,22 @@ namespace ITCSurveyReport
                 "PstI",
                 "PstP"
             };
-            
+            stdFieldsChosen = new List<string>
+            {
+                "PreP",
+                "PreI",
+                "PreA",
+                "LitQ",
+                "RespOptions",
+                "NRCodes",
+                "PstI",
+                "PstP"
+            };
             varlabelCol = false;
             domainLabelCol = false;
             topicLabelCol = false;
             contentLabelCol = false;
             filterCol = false;
-            commentCol = false;
 
             essentialList = "";
 
@@ -172,50 +187,71 @@ namespace ITCSurveyReport
             QNUlist = new List<string>();
         }
 
+        // Initializes this survey object with the provided survey code.
         public Survey(string code)
         {
+            //SqlDataReader rdr;
             sql = new SqlDataAdapter();
-            String query = "SELECT * FROM qrySurveyInfo WHERE Survey = @survey";
-            SqlParameter param = new SqlParameter("@survey", SqlDbType.VarChar, 50);
-            param.Value = code;
+            string query = "SELECT * FROM qrySurveyInfo WHERE Survey = @survey";
             conn.Open();
             sql.SelectCommand = new SqlCommand(query, conn);
-            sql.SelectCommand.Parameters.Add(param);
-            SqlDataReader rdr = sql.SelectCommand.ExecuteReader();
-            rdr.Read();
-            surveyCode = (string) rdr["Survey"];
-            if (!rdr.IsDBNull(rdr.GetOrdinal("Languages"))) { languages = (string)rdr["Languages"]; }
-            title = (string) rdr["SurveyTitle"];
-            if (!rdr.IsDBNull(rdr.GetOrdinal("Group"))) { groups = (string)rdr["Group"]; }
-            mode = (string) rdr["ModeLong"];
-            cc = Int32.Parse((string) rdr ["CountryCode"]);
-
-            rdr.Close();
-            conn.Close();
+            sql.SelectCommand.Parameters.AddWithValue("@survey", code);
+            try
+            {
+                using (SqlDataReader rdr = sql.SelectCommand.ExecuteReader())
+                {
+                    rdr.Read();
+                    surveyCode = (string)rdr["Survey"];
+                    if (!rdr.IsDBNull(rdr.GetOrdinal("Languages"))) { languages = (string)rdr["Languages"]; }
+                    title = (string)rdr["SurveyTitle"];
+                    if (!rdr.IsDBNull(rdr.GetOrdinal("Group"))) { groups = (string)rdr["Group"]; }
+                    mode = (string)rdr["ModeLong"];
+                    cc = Int32.Parse((string)rdr["CountryCode"]);
+                }
+            }
+            catch (Exception e)
+            {
+                return;
+            }
+            finally
+            {
+                conn.Close();
+            }
 
             
             backend = DateTime.Today;
             webName = "";
 
-            SurveyDataSet = new DataSet("Survey" + id);
+            //SurveyDataSet = new DataSet("Survey" + id);
             
             rawTable = new DataTable();
 
             qRangeLow = 0;
             qRangeHigh = 0;
-            prefixes = new List<String>();
-            varnames = new List<String>();
-            headings = null;
+            prefixes = new List<string>();
+            varnames = new List<string>();
+            headings = new List<string>();
 
             commentDate = null;
             commentAuthors = new List<int>();
             commentSources = new List<string>();
 
-            repeatedFields = new List<String>();
-            commentFields = new List<String>();
-            transFields = new List<String>();
+            repeatedFields = new List<string>();
+            commentFields = new List<string>();
+            transFields = new List<string>();
 
-            stdFields = new List<String>
+            stdFields = new List<string>
+            {
+                "PreP",
+                "PreI",
+                "PreA",
+                "LitQ",
+                "RespOptions",
+                "NRCodes",
+                "PstI",
+                "PstP"
+            };
+            stdFieldsChosen = new List<string>
             {
                 "PreP",
                 "PreI",
@@ -232,7 +268,6 @@ namespace ITCSurveyReport
             topicLabelCol = false;
             contentLabelCol = false;
             filterCol = false;
-            commentCol = false;
 
             essentialList = "";
 
@@ -262,7 +297,7 @@ namespace ITCSurveyReport
         #region Methods and Functions
 
         /// <summary>
-        /// Fills the rawTable object with all the questions for this particular survey. Corrected wordings are applied if necessary. 
+        /// Fills the rawTable DataTable with all the questions for this particular survey. Corrected wordings are applied if necessary. 
         /// DataTables are created for comments, translations and filters if requested. Essential questions are also collected.
         /// </summary>
         public void GenerateSourceTable() {
@@ -270,8 +305,8 @@ namespace ITCSurveyReport
             // create survey table (from backup or current)
             if (backend != DateTime.Today)
             {
-                //GetBackupTable();
-                GetSurveyTable();
+                GetBackupTable();
+                //GetSurveyTable();
             }
             else
             {
@@ -284,7 +319,7 @@ namespace ITCSurveyReport
                 GetCorrectedWordings(); 
 
             // create comment table
-            if (commentCol) 
+            if (commentFields != null && commentFields.Count != 0) 
                 MakeCommentTable();
                 
             // create filter table
@@ -317,10 +352,33 @@ namespace ITCSurveyReport
         /// This could be achieved by changing the FROM clause in GetSurveyTable but often there are columns that don't exist in the backups, due to 
         /// their age and all the changes that have happened to the database over the years. 
         /// </remarks>
-        public void GetBackupTable() { }
+        public void GetBackupTable() {
+            string filePath = backend.ToString("yyyy-MM-dd") + ".7z";
+            BackupConnection bkp = new BackupConnection(filePath);
+            string select = "SELECT tblSurveyNumbers.[ID], [Qnum] AS SortBy, [Survey], tblSurveyNumbers.[VarName], refVarName, Qnum, AltQnum, CorrectedFlag, TableFormat, tblDomain.[Domain], [Topic], [Content], VarLabel, [Product] ";
+            string where = "Survey = '" + surveyCode + "'";
+
+            // wording fields, replace &gt; &lt; and &nbsp; right away
+            for (int i = 0; i < stdFields.Count; i++)
+            {
+                select += ", Replace(Replace(Replace(" + stdFields[i] + ", '&gt;','>'), '&lt;', '<'), '&nbsp;', ' ') AS " + stdFields[i];
+            }
+
+            if (bkp.Connected)
+            {
+                Console.Write("unzipped");
+                rawTable = bkp.GetSurveyTable(select, where);
+            }
+            else
+            {
+                // could not unzip backup/7zip not installed etc. 
+            }
+            
+            
+        }
 
         /// <summary>
-        /// Fills the raw survey table with wordings, labels, corrected and table flags.
+        /// Fills the raw survey table with wordings, labels, corrected and table flags. TODO use server function to get table.
         /// </summary>
         public void GetSurveyTable() {
             String query = "";
@@ -332,7 +390,7 @@ namespace ITCSurveyReport
             // wording fields, replace &gt; &lt; and &nbsp; right away
             for (int i = 0; i < stdFields.Count; i++)
             {
-                query = query + ", Replace(Replace(Replace(" + stdFields[i] + ", '&gt;','>'), '&lt;', '<'), '&nbsp;', ' ') AS " + stdFields[i];
+                query += ", Replace(Replace(Replace(" + stdFields[i] + ", '&gt;','>'), '&lt;', '<'), '&nbsp;', ' ') AS " + stdFields[i];
             }
             
             query = query.TrimEnd(',', ' ');
@@ -360,7 +418,7 @@ namespace ITCSurveyReport
         }
 
         /// <summary>
-        /// Look up and apply corrected wordings to the raw table. 
+        /// Look up and apply corrected wordings to the raw table. TODO user server function here.
         /// </summary>        
         public void GetCorrectedWordings() {
             DataTable corrTable;
@@ -380,7 +438,7 @@ namespace ITCSurveyReport
         }
 
         /// <summary>
-        /// Creates a DataTable for each translation language. TODO convert line breaks. 
+        /// Creates a DataTable for each translation language. TODO use server function here.
         /// </summary>
         public void MakeTranslationTable() {
             String query = "";
@@ -430,8 +488,10 @@ namespace ITCSurveyReport
             
         }
 
+        // TODO 
         public void MakeTranslationTableBackup() { }
 
+        // might not be needed ever again
         public void MakeTranslationTableFromFields() { }
 
         /// <summary>
@@ -554,16 +614,13 @@ namespace ITCSurveyReport
         public void MakeReportTable() {
 
             RemoveRepeats();
+            
             // TODO remove repeats for translation (split only)
 
-      
-      
+            List<string> columnNames = new List<string>();
+            List<string> columnTypes = new List<string>();
+            string questionColumnName = "";
             
-            
-            List<String> columnNames = new List<String>();
-            List<String> columnTypes = new List<String>();
-            String questionColumnName = "";
-            String colName = "";
 
             // construct finalTable
             // determine the fields that will appear in finalTable
@@ -604,11 +661,15 @@ namespace ITCSurveyReport
             // TODO use DataRow[] dr = rawTable.Select to get all records for each operation
             
 
-            // insert rows into finalTable from rawTable
+
+
+            // for each row in the raw table, edit the fields according to the chosen options,
+            // then add each row to the final table.
             foreach (DataRow row in rawTable.Rows)
             {
-                
+
                 // insert Qnums before variable names
+                // TODO insert Qnums before non-standard variable names
                 if (qnInsertion)
                 {
                     row["PreP"] = InsertQnums((string)row["PreP"]);
@@ -621,7 +682,7 @@ namespace ITCSurveyReport
                     row["NRCodes"] = InsertQnums((string)row["NRCodes"]);
                     row.AcceptChanges();
                 }
-                // TODO insert Qnums before non-standard variable names
+                
 
                 // insert Country codes into variable names
                 if (ccInsertion)
@@ -640,7 +701,6 @@ namespace ITCSurveyReport
                 // remove long lists in response option column
                 if (!showLongLists && !row.IsNull("RespOptions"))
                 {
-                    
                     if (Utilities.CountLines((String)row["RespOptions"].ToString()) >= 25)
                     {
                         row["RespOptions"] = "[center](Response options omitted)[/center]";
@@ -679,23 +739,29 @@ namespace ITCSurveyReport
                             row["LitQ"] = "[LitQ]" + row["LitQ"] + "[/LitQ]";
                             row.AcceptChanges();
                         }
-
                     }
                 }
 
+                // varname changes
+                if (includePrevNames && !row.IsNull("VarName") && !row["VarName"].ToString().StartsWith("Z"))
+                {
+                    row["VarName"] = row["VarName"] + " " + GetPreviousNames((string)row["VarName"]);
+                    row.AcceptChanges();
+                }
+                // corrected 
+                if ((bool)row["CorrectedFlag"])
+                {
+                    if (corrected) { row["VarName"] = row["VarName"] + "\r\n" + "[C]"; }
+                    else { row["VarName"] = row["VarName"] + "\r\n" + "[A]"; }
+                }
+
+                // copy most of the columns to the new row
                 newrow = finalTable.NewRow();
                 foreach (DataColumn col in row.Table.Columns)
                 {
-                    colName = col.Caption;
                     col.AllowDBNull = true;
-                    var currentValue = row[colName];
-
-                    switch (colName)
+                    switch (col.Caption)
                     {
-                        case "SortBy":
-
-                            newrow[colName] = row[colName];
-                            break;
                         case "Survey":
                         case "PreP":
                         case "PreI":
@@ -706,50 +772,10 @@ namespace ITCSurveyReport
                         case "RespOptions":
                         case "NRCodes":
                             break;
-                        case "Qnum":
-                            newrow[colName] = row[colName];
-                            break;
-                        case "AltQnum":
-                            newrow[colName] = row[colName];
-                            break;
-                        case "VarName":
-                            // headings
-                            //if (currentValue.ToString().StartsWith("Z") && !currentValue.ToString().EndsWith("s") && !showAllQnums)
-                            //{
-                            //    row["Qnum"] = "reghead";
-                            //    row["AltQnum"] = "reghead";
-                            //    row.AcceptChanges();
-                            //}
-
-                            //if (currentValue.ToString().StartsWith("Z") && currentValue.ToString().EndsWith("s") && !showAllQnums)
-                            //{
-                            //    row["Qnum"] = "subhead";
-                            //    row["AltQnum"] = "subhead";
-                            //    row.AcceptChanges();
-                            //}
-
-
-
-                            // varname changes
-                            if (includePrevNames && !row.IsNull(colName) && !currentValue.ToString().StartsWith("Z") ) {
-                                row[colName] = currentValue + " " + GetPreviousNames((String)currentValue);
-                                row.AcceptChanges();
-                            }
-                            // corrected 
-                            if ((bool)row["CorrectedFlag"])
-                            {
-                                if (corrected) {row[colName] = row[colName] + "\r\n" + "[C]"; }
-                                else { row[col] = row[colName] + "\r\n" + "[A]"; }
-
-                            }
-                            newrow[colName] = row[colName];
-                            break;
                         default:
-                            newrow[colName] = row[colName];
+                            newrow[col.Caption] = row[col.Caption];
                             break;
                     }
-
-
                 }
 
                 // concatenate the question fields, and if this is varname BI104, attach the essential questions list
@@ -776,14 +802,36 @@ namespace ITCSurveyReport
                 finalTable.Merge(commentTable, false, MissingSchemaAction.Add);
             
             // merge with translation table
+            // make translation columns unique by adding the survey code (TODO and backend)
             if (transFields.Count > 0)
+            {
+                foreach (DataColumn c in translationTable.Columns)
+                {
+                    if (!(c.Caption.Equals("VarName") || c.Caption.Equals("refVarName") || c.Caption.Equals("ID")))
+                    {
+                        c.Caption = surveyCode + " " + c.Caption;
+                        c.ColumnName = surveyCode + " " + c.ColumnName;
+                        translationTable.AcceptChanges();
+                    }
+
+                }
+                
                 finalTable.Merge(translationTable, false, MissingSchemaAction.Add);
+            }
+                
             
             // merge with filter table
             if (filterCol)
                 finalTable.Merge(filterTable, false, MissingSchemaAction.Add);
 
             // TODO apply question filters
+            
+            string questionFilter = GetQuestionFilter();
+            if (!questionFilter.Equals(""))
+            {
+                filteredTable = finalTable.Select(questionFilter).CopyToDataTable();
+                finalTable = filteredTable.Copy();
+            }
 
             // change the primary key to be the VarName column
             finalTable.PrimaryKey = new DataColumn[] { finalTable.Columns["refVarName"] };
@@ -966,13 +1014,13 @@ namespace ITCSurveyReport
             return newwording;
         }
 
-        private String GetPreviousNames(String varname)
+        private string GetPreviousNames(String varname)
         {
             
-            String varlist = "";
+            string varlist = "";
             SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
             DataTable surveyListTable = new DataTable("ChangedSurveys");
-            String query = "SELECT dbo.FN_VarNamePreviousNames(@varname, @survey, @excludeTemp)";
+            string query = "SELECT dbo.FN_VarNamePreviousNames(@varname, @survey, @excludeTemp)";
             SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.Add("@varname", SqlDbType.VarChar);
             cmd.Parameters["@varname"].Value = varname;
@@ -983,7 +1031,7 @@ namespace ITCSurveyReport
 
             conn.Open();
             try {
-                varlist = (String)cmd.ExecuteScalar();
+                varlist = (string)cmd.ExecuteScalar();
             }
             catch (System.Data.SqlClient.SqlException ex)
             {
@@ -997,17 +1045,26 @@ namespace ITCSurveyReport
             return varlist;
         }
 
-        private String GetQuestionText(DataRow row, String newline = "\r\n")
+        private string GetQuestionText(DataRow row, string newline = "\r\n")
         {
-            String questionText = "";
-            if (row.Table.Columns.Contains("PreP") && !row.IsNull("PreP") && !row["PreP"].Equals("")) { questionText += "<strong>" + row["PreP"] + "</strong>" + newline; }
-            if (row.Table.Columns.Contains("PreI") && !row.IsNull("PreI") && !row["PreI"].Equals("")) { questionText += "<em>" + row["PreI"] + "</em>" + newline; }
-            if (row.Table.Columns.Contains("PreA") && !row.IsNull("PreA") && !row["PreA"].Equals("")) { questionText += row["PreA"] + newline; }
-            if (row.Table.Columns.Contains("LitQ") && !row.IsNull("LitQ") && !row["LitQ"].Equals("")) { questionText += "[indent]" + row["LitQ"] + "[/indent]" + newline; }
-            if (row.Table.Columns.Contains("RespOptions") && !row.IsNull("RespOptions") && !row["RespOptions"].Equals("")) { questionText += "[indent3]" + row["RespOptions"] + "[/indent3]" + newline; }
-            if (row.Table.Columns.Contains("NRCodes") && !row.IsNull("NRCodes") && !row["NRCodes"].Equals("")) { questionText += "[indent3]" +  row["NRCodes"] + "[/indent3]" + newline; }
-            if (row.Table.Columns.Contains("PstI") && !row.IsNull("PstI") && !row["PstI"].Equals("")) { questionText += "<em>" + row["PstI"] + "</em>" + newline; }
-            if (row.Table.Columns.Contains("PstP") && !row.IsNull("PstP") && !row["PstP"].Equals("")) { questionText += "<strong>" + row["PstP"] + "</strong>"; }
+            string questionText = "";
+            //if (row.Table.Columns.Contains("PreP") && !row.IsNull("PreP") && !row["PreP"].Equals("")) { questionText += "<strong>" + row["PreP"] + "</strong>" + newline; }
+            //if (row.Table.Columns.Contains("PreI") && !row.IsNull("PreI") && !row["PreI"].Equals("")) { questionText += "<em>" + row["PreI"] + "</em>" + newline; }
+            //if (row.Table.Columns.Contains("PreA") && !row.IsNull("PreA") && !row["PreA"].Equals("")) { questionText += row["PreA"] + newline; }
+            //if (row.Table.Columns.Contains("LitQ") && !row.IsNull("LitQ") && !row["LitQ"].Equals("")) { questionText += "[indent]" + row["LitQ"] + "[/indent]" + newline; }
+            //if (row.Table.Columns.Contains("RespOptions") && !row.IsNull("RespOptions") && !row["RespOptions"].Equals("")) { questionText += "[indent3]" + row["RespOptions"] + "[/indent3]" + newline; }
+            //if (row.Table.Columns.Contains("NRCodes") && !row.IsNull("NRCodes") && !row["NRCodes"].Equals("")) { questionText += "[indent3]" +  row["NRCodes"] + "[/indent3]" + newline; }
+            //if (row.Table.Columns.Contains("PstI") && !row.IsNull("PstI") && !row["PstI"].Equals("")) { questionText += "<em>" + row["PstI"] + "</em>" + newline; }
+            //if (row.Table.Columns.Contains("PstP") && !row.IsNull("PstP") && !row["PstP"].Equals("")) { questionText += "<strong>" + row["PstP"] + "</strong>"; }
+
+            if (stdFieldsChosen.Contains("PreP") && !row.IsNull("PreP") && !row["PreP"].Equals("")) { questionText += "<strong>" + row["PreP"] + "</strong>" + newline; }
+            if (stdFieldsChosen.Contains("PreI") && !row.IsNull("PreI") && !row["PreI"].Equals("")) { questionText += "<em>" + row["PreI"] + "</em>" + newline; }
+            if (stdFieldsChosen.Contains("PreA") && !row.IsNull("PreA") && !row["PreA"].Equals("")) { questionText += row["PreA"] + newline; }
+            if (stdFieldsChosen.Contains("LitQ") && !row.IsNull("LitQ") && !row["LitQ"].Equals("")) { questionText += "[indent]" + row["LitQ"] + "[/indent]" + newline; }
+            if (stdFieldsChosen.Contains("RespOptions") && !row.IsNull("RespOptions") && !row["RespOptions"].Equals("")) { questionText += "[indent3]" + row["RespOptions"] + "[/indent3]" + newline; }
+            if (stdFieldsChosen.Contains("NRCodes") && !row.IsNull("NRCodes") && !row["NRCodes"].Equals("")) { questionText += "[indent3]" + row["NRCodes"] + "[/indent3]" + newline; }
+            if (stdFieldsChosen.Contains("PstI") && !row.IsNull("PstI") && !row["PstI"].Equals("")) { questionText += "<em>" + row["PstI"] + "</em>" + newline; }
+            if (stdFieldsChosen.Contains("PstP") && !row.IsNull("PstP") && !row["PstP"].Equals("")) { questionText += "<strong>" + row["PstP"] + "</strong>"; }
 
             // replace all "<br>" tags with newline characters
             questionText = questionText.Replace("<br>", newline);
@@ -1020,9 +1077,9 @@ namespace ITCSurveyReport
         /// Returns the name of the column, in the final survey table, containing the question text.
         /// </summary>
         /// <returns>Returns: string.</returns>
-        private String GetQuestionColumnName()
+        private string GetQuestionColumnName()
         {
-            String column = "";
+            string column = "";
             column = surveyCode.Replace(".", "");
             if (!backend.Equals(DateTime.Today)) { column += "_" + backend.ToString("d"); }
             if (corrected) { column += "_Corrected"; }
@@ -1030,36 +1087,45 @@ namespace ITCSurveyReport
             return column;
         }
 
-        // functions
-        public String GetQRangeFilter() {
-            String filter = "";
+        /// <summary>
+        /// Returns a filter expression restricting the range of Qnums.
+        /// </summary>
+        /// <returns></returns>
+        public string GetQRangeFilter() {
+            string filter = "";
             if (qRangeLow == 0 && qRangeHigh == 0) { return ""; }
             if (qRangeLow <= qRangeHigh)
             {
-                filter = "Qnum BETWEEN '" + qRangeLow.ToString().PadLeft(3, '0') + "' AND '" + qRangeHigh.ToString().PadLeft(3, '0') + "'";
+                filter = "Qnum >= '" + qRangeLow.ToString().PadLeft(3, '0') + "' AND Qnum <= '" + qRangeHigh.ToString().PadLeft(3, '0') + "'";
             }
             return filter;
         }
 
-        // Returns a WHERE clause using the properties qRange, prefixes, and varnames (and headings if it is decided to use them again)
-        public String GetQuestionFilter()
+        /// <summary>
+        /// Returns a WHERE clause restricting records to selected question range, prefix list and/or varname list. TODO add heading filter.
+        /// </summary>
+        /// <returns></returns>
+        public string GetQuestionFilter()
         {
-            String filter = "";
+            string filter = "";
 
             filter = GetQRangeFilter();
             
-            if (prefixes != null && prefixes.Count != 0) { filter += " AND Left(VarName,2) IN ('" + String.Join("','", prefixes) + "')"; }
+            if (prefixes != null && prefixes.Count != 0) { filter += " AND SUBSTRING(VarName,1,2) IN ('" + String.Join("','", prefixes) + "')"; }
             if (varnames != null && varnames.Count != 0) { filter += " AND VarName IN ('" + String.Join("','", varnames) + "')"; }
             //if (headings != null && headings.Count != 0) { filter += " AND (" + GetHeadingFilter() + ")"; }
-            // TODO trim AND from the edges 
-            //filter.Trim();
+            filter = Utilities.TrimString(filter," AND ");
             return filter;
         }
 
-        public String GetTranslation(int index)
+        /// <summary>
+        /// Returns the translation language at the provided index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public string GetTranslation(int index)
         {
-            return "";
-            //return TransFields(index);
+            return transFields[index];
         }
 
                
@@ -1067,9 +1133,6 @@ namespace ITCSurveyReport
         // heading filters not supported at this time
         public String GetHeadingFilter() { return "1=1"; }
 
-        public override String ToString() { return "ID: " + ID + "\r\n" + "Survey: " + SurveyCode + "\r\n" + "Backend: " + Backend; }
-
-        // sets the essentialList property
         /// <summary>
         /// Sets the 'essentialList' property by compiling a list of VarNames that contain the special routing instruction that only essential 
         /// questions have.
@@ -1096,6 +1159,7 @@ namespace ITCSurveyReport
 
         /// <summary>
         /// Remove repeated values from the wording fields (PreP, PreI, PreA, LitQ, PstI, Pstp, RespOptions, NRCodes) unless they are requested. 
+        /// This applies only to series questions, which are questions whose Qnum ends in a letter.
         /// </summary>
         public void RemoveRepeats() {
             int mainQnum = 0;
@@ -1165,32 +1229,40 @@ namespace ITCSurveyReport
         public void RemoveRepeatedComments() { }
         #endregion
 
+        public override string ToString()
+        {
+            PropertyInfo[] _PropertyInfos = null;
+            if (_PropertyInfos == null)
+                _PropertyInfos = this.GetType().GetProperties();
+
+            var sb = new StringBuilder();
+
+            foreach (var info in _PropertyInfos)
+            {
+                var value = info.GetValue(this, null) ?? "(null)";
+                sb.AppendLine(info.Name + ": " + value.ToString());
+            }
+
+            return sb.ToString();
+        }
+
         #region Gets and Sets
 
         public int ID { get => id; set => id = value; }
-        public String SurveyCode { get => surveyCode; set => surveyCode = value; }
+        public string SurveyCode { get => surveyCode; set => surveyCode = value; }
         public DateTime Backend { get => backend; set => backend = value; }
-        public List<String> Prefixes { get => prefixes; set => prefixes = value; }
-        public String[] Headings { get => headings; set => headings = value; }
-        public List<String> Varnames { get => varnames; set => varnames = value; }
+        public List<string> Prefixes { get => prefixes; set => prefixes = value; }
+        public List<string> Headings { get => headings; set => headings = value; }
+        public List<string> Varnames { get => varnames; set => varnames = value; }
         public DateTime? CommentDate { get => commentDate; set => commentDate = value; }
         public List<int> CommentAuthors { get => commentAuthors; set => commentAuthors = value; }
         public List<string> CommentSources { get => commentSources; set => commentSources = value; }
-        public List<String> CommentFields
-        {
-            get => commentFields;
-            set
-            {
-                commentFields = value;
-                if (commentFields != null && commentFields.Count!= 0) { commentCol = true; }
-            }
-        }
-        public List<String> TransFields { get => transFields; set => transFields = value; }
-        public List<String> StdFields { get => stdFields; set => stdFields = value; }
+        public List<string> CommentFields { get => commentFields; set => commentFields = value; }
+        public List<string> TransFields { get => transFields; set => transFields = value; }
+        public List<string> StdFields { get => stdFields; set => stdFields = value; }
         public bool VarLabelCol { get => varlabelCol; set => varlabelCol = value; }
         public bool FilterCol { get => filterCol; set => filterCol = value; }
-        public bool CommentCol { get => commentCol; set => commentCol = value; }
-        public String EssentialList { get => essentialList; set => essentialList = value; }
+        public string EssentialList { get => essentialList; set => essentialList = value; }
         public bool Primary { get => primary; set => primary = value; }
         public bool Qnum { get => qnum; set => qnum = value; }
         public bool Corrected { get => corrected; set => corrected = value; }
@@ -1219,6 +1291,8 @@ namespace ITCSurveyReport
         public bool TopicLabelCol { get => topicLabelCol; set => topicLabelCol = value; }
         public bool ContentLabelCol { get => contentLabelCol; set => contentLabelCol = value; }
         public bool ProductLabelCol { get => productLabelCol; set => productLabelCol = value; }
+        public List<string> StdFieldsChosen { get => stdFieldsChosen; set => stdFieldsChosen = value; }
+        public List<string> RepeatedFields { get => repeatedFields; set => repeatedFields = value; }
         #endregion
 
 

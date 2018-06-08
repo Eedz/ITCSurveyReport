@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackupConnection.cs" />
     <Compile Include="Comparison.cs" />
     <Compile Include="FilterVar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

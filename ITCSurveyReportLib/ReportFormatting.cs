@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Word = Microsoft.Office.Interop.Word;
+using System.Reflection;
 
 namespace ITCSurveyReport
 {
@@ -138,7 +139,7 @@ namespace ITCSurveyReport
             int varCol = -1, qnumCol = -1, altQnumCol = -1;
 
             // determine the Qnum, AltQnum and VarName columns
-            for (int i = 1; i < doc.Tables[1].Columns.Count; i ++)
+            for (int i = 1; i < doc.Tables[1].Rows[1].Cells.Count; i ++)
             {
                 txt = doc.Tables[1].Cell(1, i).Range.Text;
                 if (txt.StartsWith("Q#")) qnumCol = i;
@@ -148,6 +149,9 @@ namespace ITCSurveyReport
 
             for (int i = 1; i <= doc.Tables[1].Rows.Count; i++)
             {
+                if (!doc.Tables[1].Rows[i].Cells[1].Range.Text.Contains("!"))
+                    continue;
+
                 txt = doc.Tables[1].Cell(i, varCol).Range.Text;
                 txt = txt.Replace("[yellow]", "");
                 txt = txt.Replace("[/yellow]", "");
@@ -186,6 +190,23 @@ namespace ITCSurveyReport
                     doc.Tables[1].Rows[i].Shading.ForegroundPatternColor = Word.WdColor.wdColorRose;
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            PropertyInfo[] _PropertyInfos = null;
+            if (_PropertyInfos == null)
+                _PropertyInfos = this.GetType().GetProperties();
+
+            var sb = new StringBuilder();
+
+            foreach (var info in _PropertyInfos)
+            {
+                var value = info.GetValue(this, null) ?? "(null)";
+                sb.AppendLine(info.Name + ": " + value.ToString());
+            }
+
+            return sb.ToString();
         }
     }
 }

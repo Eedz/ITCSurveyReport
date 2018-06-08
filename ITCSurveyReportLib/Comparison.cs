@@ -5,11 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Data;
+using System.Reflection;
 
 namespace ITCSurveyReport
 {
+    public enum HScheme { Sequential = 1, AcrossCountry = 2 }
+    public enum HStyle { Classic = 1, TrackedChanges = 2 }
+    /// <summary>
+    /// This class compares two Survey objects. One survey is considered the 'primary' survey against which the other survey will be compared.
+    /// 
+    /// </summary>
     public class Comparison
     {
+        Survey primarySurvey;
+        Survey otherSurvey;     // this survey's raw table will be altered
+
+
         // data tables
         public DataTable changes;
 
@@ -23,19 +34,18 @@ namespace ITCSurveyReport
         bool showDeletedQuestions;
         bool reInsertDeletions;
         bool hideIdenticalWordings;
-        bool showOrderChanges;
-        bool beforeAfterReport;
-        bool ignoreSimilarWords;
-        bool convertTrackedChanges;
-        bool matchOnRename;
+        bool showOrderChanges;          // TODO
+        bool beforeAfterReport;         // TODO
+        bool ignoreSimilarWords;        // TODO
+        bool convertTrackedChanges;     // TODO
+        bool matchOnRename;             // TODO
 
         // ordercomparisons
-        bool includeWordings;
-        bool bySection;
+        bool includeWordings;           // TODO
+        bool bySection;                 // TODO
 
         // highlight options
-        public enum HScheme { Sequential = 1, AcrossCountry = 2 }
-        public enum HStyle { Classic = 1, TrackedChanges = 2 }
+        
         bool highlight;
         HStyle highlightStyle;
         HScheme highlightScheme;
@@ -44,6 +54,9 @@ namespace ITCSurveyReport
 
         public Comparison()
         {
+            primarySurvey = null;
+            otherSurvey = null;
+
             selfCompare = false;
             doCompare = false;
 
@@ -68,27 +81,44 @@ namespace ITCSurveyReport
             hybridHighlight = false;
         }
 
-
-        public void CompareByMerge(List<Survey> SurveyList)
+        public Comparison(Survey p, Survey o)
         {
-            DataTable primary = new DataTable();
-            DataTable other = new DataTable();
+            primarySurvey = p;
+            otherSurvey = o;
 
-            foreach (Survey s in SurveyList)
-            {
-                if (s.Primary)
-                {
-                    primary = s.rawTable;
-                    break;
-                }
-            }
+            selfCompare = false;
+            doCompare = false;
 
-            foreach (Survey s in SurveyList)
-            {
+            hidePrimary = false;
+            showDeletedFields = true;
+            showDeletedQuestions = true;
+            reInsertDeletions = true;
+            hideIdenticalWordings = false;
+            showOrderChanges = false;
+            beforeAfterReport = false;
+            ignoreSimilarWords = false;
+            convertTrackedChanges = false;
+            matchOnRename = false;
 
-            }
+            includeWordings = false;
+            bySection = false;
+
+            highlight = true;
+            highlightStyle = HStyle.Classic;
+            highlightScheme = HScheme.Sequential;
+            highlightNR = true;
+            hybridHighlight = false;
         }
 
+        // new
+        public void CompareByVarName()
+        {
+            CompareSurveyTables(primarySurvey.rawTable, otherSurvey.rawTable);
+            if (primarySurvey.TransFields.Count >= 1 && otherSurvey.TransFields.Count >= 1)
+                CompareTranslationTables(primarySurvey, otherSurvey);
+        }
+
+        // old
         public void CompareByVarName(List<Survey> SurveyList) {
             DataTable primary = new DataTable();
             DataTable other = new DataTable();
@@ -106,12 +136,58 @@ namespace ITCSurveyReport
                 if (!s.Primary) {
                     other = s.rawTable;
                     CompareSurveyTables(primary, other);
+                    
                 }   
             }
         }
 
+
+        // for each translation in the other survey, compare it to the same language in the primary survey
+        public void CompareTranslationTables(Survey prime, Survey other)
+        {
+            DataRow[] foundRows;
+            foreach (string t in other.TransFields)
+            {
+                // primary also contains this language
+                if (prime.TransFields.Contains(t))
+                {
+                    foreach (DataRow rOther in other.translationTable.Rows)
+                    {
+                        foundRows = prime.translationTable.Select("refVarName = '" + rOther["refVarName"].ToString() + "'");
+                        if (foundRows.Length == 0)
+                        {
+                            // if no matching rows are found in primary, this row is unique to other
+                            if (highlightScheme == HScheme.Sequential)
+                            {
+
+                                if (!rOther["VarName"].Equals("")) { rOther["VarName"] = "[yellow]" + rOther["VarName"] + "[/yellow]"; }
+                                if (!rOther[t].Equals("")) { rOther[t] = "[yellow]" + rOther[t] + "[/yellow]"; }
+
+                            }
+                            else if (highlightScheme == HScheme.AcrossCountry)
+                            {
+                                if (!rOther["VarName"].Equals("")) { rOther["VarName"] = "[yellow]" + rOther["VarName"] + "[/yellow]"; }
+                            }
+                        }
+                        else
+                        {
+                            // if matching rows are found in dt1 (primary), compare the wording fields
+                            foreach (DataRow r in foundRows)
+                            {
+                                CompareWordings(r, rOther, t);
+                               
+                            }
+                        }
+                       
+                    }
+                }
+            }
+            //other.translationTable.AcceptChanges();
+        }
+
         /// <summary>
-        /// Compares rows in 2 DataTable objects.
+        /// Compares rows in 2 DataTable objects. TODO accept a list of fields that should be compared, this would generalize the comparison so
+        /// any 2 tables can be compared
         /// </summary>
         public void CompareSurveyTables(DataTable dt1, DataTable dt2)
         {
@@ -339,10 +415,7 @@ namespace ITCSurveyReport
             if (prev.Equals(""))
                 previousQnum = "000";
            
-            
-
-
-            // if it does, return the var, if not, try again
+       
             return previousQnum;
         }
 
@@ -444,7 +517,12 @@ namespace ITCSurveyReport
         }
 
         #region Topic/Label Comparison
-        public void CreateTCReport() { }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CreateTCReport() {
+
+        }
         #endregion
 
 
@@ -499,6 +577,23 @@ namespace ITCSurveyReport
             }
         }
         #endregion
+
+        public override string ToString()
+        {
+            PropertyInfo[] _PropertyInfos = null;
+            if (_PropertyInfos == null)
+                _PropertyInfos = this.GetType().GetProperties();
+
+            var sb = new StringBuilder();
+
+            foreach (var info in _PropertyInfos)
+            {
+                var value = info.GetValue(this, null) ?? "(null)";
+                sb.AppendLine(info.Name + ": " + value.ToString());
+            }
+
+            return sb.ToString();
+        }
 
         public bool DoCompare { get => doCompare; set => doCompare = value; }
         public bool SelfCompare { get => selfCompare; set => selfCompare = value; }

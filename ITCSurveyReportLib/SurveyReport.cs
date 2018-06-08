@@ -13,7 +13,7 @@ using System.ComponentModel;
 
 namespace ITCSurveyReport
 {
-    public enum ReportTemplate { Standard, Comparison, Automatic }
+    public enum ReportTemplate { Standard, StandardTranslation, Website, WebsiteTranslation, Automatic }
     public enum Enumeration { Qnum=1, AltQnum, Both }
     public enum ReadOutOptions { Neither, DontRead, DontReadOut }
     public enum RoutingType { Other, IfResponse, Otherwise, If }
@@ -22,13 +22,17 @@ namespace ITCSurveyReport
     public enum PaperSizes { Letter=1, Legal, Eleven17, A4 }
     public enum ReportTypes { Standard=1, Label, Order }
 
+    // TODO T/C report
+    // TODO order report
+    // TODO backup data
+
     public class SurveyReport
     {
         #region Survey Report Properties
 
         // the dataset containing all the tables needed for the report
         //DataSet SurveyReportData;
-        public DataTable reportTable;
+        DataTable reportTable;
         SqlDataAdapter sql;
         SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
         // the surveys appearing in the report
@@ -55,7 +59,7 @@ namespace ITCSurveyReport
         bool compare;
 
         // formatting and layout options
-        String[] repeatedFields;
+        List<string> repeatedFields;
         bool inlineRouting;
         bool showLongLists;
         bool qnInsertion;
@@ -93,7 +97,7 @@ namespace ITCSurveyReport
 
             //SurveyReportData = new DataSet("Survey Report");
             sql = new SqlDataAdapter();
-            SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
+            //SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
 
             layoutoptions = new ReportLayout();
             formatting = new ReportFormatting();
@@ -118,7 +122,7 @@ namespace ITCSurveyReport
             tablesTranslation = false;
             inlineRouting = false;
             semiTel = false;
-            repeatedFields = new string[] { "PreP", "PreI", "PreA", "LitQ", "PstI", "PstP", "RespOptions", "NRCodes" };
+            repeatedFields = new List<string>{ "PreP", "PreI", "PreA", "LitQ", "PstI", "PstP", "RespOptions", "NRCodes" };
             
             numbering = Enumeration.Qnum;
             survNotes = false;
@@ -138,8 +142,65 @@ namespace ITCSurveyReport
 
             
         }
+
+        // after surveys have been selected, this can be used to auto select other options
+        public void LoadTemplateSettings(ReportTemplate t)
+        {
+            
+            switch (t)
+            {
+                case ReportTemplate.Standard:
+
+                    // default settings
+                    reportType = ReportTypes.Standard;
+
+                    layoutoptions.BlankColumn = true;
+                    
+                    // comparison options
+                    compare = false;
+
+                    // formatting and layout options
+                    repeatedHeadings = true;
+                    colorSubs = true;
+                    showLongLists = false;
+                    qnInsertion = false;
+                    aqnInsertion = false;
+                    ccInsertion = true;
+                    tables = false;
+                    tablesTranslation = false;
+                    inlineRouting = false;
+                    semiTel = false;
+                    repeatedFields = new List<string> { "PreP", "PreI", "PreA", "LitQ", "PstI", "PstP", "RespOptions", "NRCodes" };
+
+                    numbering = Enumeration.Qnum;
+                    survNotes = false;
+                    varChangesApp = false;
+                    varChangesCol = true;
+                    excludeTempChanges = true;
+                    showAllQnums = false;
+
+                    nrFormat = ReadOutOptions.DontRead;
+                    web = false;
+                    fileName = "";
+                    details = "";
+
+                    // TODO review the need for these options
+                    
+                    singleField = true;
+                    break;
+                case ReportTemplate.StandardTranslation:
+                    break;
+                case ReportTemplate.Website:
+                    break;
+                case ReportTemplate.WebsiteTranslation:
+                    break;
+                case ReportTemplate.Automatic:
+                    break;
+                    
+            }
+        }
         #endregion
-        // TODO method for setting highlight options?
+
         #region Methods and Functions
 
         /// <summary>
@@ -151,11 +212,14 @@ namespace ITCSurveyReport
             switch (reportType)
             {
                 case ReportTypes.Standard:
+
                     if (GenerateStandardReport() == 1)
                         return 1;
 
+
                     break;
                 case ReportTypes.Label:
+
                     break;
                 case ReportTypes.Order:
                     break;
@@ -184,20 +248,27 @@ namespace ITCSurveyReport
                 //SurveyReportData.Tables.Add(s.rawTable);
             }
 
-            // TODO check report type
+
             // perform comparisons
             if (surveys.Count > 1)
             {
-                SurveyCompare.CompareByVarName(surveys);
+                foreach (Survey s in surveys) {
+                    if (!s.Primary)
+                    {
+                        SurveyCompare = new Comparison(GetPrimarySurvey(), s);
+                        SurveyCompare.CompareByVarName();
+                    }
+                }
+
+                //SurveyCompare.CompareByVarName(surveys);
+                //SurveyCompare.CompareTranslations(surveys);
             }
 
-            // TODO check report type
+
             // create final tables
             foreach (Survey s in surveys)
             {
-
                 s.MakeReportTable();
-
                 //SurveyReportData.Tables.Add(s.finalTable);
             }
 
@@ -207,8 +278,7 @@ namespace ITCSurveyReport
 
             reportTable = QnumSurvey().finalTable.Copy();
             reportTable.AcceptChanges();
-           // DataColumn sortby = QnumSurvey().finalTable.Columns["SortBy"];
-            // i think i need to make a custom merge procedure so that the sortBy column does not get overwritten
+
             if (surveys.Count > 1)
             {
                 foreach (Survey s in Surveys)
@@ -225,8 +295,16 @@ namespace ITCSurveyReport
                         // update the qnum and sortby columns to the original found in the qnum survey
                         for (int i = 0; i < reportTable.Rows.Count; i ++)
                         {
-                            reportTable.Rows[i]["SortBy"] = QnumSurvey().finalTable.Rows[i]["SortBy"];
-                            reportTable.Rows[i]["Qnum"] = QnumSurvey().finalTable.Rows[i]["Qnum"];
+                            try
+                            {
+                                reportTable.Rows[i]["SortBy"] = QnumSurvey().finalTable.Rows[i]["SortBy"];
+                                reportTable.Rows[i]["Qnum"] = QnumSurvey().finalTable.Rows[i]["Qnum"];
+                            }
+                            catch (Exception e)
+                            {
+                                continue;
+                            }
+
                         }
                     }
                 }
@@ -279,21 +357,24 @@ namespace ITCSurveyReport
             return 0;
         }
 
-        public string ToString2()
+        private int GenerateLabelReport()
         {
-            String output = "";
-            foreach (Survey s in Surveys)
+            foreach (Survey s in surveys)
             {
-                output += s.SurveyCode + " from " + s.Backend + "\r\n" +
-                    "VarLabel?: " + s.VarLabelCol + "\r\n" +
-                    "Filters?: " + s.FilterCol + "\r\n";
-                    
+                s.GenerateSourceTable();
+                // TODO figure out datasets
+                // create a relationship between main survey and other surveys on refVarName
 
+                if (s.rawTable.Rows.Count == 0)
+                {
+                    return 1;
+                }
+                //SurveyReportData.Tables.Add(s.rawTable);
             }
-            output += "General Options: \r\n" + "QN insertion: " + qnInsertion;
-            output += "Compare Options: \r\n" + "Do Compare? " + SurveyCompare.DoCompare;
-            output += "Layout Options: \r\n" + "Blank Column: " + LayoutOptions.BlankColumn;
-            return output;
+
+
+
+            return 0;
         }
 
         public override string ToString()
@@ -398,66 +479,81 @@ namespace ITCSurveyReport
         ///</summary>
         public void OutputReportTable() {
 
-            Word.Application appWord;
-            Word.Document docReport;
+            Word.Application appWord;   // instance of MSWord
+            Word.Document docReport;    // the report document
+            Word.Table surveyTable;     // the table in the document containing the survey(s)
 
-            int rowCount = reportTable.Rows.Count;
-            int columnCount = reportTable.Columns.Count;
+            int rowCount = reportTable.Rows.Count;          // number of rows in the survey table
+            int columnCount = reportTable.Columns.Count;    // number of columns in the survey table
             int clearCols; // the number of columns that should have their contents cleared, for headings
 
-            
-
-
-
-
-            // create an instance of Word
+            // create the instance of Word
             appWord = new Word.Application();
+            appWord.Visible = false;
+            // disable spelling and grammar checks (useful for foreign languages)
             appWord.Options.CheckSpellingAsYouType = false;
             appWord.Options.CheckGrammarAsYouType = false;
-            // create the document
-            //  todo check papersize and use correct template
-            docReport = appWord.Documents.Add("\\\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Access\\Reports\\Templates\\SMGLandLet.dotx");
 
+            // create the document
+            //  TODO store template path somewhere
+            switch (LayoutOptions.PaperSize) {
+                case PaperSizes.Letter:
+                    docReport = appWord.Documents.Add("\\\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Access\\Reports\\Templates\\SMGLandLet.dotx");
+                    break;
+                case PaperSizes.Legal:
+                    docReport = appWord.Documents.Add("\\\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Access\\Reports\\Templates\\SMGLandLeg.dotx");
+                    break;
+                case PaperSizes.Eleven17:
+                    docReport = appWord.Documents.Add("\\\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Access\\Reports\\Templates\\SMGLand11.dotx");
+                    break;
+                case PaperSizes.A4:
+                    docReport = appWord.Documents.Add("\\\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Access\\Reports\\Templates\\SMGLandA4.dotx");
+                    break;
+                default:
+                    docReport = appWord.Documents.Add("\\\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Access\\Reports\\Templates\\SMGLandLet.dotx");
+                    break;
+            }
             // add a table
-            docReport.Tables.Add(docReport.Range(0, 0), rowCount + 1, columnCount);
+            surveyTable = docReport.Tables.Add(docReport.Range(0, 0), rowCount + 1, columnCount);
 
             // fill header row
-            docReport.Tables[1].Cell(1, 1).Range.Text = reportTable.Columns[0].Caption;
-            docReport.Tables[1].Cell(1, 2).Range.Text = reportTable.Columns[1].Caption;
-            docReport.Tables[1].Cell(1, 3).Range.Text = reportTable.Columns[2].Caption;
+            for (int c = 1; c <= columnCount; c++)
+            {
+                surveyTable.Cell(1, c).Range.Text = reportTable.Columns[c - 1].Caption;
+            }
 
             // fill the rest of the rows
             for (int r = 0; r < rowCount; r++)
             {
                 for (int c = 0; c < columnCount; c++)
                 {
-                    docReport.Tables[1].Cell(r + 2, c + 1).Range.Text = reportTable.Rows[r][c].ToString();
+                    surveyTable.Cell(r + 2, c + 1).Range.Text = reportTable.Rows[r][c].ToString();
                 }
             }
-            //appWord.Visible = true;
+            
             // table style
-            docReport.Tables[1].Rows.AllowBreakAcrossPages = -1;
-            docReport.Tables[1].Rows.Alignment = 0;
-            docReport.Tables[1].AutoFitBehavior(Word.WdAutoFitBehavior.wdAutoFitContent);
-            docReport.Tables[1].Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleSingle;
-            docReport.Tables[1].Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleSingle;
-            docReport.Tables[1].Borders.OutsideColor = Word.WdColor.wdColorGray25;
-            docReport.Tables[1].Borders.InsideColor = Word.WdColor.wdColorGray25;
-            docReport.Tables[1].Select();
+            surveyTable.Rows.AllowBreakAcrossPages = -1;
+            surveyTable.Rows.Alignment = 0;
+            surveyTable.AutoFitBehavior(Word.WdAutoFitBehavior.wdAutoFitContent);
+            surveyTable.Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleSingle;
+            surveyTable.Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleSingle;
+            surveyTable.Borders.OutsideColor = Word.WdColor.wdColorGray25;
+            surveyTable.Borders.InsideColor = Word.WdColor.wdColorGray25;
+            surveyTable.Select();
             docReport.Application.Selection.Cells.VerticalAlignment = Word.WdCellVerticalAlignment.wdCellAlignVerticalTop;
 
             //header row style
-            docReport.Tables[1].Rows[1].Range.Bold = 1;
-            docReport.Tables[1].Rows[1].Shading.ForegroundPatternColor = Word.WdColor.wdColorRose;
-            docReport.Tables[1].Rows[1].Borders.OutsideColor = Word.WdColor.wdColorBlack;
-            docReport.Tables[1].Rows[1].Borders.InsideColor = Word.WdColor.wdColorBlack;
-            docReport.Tables[1].Rows[1].Cells.VerticalAlignment = Word.WdCellVerticalAlignment.wdCellAlignVerticalTop;
-            docReport.Tables[1].Rows[1].Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+            surveyTable.Rows[1].Range.Bold = 1;
+            surveyTable.Rows[1].Shading.ForegroundPatternColor = Word.WdColor.wdColorRose;
+            surveyTable.Rows[1].Borders.OutsideColor = Word.WdColor.wdColorBlack;
+            surveyTable.Rows[1].Borders.InsideColor = Word.WdColor.wdColorBlack;
+            surveyTable.Rows[1].Cells.VerticalAlignment = Word.WdCellVerticalAlignment.wdCellAlignVerticalTop;
+            surveyTable.Rows[1].Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
             // repeat heading row
             if (repeatedHeadings)
-                docReport.Tables[1].Rows[1].HeadingFormat = -1;
+                surveyTable.Rows[1].HeadingFormat = -1;
             else
-                docReport.Tables[1].Rows[1].HeadingFormat = 0;
+                surveyTable.Rows[1].HeadingFormat = 0;
 
             //header text
             docReport.Range(0, 0).Select();
@@ -490,7 +586,10 @@ namespace ITCSurveyReport
             FormatColumns(docReport);
 
             // TODO format subset tables
-            if (tables && numbering == Enumeration.Qnum && reportType == ReportTypes.Standard) { }
+            if (tables && numbering == Enumeration.Qnum && reportType == ReportTypes.Standard) {
+                //appWord.Visible = true;
+                LayoutOptions.FormatTables(docReport, tablesTranslation);
+            }
 
             // create TOC
             if (layoutoptions.ToC != TableOfContents.None) { MakeToC(docReport); }
@@ -766,7 +865,6 @@ namespace ITCSurveyReport
             return title;
         }
 
-        // getSurveyFileName
         /// <summary>
         /// 
         /// </summary>
@@ -782,7 +880,7 @@ namespace ITCSurveyReport
             for (int i = 0; i <surveys.Count; i++)
             {
                 surveyCodes += surveys[i].SurveyCode;
-                if (surveys[i].Backend != DateTime.Today) {surveyCodes += " on " + surveys[i].Backend.ToString();}
+                if (surveys[i].Backend != DateTime.Today) {surveyCodes += " on " + surveys[i].Backend.ToString("d");}
                 surveyCodes += " vs. ";
             }
             // trim off " vs. "
@@ -815,16 +913,12 @@ namespace ITCSurveyReport
             {
                 currentSurv = s.SurveyCode;
                 if (s.Backend != DateTime.Today)
-                    currentSurv += " on " + s.Backend.ToString();
+                    currentSurv += " on " + s.Backend.ToString("d");
 
                 if (!s.Primary)
-                {
                     others += ", " + currentSurv;
-                }
                 else
-                {
                     primary += currentSurv;
-                }
 
                 if (s.Qnum && s.ID != 1)
                 {
@@ -838,7 +932,7 @@ namespace ITCSurveyReport
 
             if (reportType ==ReportTypes.Standard)
             {
-                if (surveycompare.HighlightStyle == Comparison.HStyle.Classic)
+                if (surveycompare.HighlightStyle == HStyle.Classic)
                 {
                     otherH = "[yellow]In " + others + " only.[/yellow]";
                     primaryH = "\t[t]In " + primary + " only.[/t]";
@@ -846,7 +940,7 @@ namespace ITCSurveyReport
                     if (surveycompare.HybridHighlight)
                         differentH += "\r\n" + "<Font Color=Blue>In " + others + " only.</Font>\t<Font Color=Red>In " + primary + " only.</Font>";
 
-                } else if (surveycompare.HighlightStyle == Comparison.HStyle.TrackedChanges)
+                } else if (surveycompare.HighlightStyle == HStyle.TrackedChanges)
                 {
                     otherH = "<Font Color=Red>In " + primary + " only.</Font>";
                     primaryH = "\t<Font Color=Blue>In " + others + " only.</Font>";
@@ -872,7 +966,6 @@ namespace ITCSurveyReport
                 finalKey = "Highlighting key:  [yellow] In " + primary + " only [/yellow]";
                 if (surveycompare.ShowDeletedFields || surveycompare.ShowDeletedQuestions)
                     finalKey += "   [t]   In " + others + " only [/t] ";
-
             }
 
             return finalKey;
@@ -925,6 +1018,8 @@ namespace ITCSurveyReport
                 qCol = 3;
             }
 
+            doc.Tables[1].AutoFitBehavior(Word.WdAutoFitBehavior.wdAutoFitFixed);
+
             numCols = doc.Tables[1].Columns.Count;
 
             for (int i = 1; i <= numCols; i++)
@@ -937,45 +1032,79 @@ namespace ITCSurveyReport
                 {
                     case "Qnum":
                         doc.Tables[1].Rows[1].Cells[i].Range.Text = "Q#";
-                        //doc.Tables[1].Columns[i].Width = qnumWidth * 72;
+                        doc.Tables[1].Columns[i].Width = qnumWidth * 72;
                         widthLeft -= qnumWidth;
                         break;
                     case "AltQnum":
                         doc.Tables[1].Rows[1].Cells[i].Range.Text = "AltQ#";
-                       // doc.Tables[1].Columns[i].Width = altqnumWidth * 72;
+                        doc.Tables[1].Columns[i].Width = altqnumWidth * 72;
                         widthLeft -= altqnumWidth;
                         break;
                     case "VarName":
-                        //doc.Tables[1].Columns[i].Width = varWidth * 72;
+                        doc.Tables[1].Columns[i].Width = varWidth * 72;
                         widthLeft -= varWidth;
                         break;
                     case "Response":
-                       // doc.Tables[1].Columns[i].Width = respWidth * 72;
+                        doc.Tables[1].Columns[i].Width = respWidth * 72;
                         widthLeft -= respWidth;
                         break;
                     case "Info":
-                       // doc.Tables[1].Columns[i].Width = tcWidth * 72;
+                        doc.Tables[1].Columns[i].Width = tcWidth * 72;
                         widthLeft -= tcWidth;
                         break;
                     case "SortBy":
-                        //doc.Tables[1].Columns[i].Width = qnumWidth * 72;
+                        doc.Tables[1].Columns[i].Width = qnumWidth * 72;
                         widthLeft -= qnumWidth;
                         break;
                     case "Comments":
-                        //doc.Tables[1].Columns[i].Width = commentWidth * 72;
+                        doc.Tables[1].Columns[i].Width = commentWidth * 72;
                         widthLeft -= commentWidth;
                         break;
-                    
-                    default: // question column
+                    default: 
+                        // question column with date, format date
                         if (header.Contains(DateTime.Today.ToString("d").Replace("-", "")))
                         {
                             doc.Tables[1].Rows[1].Cells[i].Range.Text = doc.Tables[1].Rows[1].Cells[i].Range.Text.Replace(DateTime.Today.ToString("d"), "");
                         } 
+
+                        // an additional AltQnum column
+                        if (header.Contains("AltQnum"))
+                        {
+                            doc.Tables[1].Columns[i].Width = altqnumWidth * 72;
+                            widthLeft -= altqnumWidth;
+                        } else if (header.Contains("AltQnum")) // an additional Qnum column
+                        {
+                            doc.Tables[1].Columns[i].Width = qnumWidth * 72;
+                            widthLeft -= qnumWidth;
+                        }
+
+                        // filter column
+                        if (header.Contains("Filters"))
+                        {
+                            // TODO set to Verdana 9 font
+                        }
+
+                        // TODO test these
+                        if (reportType == ReportTypes.Order)
+                        {
+                            if (header.Contains("VarName"))
+                            {
+                                doc.Tables[1].Columns[i].Width = varWidth * 72;
+                                widthLeft -= varWidth;
+                            } else if (header.Contains("Qnum")) {
+                                doc.Tables[1].Columns[i].Width = (qnumWidth * 2) * 72;
+                                widthLeft -= qnumWidth;
+                            } else if (header.Contains("Question")) {
+                                doc.Tables[1].Columns[i].Width = (float)3.5 * 72;
+                                widthLeft -= 3.5;
+                            }
+                        }
+
                         break;
                 }
-
+                
             }
-
+            // TODO distribute the rest of the columns
 
         }
 
@@ -989,15 +1118,11 @@ namespace ITCSurveyReport
 #region Gets and Sets
         // add verification logic for some of these sets
 
-        
-       
         public List<Survey> Surveys
         {
             get {return surveys;}
             set {surveys = value;}   
         }
-
-        
 
         public int MainSource
         {
@@ -1025,7 +1150,18 @@ namespace ITCSurveyReport
         
         public bool Compare { get => compare; set => compare = value; }
         
-        public String[] RepeatedFields { get => repeatedFields; set => repeatedFields = value; }
+        public List<string> RepeatedFields
+        {
+            get => repeatedFields;
+            set
+            {
+                foreach (Survey s in surveys)
+                {
+                    s.RepeatedFields = value;
+                }
+                repeatedFields = value;
+            }
+        }
         public bool InlineRouting
         {
             get => inlineRouting;
@@ -1137,7 +1273,18 @@ namespace ITCSurveyReport
         }
         public bool SurvNotes { get => survNotes; set => survNotes = value; }
         public bool VarChangesApp { get => varChangesApp; set => varChangesApp = value; }
-        public bool VarChangesCol { get => varChangesCol; set => varChangesCol = value; }
+        public bool VarChangesCol {
+            get => varChangesCol;
+            set
+            {
+                foreach (Survey s in surveys)
+                {
+                    s.IncludePrevNames = value;
+                }
+                varChangesCol = value;
+            }
+        }
+
         public bool ExcludeTempChanges { get => excludeTempChanges; set => excludeTempChanges = value; }
         public bool ShowAllQnums {
             get => showAllQnums;
@@ -1157,7 +1304,8 @@ namespace ITCSurveyReport
         public bool Batch { get => batch; set => batch = value; }
         public Comparison SurveyCompare { get => surveycompare; set => surveycompare = value; }
         public ReportLayout LayoutOptions { get => layoutoptions; set => layoutoptions = value; }
-        
+        public DataTable ReportTable { get => reportTable; set => reportTable = value; }
+
 
 
 

@@ -129,5 +129,10 @@
   <ItemGroup>
     <None Include="Resources\logo.JPG" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="7za.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
