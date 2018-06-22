@@ -308,7 +308,7 @@ namespace ITCSurveyReport
 
         public static string StripChars(string input, string pattern)
         {
-            Regex rx = new Regex(pattern);
+            Regex rx = new Regex("[^" + pattern + "]");
 
             input = rx.Replace(input, string.Empty);
 

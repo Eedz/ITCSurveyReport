@@ -59,6 +59,7 @@ namespace ITCSurveyReport
             SR = new SurveyReport();
             UP = new UserPrefs();
             SR.FileName = UP.ReportPath;
+
             surveyReportBindingSource.DataSource = SR;
 
             lstRepeatedFields.Items.Add("PreP");
@@ -343,7 +344,7 @@ namespace ITCSurveyReport
             gridPrimarySurvey.Refresh();
 
             gridColumnOrder.DataSource = null;
-            gridColumnOrder.DataSource = SR.Surveys;
+            gridColumnOrder.DataSource = SR.ColumnOrder;
             gridColumnOrder.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             gridColumnOrder.Refresh();
 
@@ -361,7 +362,9 @@ namespace ITCSurveyReport
             // remove survey from the SurveyReport object
             SR.Surveys.Remove((Survey)lstSelectedSurveys.SelectedItem);
             SR.AutoSetPrimary();
-
+            // TODO remove all column associated with the survey from the column order collection
+            //for (int i = 0 to SR.ColumnOrder.)
+            //SR.ColumnOrder.Remove()
             lstSelectedSurveys.DataSource = null;
             lstSelectedSurveys.DataSource = SR.Surveys;
             lstSelectedSurveys.ValueMember = "ID";
@@ -373,7 +376,7 @@ namespace ITCSurveyReport
             gridPrimarySurvey.Refresh();
 
             gridColumnOrder.DataSource = null;
-            gridColumnOrder.DataSource = SR.Surveys;
+            gridColumnOrder.DataSource = SR.ColumnOrder;
             gridColumnOrder.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             gridColumnOrder.Refresh();
 
@@ -553,6 +556,16 @@ namespace ITCSurveyReport
         #endregion
 
         #region Comparison Tab
+
+        private void Compare_CheckedChanged(object sender, EventArgs e)
+        {
+            gridPrimarySurvey.Visible = chkCompare.Checked;
+            lblPrimarySurvey.Visible = chkCompare.Checked;
+            chkMatchOnRename.Visible = chkCompare.Checked;
+            groupHighlightOptions.Visible = chkCompare.Checked;
+            groupLayoutOptions.Visible = chkCompare.Checked;
+        }
+
         // Once the gridview is bound, hide unecessary columns and rename SurveyCode to Survey
         private void PrimarySurvey_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
@@ -671,22 +684,22 @@ namespace ITCSurveyReport
         // Once the gridview is bound, hide unecessary columns and rename SurveyCode to Survey
         private void ColumnOrder_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            for (int i = 0; i < gridColumnOrder.ColumnCount; i++)
-            {
-                switch (gridColumnOrder.Columns[i].Name)
-                {
-                    case "SurveyCode":
-                        gridColumnOrder.Columns[i].HeaderText = "Survey";
-                        break;
-                    case "Backend":
-                    case "Corrected":
-                    case "Primary":
-                        break;
-                    default:
-                        gridColumnOrder.Columns[i].Visible = false;
-                        break;
-                }
-            }
+            //for (int i = 0; i < gridColumnOrder.ColumnCount; i++)
+            //{
+            //    switch (gridColumnOrder.Columns[i].Name)
+            //    {
+            //        case "SurveyCode":
+            //            gridColumnOrder.Columns[i].HeaderText = "Survey";
+            //            break;
+            //        case "Backend":
+            //        case "Corrected":
+            //        case "Primary":
+            //            break;
+            //        default:
+            //            gridColumnOrder.Columns[i].Visible = false;
+            //            break;
+            //    }
+            //}
         }
 
         
@@ -767,8 +780,9 @@ namespace ITCSurveyReport
         }
 
 
-        #endregion
 
+
+        #endregion
 
     }
 }

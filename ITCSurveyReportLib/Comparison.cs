@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
 using System.Reflection;
 
 namespace ITCSurveyReport
@@ -461,6 +463,9 @@ namespace ITCSurveyReport
             bool highlightVar;
             bool highlightWord;
 
+            string primaryWording = (string) rPrime[fieldname];
+            string otherWording = (string)rOther[fieldname]; 
+
             switch (highlightStyle) {
                 case HStyle.Classic:
 
@@ -487,16 +492,18 @@ namespace ITCSurveyReport
                     break;
 
             }
+
+
             
-            if (rPrime[fieldname].Equals(rOther[fieldname])){
+            if (primaryWording.Equals(otherWording)){
                 if (hideIdenticalWordings) { rOther[fieldname] = "";}
             }
             else
             {
-                if (rOther[fieldname].Equals("") && showDeletedFields)
+                if (otherWording.Equals("") && showDeletedFields)
                 {
                     rOther[fieldname] = "[t][s]" + rPrime[fieldname] + "[/t][/s]";
-                }else if (rPrime[fieldname].Equals(""))
+                }else if (primaryWording.Equals(""))
                 {
                     rOther[fieldname] = "[yellow]" + rOther[fieldname] + "[/yellow]";
                 }
@@ -516,12 +523,231 @@ namespace ITCSurveyReport
             rOther.AcceptChanges();
         }
 
-        #region Topic/Label Comparison
-        /// <summary>
-        /// 
-        /// </summary>
-        public void CreateTCReport() {
+        private bool IsWordingEqual (string str1, string str2, bool ignorePunctuation = true, bool ignoreSimilarWords = true)
+        {
+            DataTable similarWords;
+            string[] words;
+            if (str1.Equals("") && str2.Equals(""))
+                return true;
 
+            // ignore similar words
+            if (ignoreSimilarWords)
+            {
+                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString))
+                {
+                    using (SqlDataAdapter sql = new SqlDataAdapter("SELECT * FROM qryAlternateSpelling", conn))
+                    {
+                        similarWords = new DataTable();
+                        sql.Fill(similarWords);
+
+                        foreach (DataRow r in similarWords.Rows)
+                        {
+                            words = r["word"].ToString().Split(',');
+
+                            for (int i = 0; i < words.Length; i++)
+                            {
+                                words[i] = words[i].Trim(' ');
+
+                                str1 = str1.Replace(words[i], words[0]);
+                                str2 = str2.Replace(words[i], words[0]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // remove tags
+
+
+            // ignore punctuation
+            if (ignorePunctuation)
+            {
+                str1 = str1.Replace("&lt;", "<");
+                str2 = str2.Replace("&lt;", "<");
+
+                str1 = str1.Replace("&gt;", ">");
+                str2 = str2.Replace("&gt;", ">");
+
+                str1 = Utilities.StripChars(str1, "0123456789 abcdefghijklmnopqrstuvwxyz <>=");
+                str2 = Utilities.StripChars(str2, "0123456789 abcdefghijklmnopqrstuvwxyz <>=");
+            }
+
+            // remove line breaks
+
+            // remove internal spaces
+
+            // remove trailing and leading spaces
+
+            if (!str1.Equals(str2))
+                return false;
+            else
+                return true;
+            
+        }
+
+        #region Topic/Label Comparison
+        // TODO consider making this another class
+        // TODO create method for getting question text
+        // TODO create method for getting SortBy (even for Qnum survey)
+
+
+        /// <summary>
+        /// Returns a DataTable containing all combinations of Topic and Content labels found in the survey list. Each question that appears under these 
+        /// combinations is displayed under it's own survey heading. The table is sorted by the Qnum from the first survey and any labels not found in that 
+        /// survey are collected at the bottom of the table.
+        /// </summary>
+        public DataTable CreateTCReport(List<Survey> surveyList) {
+            DataTable report = new DataTable();
+            DataRow newrow;            
+            string currentT;
+            string currentC;
+            string qs = "";
+            string firstQnum = "";
+            string otherFirstQnum = "";
+            DataRow[] foundRows;
+            Survey qnumSurvey = null;
+
+            // start with a table containing all Topic/Content combinations present in the surveys
+            report = CreateTCBaseTable(surveyList);
+
+            foreach (Survey s in surveyList)
+            {
+                if (s.Qnum) qnumSurvey = s;
+            }
+
+            // for each T/C combination, add each survey's questions that match 
+            // there should be one row for each T/C combo, so we need to concatenate all questions with that combo
+            foreach (DataRow tc in report.Rows)
+            {
+                currentC = (string)tc["Info"];
+                currentC = currentC.Substring(currentC.IndexOf("<em>") + 4, currentC.IndexOf("</em>") - currentC.IndexOf("<em>")-4);
+                currentC = currentC.Replace("'", "''");
+
+                currentT = (string)tc["Info"];
+                currentT = currentT.Substring(8, currentT.IndexOf("</strong>") - 8);
+                currentT = currentT.Replace("'", "''");
+
+                // now for each survey, add the questions that match the topic content pair
+                foreach (Survey s in surveyList)
+                {
+                    foundRows = s.finalTable.Select("Topic = '" + currentT + "' AND Content = '" + currentC + "'");
+                    foreach (DataRow r in foundRows)
+                    {
+                        if (firstQnum.Equals(""))
+                            firstQnum = (string)r["Qnum"];
+
+                        qs += r[s.SurveyCode] + "\r\n\r\n";
+                    }
+
+                    qs = Utilities.TrimString(qs, "\r\n\r\n");
+                    tc[s.SurveyCode] = qs;
+                    if (s.Qnum)
+                    {
+                        tc["SortBy"] = firstQnum;
+                        tc["Qnum"] = firstQnum;
+                    }
+                    else
+                    {
+
+                        if (tc["SortBy"] == DBNull.Value || tc["SortBy"].Equals(""))
+                        {
+                            otherFirstQnum = GetFirstQnum(currentT, currentC, qnumSurvey);
+
+                            if (otherFirstQnum.Equals("z"))
+                                firstQnum = otherFirstQnum + firstQnum;
+                            else
+                                firstQnum = otherFirstQnum;
+
+                            tc["SortBy"] = firstQnum;
+                        }
+                    }
+                    qs = "";
+                    firstQnum = "";
+                }
+                tc.AcceptChanges();
+            }
+            // add a row to start the section for unmatched labels (labels that do not exist in the Qnum survey)
+            newrow = report.NewRow();
+            newrow["Info"] = "<strong>Unmatches Labels</strong>";
+            newrow["SortBy"] = "z000";
+            report.Rows.Add(newrow);
+            report.AcceptChanges();
+
+            return report;
+        }
+
+
+        /// <summary>
+        /// Get sortby by looking for the topic label and content label in the qnum survey and using that qnum
+        /// if the content label isnt there, use the qnum for the last instance of the topic label, adding !00 to it
+        /// if neither are there, use z
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <param name="content"></param>
+        /// <param name="qnumSurvey"></param>
+        /// <returns>string. The first Qnum that contains the provided Topic and Content labels</returns>
+        private string GetFirstQnum(string topic, string content, Survey qnumSurvey)
+        {
+            string firstQnum;
+            DataRow[] foundRows;
+            foundRows = qnumSurvey.finalTable.Select("Topic = '" + topic + "' AND Content = '" + content + "'");
+            
+            if (foundRows.Count() != 0)
+            {
+                firstQnum = (string)foundRows[0]["Qnum"];
+            }
+            else
+            {
+                foundRows = qnumSurvey.finalTable.Select("Topic = '" + topic + "'");
+                if (foundRows.Count() != 0)
+                {
+                    firstQnum = (string)foundRows[0]["Qnum"] + "!00";
+                }
+                else
+                {
+                    firstQnum = "z";
+                }
+            }
+
+            return firstQnum;
+        }
+
+        /// <summary>
+        /// Create a DataTable that contains the all the Topic/Content combinations found in the list of surveys. A column for each survey is also created.
+        /// </summary>
+        private DataTable CreateTCBaseTable(List<Survey> surveyList)
+        {
+            DataTable report = new DataTable();
+            List<string> topicContent = new List<string>();
+            string currentTC;
+            DataRow newrow;
+            report.Columns.Add(new DataColumn("Info", System.Type.GetType("System.String")));
+            report.Columns.Add(new DataColumn("Qnum", System.Type.GetType("System.String")));
+            report.Columns.Add(new DataColumn("SortBy", System.Type.GetType("System.String")));
+
+            foreach (Survey s in surveyList)
+            {
+                report.Columns.Add(new DataColumn(s.SurveyCode, System.Type.GetType("System.String")));
+                
+                foreach (DataRow r in s.finalTable.Rows)
+                {
+                    currentTC = "<strong>" + r["Topic"] + "</strong>\r\n<em>" + r["Content"] + "</em>";
+                    if (!topicContent.Contains(currentTC))
+                        topicContent.Add(currentTC);
+
+                }
+            }
+
+            // now add each topic content pair to the table
+            for (int i = 0; i < topicContent.Count; i++)
+            {
+                newrow = report.NewRow();
+                newrow["Info"] = topicContent[i];
+                report.Rows.Add(newrow);
+                report.AcceptChanges();
+            }
+
+            return report;
         }
         #endregion
 
@@ -638,7 +864,7 @@ namespace ITCSurveyReport
         public bool IncludeWordings { get => includeWordings; set => includeWordings = value; }
         [CategoryAttribute("Order Comparisons"), DescriptionAttribute("Display the report by section."), DefaultValueAttribute(false)]
         public bool BySection { get => bySection; set => bySection = value; }
-
-
+        public Survey PrimarySurvey { get => primarySurvey; set => primarySurvey = value; }
+        public Survey OtherSurvey { get => otherSurvey; set => otherSurvey = value; }
     }
 }

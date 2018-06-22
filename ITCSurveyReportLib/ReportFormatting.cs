@@ -46,6 +46,10 @@ namespace ITCSurveyReport
             f.Replacement.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
             FindAndReplace(doc, "\\[center\\](*)\\[/center\\]", f);
 
+            f.Replacement.ClearFormatting();
+            f.Replacement.Font.Color = Word.WdColor.wdColorLightBlue;
+            FindAndReplace(doc, "\\[lblue\\](*)\\[/lblue\\]", f);
+
             //f.Replacement.ClearFormatting();
             //f.Replacement.Text = System.Environment.NewLine;
             //FindAndReplace(doc, "<br>", f);

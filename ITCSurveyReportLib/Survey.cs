@@ -872,6 +872,265 @@ namespace ITCSurveyReport
         /// <summary>
         /// 
         /// </summary>
+        public void MakeTCReportTable()
+        {
+            RemoveRepeatsTC();
+
+            // TODO remove repeats for translation (split only)
+
+            List<string> columnNames = new List<string>();
+            List<string> columnTypes = new List<string>();
+            string questionColumnName = "";
+
+
+            // construct finalTable
+            // determine the fields that will appear in finalTable
+            // eliminate Survey, SortBy, and wording fields right away
+            for (int i = 0; i < rawTable.Columns.Count; i++)
+            {
+                switch (rawTable.Columns[i].Caption)
+                {
+                    case "ID":
+                        columnNames.Add(rawTable.Columns[i].Caption);
+                        columnTypes.Add("int");
+                        break;
+
+                    case "Survey":
+                    case "PreP":
+                    case "PreI":
+                    case "PreA":
+                    case "LitQ":
+                    case "PstI":
+                    case "PstP":
+                    case "RespOptions":
+                    case "NRCodes":
+                        break;
+                    default:
+                        columnNames.Add(rawTable.Columns[i].Caption);
+                        columnTypes.Add("string");
+                        break;
+                }
+
+            }
+            // add a column for the question text
+            questionColumnName = GetQuestionColumnName();
+            columnNames.Add(questionColumnName);
+            columnTypes.Add("string");
+            finalTable = Utilities.CreateDataTable(surveyCode + ID + "_Final", columnNames.ToArray(), columnTypes.ToArray());
+            DataRow newrow;
+
+            // TODO use DataRow[] dr = rawTable.Select to get all records for each operation
+
+
+
+
+            // for each row in the raw table, edit the fields according to the chosen options,
+            // then add each row to the final table.
+            foreach (DataRow row in rawTable.Rows)
+            {
+
+                // insert Qnums before variable names
+                // TODO insert Qnums before non-standard variable names
+                if (qnInsertion)
+                {
+                    row["PreP"] = InsertQnums((string)row["PreP"]);
+                    row["PreI"] = InsertQnums((string)row["PreI"]);
+                    row["PreA"] = InsertQnums((string)row["PreA"]);
+                    row["LitQ"] = InsertQnums((string)row["LitQ"]);
+                    row["PstI"] = InsertQnums((string)row["PstI"]);
+                    row["PstP"] = InsertQnums((string)row["PstP"]);
+                    row["RespOptions"] = InsertQnums((string)row["RespOptions"]);
+                    row["NRCodes"] = InsertQnums((string)row["NRCodes"]);
+                    row.AcceptChanges();
+                }
+
+
+                // insert Country codes into variable names
+                if (ccInsertion)
+                {
+                    row["PreP"] = InsertCountryCodes((string)row["PreP"]);
+                    row["PreI"] = InsertCountryCodes((string)row["PreI"]);
+                    row["PreA"] = InsertCountryCodes((string)row["PreA"]);
+                    row["LitQ"] = InsertCountryCodes((string)row["LitQ"]);
+                    row["PstI"] = InsertCountryCodes((string)row["PstI"]);
+                    row["PstP"] = InsertCountryCodes((string)row["PstP"]);
+                    row["RespOptions"] = InsertCountryCodes((string)row["RespOptions"]);
+                    row["NRCodes"] = InsertCountryCodes((string)row["NRCodes"]);
+                    row.AcceptChanges();
+                }
+
+                // remove long lists in response option column
+                if (!showLongLists && !row.IsNull("RespOptions"))
+                {
+                    if (Utilities.CountLines((String)row["RespOptions"].ToString()) >= 25)
+                    {
+                        row["RespOptions"] = "[center](Response options omitted)[/center]";
+                        row.AcceptChanges();
+                    }
+                }
+
+                // NRFormat
+                if (nrFormat != ReadOutOptions.Neither && !row.IsNull("NRCodes"))
+                {
+                    row["NRCodes"] = FormatNR((string)row["NRCodes"]);
+                    row.AcceptChanges();
+                }
+
+                // semi tel
+
+                // in-line routing
+                //if (InlineRouting && row["PstP"] != null)
+                //{
+                //    FormatRouting(row);
+                //}
+
+                // subset tables
+                //if (subsetTables)
+                //{
+                //    if (subsetTablesTranslation)
+                //    {
+                //        // TODO translation subset tables
+                //    }
+                //    else
+                //    {
+                //        if ((bool)row["TableFormat"] && row["Qnum"].ToString().EndsWith("a"))
+                //        {
+                //            row["RespOptions"] = "[TBLROS]" + row["RespOptions"];
+                //            row["NRCodes"] = row["NRCodes"] + "[TBLROE]";
+                //            row["LitQ"] = "[LitQ]" + row["LitQ"] + "[/LitQ]";
+                //            row.AcceptChanges();
+                //        }
+                //    }
+                //}
+
+                // varname changes
+                //if (includePrevNames && !row.IsNull("VarName") && !row["VarName"].ToString().StartsWith("Z"))
+                //{
+                //    row["VarName"] = row["VarName"] + " " + GetPreviousNames((string)row["VarName"]);
+                //    row.AcceptChanges();
+                //}
+                // corrected 
+                if ((bool)row["CorrectedFlag"])
+                {
+                    if (corrected) { row["VarName"] = row["VarName"] + "\r\n" + "[C]"; }
+                    else { row["VarName"] = row["VarName"] + "\r\n" + "[A]"; }
+                }
+
+                // copy most of the columns to the new row
+                newrow = finalTable.NewRow();
+                foreach (DataColumn col in row.Table.Columns)
+                {
+                    col.AllowDBNull = true;
+                    switch (col.Caption)
+                    {
+                        case "Survey":
+                        case "PreP":
+                        case "PreI":
+                        case "PreA":
+                        case "LitQ":
+                        case "PstI":
+                        case "PstP":
+                        case "RespOptions":
+                        case "NRCodes":
+                            break;
+                        default:
+                            newrow[col.Caption] = row[col.Caption];
+                            break;
+                    }
+                }
+
+                // concatenate the question fields, and if this is varname BI104, attach the essential questions list
+                if (row["refVarName"].Equals("BI104"))
+                {
+                    newrow[questionColumnName] = GetQuestionTextTC(row) + "\r\n<strong>" + essentialList + "</strong>";
+                }
+                else
+                {
+                    newrow[questionColumnName] = GetQuestionTextTC(row);
+                }
+
+                // now add a new row to the finalTable DataTable
+                // the new row will be a susbet of columns in the rawTable, after the above modifications have been applied
+                finalTable.Rows.Add(newrow);
+            }
+
+            // merge auxilliary tables based on ID (or varname if ID not present)
+
+
+
+            // TODO merge with comment table, untested
+            //if (commentFields.Count > 0)
+            //    finalTable.Merge(commentTable, false, MissingSchemaAction.Add);
+
+            //// merge with translation table
+            //// make translation columns unique by adding the survey code (TODO and backend)
+            //if (transFields.Count > 0)
+            //{
+            //    foreach (DataColumn c in translationTable.Columns)
+            //    {
+            //        if (!(c.Caption.Equals("VarName") || c.Caption.Equals("refVarName") || c.Caption.Equals("ID")))
+            //        {
+            //            c.Caption = surveyCode + " " + c.Caption;
+            //            c.ColumnName = surveyCode + " " + c.ColumnName;
+            //            translationTable.AcceptChanges();
+            //        }
+
+            //    }
+
+            //    finalTable.Merge(translationTable, false, MissingSchemaAction.Add);
+            //}
+
+
+            // merge with filter table
+            //if (filterCol)
+            //    finalTable.Merge(filterTable, false, MissingSchemaAction.Add);
+
+            // TODO apply question filters
+
+            string questionFilter = GetQuestionFilter();
+            if (!questionFilter.Equals(""))
+            {
+                filteredTable = finalTable.Select(questionFilter).CopyToDataTable();
+                finalTable = filteredTable.Copy();
+            }
+
+            // change the primary key to be the VarName column
+            finalTable.PrimaryKey = new DataColumn[] { finalTable.Columns["refVarName"] };
+
+            // remove unneeded fields
+            // check enumeration and delete AltQnum
+            if (numbering == Enumeration.Qnum)
+                finalTable.Columns.Remove("AltQnum");
+
+            if (numbering == Enumeration.AltQnum)
+                finalTable.Columns.Remove("Qnum");
+
+            if (!domainLabelCol)
+                finalTable.Columns.Remove("Domain");
+
+            if (!topicLabelCol)
+                finalTable.Columns.Remove("Topic");
+
+            if (!contentLabelCol)
+                finalTable.Columns.Remove("Content");
+
+            if (!varlabelCol)
+                finalTable.Columns.Remove("VarLabel");
+
+            if (!productLabelCol)
+                finalTable.Columns.Remove("Product");
+
+
+
+            finalTable.Columns.Remove("CorrectedFlag");
+            finalTable.Columns.Remove("TableFormat");
+            //finalTable.Columns.Remove("refVarName");
+            finalTable.Columns.Remove("ID");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="row"></param>
         private void FormatRouting(DataRow row)
         {
@@ -1073,6 +1332,27 @@ namespace ITCSurveyReport
             return questionText;
         }
 
+        private string GetQuestionTextTC(DataRow row, string newline = "\r\n")
+        {
+            string questionText = "";
+
+            questionText += "<strong>" + row["Qnum"] + "</strong> (" + row["VarName"] + ")\r\n";
+            if (stdFieldsChosen.Contains("PreP") && !row.IsNull("PreP") && !row["PreP"].Equals("")) { questionText += "<strong>" + row["PreP"] + "</strong>" + newline; }
+            if (stdFieldsChosen.Contains("PreI") && !row.IsNull("PreI") && !row["PreI"].Equals("")) { questionText += "<em>" + row["PreI"] + "</em>" + newline; }
+            if (stdFieldsChosen.Contains("PreA") && !row.IsNull("PreA") && !row["PreA"].Equals("")) { questionText += row["PreA"] + newline; }
+            if (stdFieldsChosen.Contains("LitQ") && !row.IsNull("LitQ") && !row["LitQ"].Equals("")) { questionText += "[lblue]" + row["LitQ"] + "[/lblue]" + newline; }
+            if (stdFieldsChosen.Contains("RespOptions") && !row.IsNull("RespOptions") && !row["RespOptions"].Equals("")) { questionText += "[indent]" + row["RespOptions"] + "[/indent]" + newline; }
+            if (stdFieldsChosen.Contains("NRCodes") && !row.IsNull("NRCodes") && !row["NRCodes"].Equals("")) { questionText += "[indent]" + row["NRCodes"] + "[/indent]" + newline; }
+            if (stdFieldsChosen.Contains("PstI") && !row.IsNull("PstI") && !row["PstI"].Equals("")) { questionText += "<em>" + row["PstI"] + "</em>" + newline; }
+            if (stdFieldsChosen.Contains("PstP") && !row.IsNull("PstP") && !row["PstP"].Equals("")) { questionText += "<strong>" + row["PstP"] + "</strong>"; }
+
+            // replace all "<br>" tags with newline characters
+            questionText = questionText.Replace("<br>", newline);
+            questionText = Utilities.TrimString(questionText, newline);
+
+            return questionText;
+        }
+
         /// <summary>
         /// Returns the name of the column, in the final survey table, containing the question text.
         /// </summary>
@@ -1198,6 +1478,82 @@ namespace ITCSurveyReport
                 {
                     // if we are inside a series, compare the wording fields to the reference row
                     for (int i = 0; i < r.Table.Columns.Count;i++)
+                    {
+                        currField = r.Table.Columns[i].Caption; // field name
+                        // if the current column is a standard wording column and has not been designated as a repeated field, compare wordings
+                        if (stdFields.Contains(currField) && !repeatedFields.Contains(currField))
+                        {
+                            // if the current row's wording field matches the reference row, clear it. 
+                            // otherwise, set the reference row's field to the current row's field
+                            // this will cause a new reference point for that particular field, but not the fields that were identical to the original reference row
+                            if (Utilities.RemoveTags((string)r[i]).Equals(Utilities.RemoveTags((string)refRow[i]))) // field is identical to reference row's field, clear it
+                            {
+                                r[i] = "";
+                                r.AcceptChanges();
+                            }
+                            else // field is different from reference row's field, use this value as the new reference for this field
+                            {
+                                refRow[i] = r[i];
+                            }
+                        }
+                    }
+                }
+
+                firstRow = false; // after once through the loop, we are no longer on the first row
+            }
+        }
+
+        //TODO use topic/content instead of Qnum
+        /// <summary>
+        /// Remove repeated values from the wording fields (PreP, PreI, PreA, LitQ, PstI, Pstp, RespOptions, NRCodes) unless they are requested. 
+        /// This applies only to series questions, which are questions whose Qnum ends in a letter.
+        /// </summary>
+        public void RemoveRepeatsTC()
+        {
+            int mainQnum = 0;
+            string mainTopic = "";
+            string mainContent = "";
+            string currTopic = "";
+            string currContent = "";
+            string currField = "";
+            int currQnumInt = 0;
+            bool firstRow = true;
+            Object[] refRow = null; // this array will hold the 'a' question's fields
+            // only try to remove repeats if there are more than 0 rows
+            if (rawTable.Rows.Count == 0) return;
+            // sort table by SortBy
+            rawTable.DefaultView.Sort = "Topic ASC, Content ASC";
+            rawTable = rawTable.DefaultView.ToTable();
+            //
+            foreach (DataRow r in rawTable.Rows)
+            {
+                currTopic = (string)r["Topic"];
+                currContent = (string)r["Content"];
+
+                //if (currQnum.Length != 4) { continue; }
+
+                // get the integer value of the current qnum
+                //int.TryParse(currQnum.Substring(0, 3), out currQnumInt);
+
+                // if this row is in table format, we need to remove all repeats, regardless of repeated designations
+                //if ((bool)r["TableFormat"])
+                //{
+                //    // TODO set repeated fields to none (or all?)
+
+                //}
+
+                // if this is a non-series row, the first member of a series, the first row in the report, or a new Qnum, make this row the reference row
+                if (!currTopic.Equals(mainTopic) || (!currContent.Equals(mainContent)) || firstRow)
+                {
+                    mainTopic = currTopic;
+                    mainContent = currContent;
+                    // copy the row's contents into an array
+                    refRow = (Object[])r.ItemArray.Clone();
+                }
+                else
+                {
+                    // if we are inside a series, compare the wording fields to the reference row
+                    for (int i = 0; i < r.Table.Columns.Count; i++)
                     {
                         currField = r.Table.Columns[i].Caption; // field name
                         // if the current column is a standard wording column and has not been designated as a repeated field, compare wordings
