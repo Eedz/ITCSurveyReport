@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using Word = Microsoft.Office.Interop.Word;
 using System.Text.RegularExpressions;
 
-namespace ITCSurveyReport
+namespace ITCSurveyReportLib
 {
     public enum VarNameFormat { NoCC, WithCC, NonStd}
     public static class Utilities
@@ -281,6 +281,7 @@ namespace ITCSurveyReport
             return var;
         }
 
+        // TODO add more tags, RTF, HTML, see VBA version
         public static string RemoveTags (string input)
         {
             string output = input;

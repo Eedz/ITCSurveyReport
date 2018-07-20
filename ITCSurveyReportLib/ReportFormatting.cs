@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Word = Microsoft.Office.Interop.Word;
 using System.Reflection;
 
-namespace ITCSurveyReport
+namespace ITCSurveyReportLib
 {
     public class ReportFormatting
     {

@@ -9,9 +9,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Configuration;
+using ITCSurveyReportLib;
 
 namespace ITCSurveyReport
 {
+    // TODO use using statements to fill Filter combo boxes
+    // TODO create class for headings to be used in the heading Filter
     public partial class SurveyReportForm : Form
     {
         SurveyReport SR;
@@ -98,20 +101,21 @@ namespace ITCSurveyReport
                         break;
                     case 1:
                         MessageBox.Show("One or more surveys contain no records.");
+                        // TODO if a backup was chosen, show a form for selecting a different survey code from that date
                         break;
                     default:
                         break;
                 }
 
                 surveyView.DataSource = null;
-                surveyView.DataSource = SR.Surveys[0].finalTable;
+                surveyView.DataSource = SR.Surveys[0].rawTable;
                 surveyView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
                 surveyView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
                 if (SR.Surveys.Count > 1)
                 {
                     surveyView2.DataSource = null;
-                    surveyView2.DataSource = SR.Surveys[1].finalTable;
+                    surveyView2.DataSource = SR.Surveys[1].rawTable;
                     surveyView2.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
                     surveyView2.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
                 }
@@ -161,6 +165,11 @@ namespace ITCSurveyReport
             LoadPrefixes(CurrentSurvey.SurveyCode);
             lstPrefixes.DataBindings.Clear();
             lstPrefixes.DataSource = CurrentSurvey.Prefixes;
+
+            // headings
+            LoadHeadings(CurrentSurvey.SurveyCode);
+            lstHeadings.DataBindings.Clear();
+            lstHeadings.DataSource = CurrentSurvey.Headings;
 
             // varnames
             LoadVarNames(CurrentSurvey.SurveyCode);
@@ -216,7 +225,7 @@ namespace ITCSurveyReport
 
         }
 
-        private void LoadPrefixes(String survey)
+        private void LoadPrefixes(string survey)
         {
             SqlDataAdapter sql;
             DataTable prefixes = new DataTable();
@@ -235,7 +244,7 @@ namespace ITCSurveyReport
             
         }
 
-        private void LoadVarNames(String survey)
+        private void LoadVarNames(string survey)
         {
             SqlDataAdapter sql;
             DataTable varnames = new DataTable();
@@ -252,7 +261,25 @@ namespace ITCSurveyReport
             //}
         }
 
-        private void LoadExtraFields(String survey)
+        private void LoadHeadings(string survey)
+        {
+            DataTable headings = new DataTable();
+            
+            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString)) {
+                using (SqlDataAdapter sql = new SqlDataAdapter("SELECT Qnum, PreP FROM qrySurveyQuestions WHERE Survey ='" + survey + "' AND VarName LIKE 'Z%' GROUP BY Qnum, PreP ORDER BY Qnum", conn))
+                {
+                    conn.Open();
+                    sql.Fill(headings);
+                    conn.Close();
+
+                    cboHeadings.DataSource = headings;
+                    cboHeadings.ValueMember = "Qnum";
+                    cboHeadings.DisplayMember = "PreP";
+                }
+            }
+        }
+
+        private void LoadExtraFields(string survey)
         {
             SqlDataAdapter sql;
 
@@ -389,11 +416,57 @@ namespace ITCSurveyReport
                 tabControlOptions.Visible = false;
         }
 
-        
+        private void SelfCompare_Click(object sender, EventArgs e)
+        {
+            // add another survey with the already selected survey code
+           
+            Survey s;
+            Survey item = lstSelectedSurveys.SelectedItem as Survey;
+            try
+            {
+                s = new Survey(item.SurveyCode);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Survey not found.");
+                return;
+            }
+            // add survey to the SurveyReport object
+            SR.AddSurvey(s);
+            SR.AutoSetPrimary();
+            lstSelectedSurveys.DataSource = null;
+            lstSelectedSurveys.DataSource = SR.Surveys;
+            lstSelectedSurveys.ValueMember = "ID";
+            lstSelectedSurveys.DisplayMember = "SurveyCode";
+
+            if (lstSelectedSurveys.Items.Count >= 2 && !tabControlOptions.TabPages.Contains(pgCompareTab)) { tabControlOptions.TabPages.Insert(2, pgCompareTab); }
+            gridPrimarySurvey.DataSource = null;
+            gridPrimarySurvey.DataSource = SR.Surveys;
+            gridPrimarySurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            gridPrimarySurvey.Refresh();
+
+            gridColumnOrder.DataSource = null;
+            gridColumnOrder.DataSource = SR.ColumnOrder;
+            gridColumnOrder.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            gridColumnOrder.Refresh();
+
+            gridQnumSurvey.DataSource = null;
+            gridQnumSurvey.DataSource = SR.Surveys;
+            gridQnumSurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            gridQnumSurvey.Refresh();
+
+            if (lstSelectedSurveys.Items.Count > 0)
+                tabControlOptions.Visible = true;
+            // set focus to calendar
+            dateBackend.Focus();
+
+        }
 
         #endregion
 
         #region Filters Tab
+        // TODO do not add duplicates
+        // TODO check for null when removing
         // Add the selected prefix to the Current Survey's prefix list and refresh the Prefix listbox
         private void AddPrefix_Click(object sender, EventArgs e)
         {
@@ -428,6 +501,40 @@ namespace ITCSurveyReport
             }
             lstSelectedVarNames.DataSource = null;
             lstSelectedVarNames.DataSource = CurrentSurvey.Varnames;
+        }
+
+        private void cmdAddHeading_Click(object sender, EventArgs e)
+        {
+            // cast the selected item as a datarowview
+            DataRowView item = (DataRowView) cboHeadings.SelectedItem;
+            // create a new heading object and fill its members
+            Heading h = new Heading
+            {
+             
+                Qnum = (string)item[0],
+                Prep = (string)item[1]
+            };
+            // add it to the survey's headings collection
+            CurrentSurvey.Headings.Add(h);
+            // refresh the selected headings list box, using the PreP as the display
+            lstHeadings.DataSource = null;
+            lstHeadings.DisplayMember = "PreP";
+            lstHeadings.ValueMember = "Qnum";
+            lstHeadings.DataSource = CurrentSurvey.Headings;
+          
+        }
+
+        private void cmdRemoveHeading_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                CurrentSurvey.Headings.Remove((Heading)lstHeadings.SelectedItem);
+            }
+            catch (NullReferenceException ne)
+            {
+            }
+            lstHeadings.DataSource = null;
+            lstHeadings.DataSource = CurrentSurvey.Headings;
         }
         #endregion
 
@@ -782,7 +889,9 @@ namespace ITCSurveyReport
 
 
 
+
         #endregion
 
+       
     }
 }

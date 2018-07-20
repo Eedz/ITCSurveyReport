@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Data;
 
-namespace ITCSurveyReport
+namespace ITCSurveyReportLib
 {
     /// <summary>
     /// Represents the filter portion of a survey question, also known as Pre-programming instructions.

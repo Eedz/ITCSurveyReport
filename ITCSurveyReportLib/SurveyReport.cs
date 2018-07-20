@@ -11,7 +11,7 @@ using System.Reflection;
 using System.ComponentModel;
 
 
-namespace ITCSurveyReport
+namespace ITCSurveyReportLib
 {
     public enum ReportTemplate { Standard, StandardTranslation, Website, WebsiteTranslation, Automatic }
     public enum Enumeration { Qnum=1, AltQnum, Both }
@@ -56,7 +56,7 @@ namespace ITCSurveyReport
         //String[] varnames;
 
         // comparison options
-        bool compare;
+        bool compare; // true if we are to compare
 
         // formatting and layout options
         List<string> repeatedFields;
@@ -232,6 +232,8 @@ namespace ITCSurveyReport
 
                     break;
                 case ReportTypes.Order:
+                    if (GenerateOrderReport() == 1)
+                        return 1;
                     break;
             }
 
@@ -318,7 +320,7 @@ namespace ITCSurveyReport
             }
 
 
-            // this could also be where we remove the primary survey if hidePrimary is true TODO Test
+            // this could also be where we remove the primary survey if hidePrimary is true TODO Test with back dates
             if (SurveyCompare.HidePrimary)
             {
                 foreach (Survey s in Surveys)
@@ -398,6 +400,28 @@ namespace ITCSurveyReport
             reportTable.Columns.Remove("SortBy");
 
             OutputReportTable();
+            return 0;
+        }
+
+        private int GenerateOrderReport()
+        {
+            foreach (Survey s in surveys)
+            {
+                s.GenerateSourceTable();
+                // TODO figure out datasets
+                // create a relationship between main survey and other surveys on refVarName
+
+                if (s.rawTable.Rows.Count == 0)
+                {
+                    return 1;
+                }
+                //SurveyReportData.Tables.Add(s.rawTable);
+
+                
+            }
+
+
+
             return 0;
         }
 
@@ -1149,7 +1173,7 @@ namespace ITCSurveyReport
                 case PaperSizes.Letter: widthLeft = 10.5; break;
                 case PaperSizes.Legal: widthLeft = 13.5; break;
                 case PaperSizes.Eleven17: widthLeft = 16.5; break; 
-                case PaperSizes.A4: widthLeft = 11.7; break;
+                case PaperSizes.A4: widthLeft = 11; break;
                 default: widthLeft = 10.5; break;
             }
             // Qnum and VarName

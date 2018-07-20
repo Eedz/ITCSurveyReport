@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Configuration;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
+using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 
 
 
-namespace ITCSurveyReport
+namespace ITCSurveyReportLib
 {
     // IDEA: TODO make a base class called Survey, and another called SurveyDataTable which extends DataTable and make it a member of Survey 
     // SurveyDataTable will have all the methods that act on the rawTable 
@@ -25,6 +23,7 @@ namespace ITCSurveyReport
         
         int id;                                 // unique id for report, NOT the database ID
         // properties from database
+        int sid;
         string surveyCode;
         string languages;
         string title;
@@ -40,7 +39,7 @@ namespace ITCSurveyReport
         int qRangeLow;
         int qRangeHigh;
         List<string> prefixes;
-        List<string> headings;
+        List<Heading> headings;
         List<string> varnames;
 
         // comment filters
@@ -130,7 +129,7 @@ namespace ITCSurveyReport
             qRangeHigh = 0;
             prefixes = new List<string>();
             varnames = new List<string>();
-            headings = new List<string>();
+            headings = new List<Heading>();
 
             commentDate = null;
             commentAuthors = new List<int>();
@@ -201,6 +200,7 @@ namespace ITCSurveyReport
                 using (SqlDataReader rdr = sql.SelectCommand.ExecuteReader())
                 {
                     rdr.Read();
+                    sid = (int)rdr["ID"];
                     surveyCode = (string)rdr["Survey"];
                     if (!rdr.IsDBNull(rdr.GetOrdinal("Languages"))) { languages = (string)rdr["Languages"]; }
                     title = (string)rdr["SurveyTitle"];
@@ -230,7 +230,7 @@ namespace ITCSurveyReport
             qRangeHigh = 0;
             prefixes = new List<string>();
             varnames = new List<string>();
-            headings = new List<string>();
+            headings = new List<Heading>();
 
             commentDate = null;
             commentAuthors = new List<int>();
@@ -1391,9 +1391,9 @@ namespace ITCSurveyReport
 
             filter = GetQRangeFilter();
             
-            if (prefixes != null && prefixes.Count != 0) { filter += " AND SUBSTRING(VarName,1,2) IN ('" + String.Join("','", prefixes) + "')"; }
-            if (varnames != null && varnames.Count != 0) { filter += " AND VarName IN ('" + String.Join("','", varnames) + "')"; }
-            //if (headings != null && headings.Count != 0) { filter += " AND (" + GetHeadingFilter() + ")"; }
+            if (prefixes != null && prefixes.Count != 0) { filter += " AND SUBSTRING(VarName,1,2) IN ('" + string.Join("','", prefixes) + "')"; }
+            if (varnames != null && varnames.Count != 0) { filter += " AND VarName IN ('" + string.Join("','", varnames) + "')"; }
+            if (headings != null && headings.Count != 0) { filter += " AND (" + GetHeadingFilter() + ")"; }
             filter = Utilities.TrimString(filter," AND ");
             return filter;
         }
@@ -1410,15 +1410,41 @@ namespace ITCSurveyReport
 
                
 
-        // heading filters not supported at this time
-        public String GetHeadingFilter() { return "1=1"; }
+        /// <summary>
+        /// Returns a WHERE condition based on the chosen headings
+        /// </summary>
+        /// <returns></returns>
+        public string GetHeadingFilter()
+        {
+            DataRow[] raw;
+            string currentVar;
+            string filter = "";
+            foreach (Heading h in headings)
+            {
+                raw = rawTable.Select("Qnum > '" + h.Qnum + "'");
+                filter += " OR Qnum >= '" + h.Qnum + "'";
+                foreach (DataRow r in raw)
+                {
+                    currentVar = (string)r["refVarName"];
+                    // when we reach the next heading, add its qnum to the end of the filter expression
+                    if (currentVar.StartsWith("Z"))
+                    {
+                        filter += " AND Qnum < '" + (string)r["Qnum"] + "'";
+                        break;
+                    }
+                }
+                
+            }
+            filter = Utilities.TrimString(filter, " OR ");
+            return filter;
+        }
 
         /// <summary>
         /// Sets the 'essentialList' property by compiling a list of VarNames that contain the special routing instruction that only essential 
         /// questions have.
         /// </summary>
         public void GetEssentialQuestions() {
-            String varlist = "";
+            string varlist = "";
             Regex rx = new Regex("go to [A-Z][A-Z][0-9][0-9][0-9], then BI9");
 
             var query = from r in rawTable.AsEnumerable()
@@ -1608,7 +1634,6 @@ namespace ITCSurveyReport
         public string SurveyCode { get => surveyCode; set => surveyCode = value; }
         public DateTime Backend { get => backend; set => backend = value; }
         public List<string> Prefixes { get => prefixes; set => prefixes = value; }
-        public List<string> Headings { get => headings; set => headings = value; }
         public List<string> Varnames { get => varnames; set => varnames = value; }
         public DateTime? CommentDate { get => commentDate; set => commentDate = value; }
         public List<int> CommentAuthors { get => commentAuthors; set => commentAuthors = value; }
@@ -1649,6 +1674,7 @@ namespace ITCSurveyReport
         public bool ProductLabelCol { get => productLabelCol; set => productLabelCol = value; }
         public List<string> StdFieldsChosen { get => stdFieldsChosen; set => stdFieldsChosen = value; }
         public List<string> RepeatedFields { get => repeatedFields; set => repeatedFields = value; }
+        public List<Heading> Headings { get => headings; set => headings = value; }
         #endregion
 
 

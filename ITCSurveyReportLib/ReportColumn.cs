@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ITCSurveyReport
+namespace ITCSurveyReportLib
 {
     public class ReportColumn
     {

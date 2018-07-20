@@ -10,11 +10,12 @@ using System.Data.SqlClient;
 using System.Data.OleDb;
 using System.Configuration;
 
-namespace ITCSurveyReport
+namespace ITCSurveyReportLib
 {
-
+    
     public class BackupConnection
     {
+        public readonly DateTime FirstDateForSurveyNumbersID = new DateTime(2016, 6, 14); // any backups before this date will not have an ID field in tblSurveyNumbers
         DateTime dtBackupDate;
         string backupFilePath;
         string unzippedPath;    // location of unzipped file (TODO make this the application's folder)
@@ -89,16 +90,16 @@ namespace ITCSurveyReport
             return x.ExitCode;
         }
 
-        
+        // TODO decide between hard dates and check other db for fields
         public DataTable GetSurveyTable(string select, string where)
         {
             DataTable backupTable;
             DateTime fileDate;
             fileDate = DateTime.Parse(backupFilePath.Replace(".7z", ""));
-            if (fileDate <= DateTime.Parse("2016-01-01"))
+            if (fileDate <= DateTime.Parse(FirstDateForSurveyNumbersID.ToString()))
             {
                 // might not have ID number
-                backupTable = GetOldSurveyData("");
+                backupTable = GetOldSurveyData(select, where);
             }
             else
             {
@@ -129,16 +130,20 @@ namespace ITCSurveyReport
 
         }
 
-        private DataTable GetOldSurveyData(string select)
+        private DataTable GetOldSurveyData(string select, string where)
         {
             DataTable d = new DataTable();
-            SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
-            SqlDataAdapter sql = new SqlDataAdapter();
-            string query = "SELECT * FROM qrySurveyInfo WHERE Survey = @survey";
+            OleDbConnection conn = new OleDbConnection(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source='" + unzippedPath + "'");
+            OleDbDataAdapter sql = new OleDbDataAdapter();
+            if (select.Contains("tblSurveyNumbers.ID,"))
+                select = select.Replace("tblSurveyNumbers.ID,", "");
+
+            string query = select + " FROM  " + usualFrom;
+            if (!where.Equals("")) query += " WHERE " + where;
 
             using (conn)
             {
-                sql.SelectCommand = new SqlCommand(query, conn);
+                sql.SelectCommand = new OleDbCommand(query, conn);
                 sql.Fill(d);
             }
 

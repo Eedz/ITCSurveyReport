@@ -7,7 +7,7 @@ using System.Reflection;
 using Word = Microsoft.Office.Interop.Word;
 using System.Text.RegularExpressions;
 
-namespace ITCSurveyReport
+namespace ITCSurveyReportLib
 {
     public class ReportLayout
     {
