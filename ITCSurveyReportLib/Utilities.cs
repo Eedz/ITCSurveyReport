@@ -13,7 +13,7 @@ namespace ITCSurveyReportLib
     public enum VarNameFormat { NoCC, WithCC, NonStd}
     public static class Utilities
     {
-        public static DataTable CreateDataTable(String name, String[] fields, String[] types)   
+        public static DataTable CreateDataTable(string name, string[] fields, string[] types)   
         {
             DataTable dt;
             System.Type dataType = null;
@@ -284,6 +284,9 @@ namespace ITCSurveyReportLib
         // TODO add more tags, RTF, HTML, see VBA version
         public static string RemoveTags (string input)
         {
+            if (input == null)
+                return "";
+
             string output = input;
             output = output.Replace("[yellow]", "");
             output = output.Replace("[/yellow]", "");

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
@@ -20,97 +17,68 @@ namespace ITCSurveyReportLib
     /// </summary>
     public class Comparison
     {
-        Survey _primarySurvey;
-        Survey _otherSurvey;     // this survey's raw table will be altered
+        public ReportSurvey PrimarySurvey { get; set; }
+        public ReportSurvey OtherSurvey { get; set; }       // this survey's question list will be altered
 
 
-        // data tables
-        public DataTable changes;
-
-        // general comparison options
-        bool selfCompare;
-
-        //
-        bool hidePrimary;
-        bool showDeletedFields;
-        bool showDeletedQuestions;
-        bool reInsertDeletions;
-        bool hideIdenticalWordings;
-        bool hideIdenticalQuestions;    // TODO
-        bool showOrderChanges;          // TODO
-        bool beforeAfterReport;         // TODO
-        bool ignoreSimilarWords;        
-        bool convertTrackedChanges;     // TODO
-        bool matchOnRename;             // TODO
-
-        // ordercomparisons
-        bool includeWordings;           // TODO
-        bool bySection;                 // TODO
-
+        public bool SelfCompare { get; set ; }              // true if we are comparing a survey to itself at a different date
+        public bool HidePrimary { get ; set ; }             // true if the primary survey should be hidden in the final report
+        public bool ShowDeletedFields { get; set; }         // true if fields that only exist in primary survey are colored blue
+        public bool ShowDeletedQuestions { get ; set ; }    // true if primary only questions should be included in the report
+        public bool ReInsertDeletions { get ; set ; }       // true if primary only questions should be inserted as close as possible to their original position
+        public bool HideIdenticalWordings { get ; set ; }   // true if identical wordings should be hidden, resulting in only the differences being shown    
+        public bool ShowOrderChanges { get ; set ; }        // true if varnames that have moved should be highlighted in their own color  
+        public bool BeforeAfterReport { get ; set ; }       // true if the report should have 3 columns, Before, Marked and After
+        public bool IgnoreSimilarWords { get ; set ; }      // true if similar words should not be considered different (this is for words like labour/labor)       
+        public bool ConvertTrackedChanges { get ; set ; }   // true if artificial tracked changes should be converted into actual tracked changes in word
+        public bool MatchOnRename { get; set ; }            // true if varnames should be matched up on previous names
         // highlight options
+        public bool Highlight { get ; set ; }               // true if differences should be highlighted
+        public HStyle HighlightStyle { get ; set ; }        // determines the type of highlighting to use (Classic or Tracked Changes)
+        public HScheme HighlightScheme { get ; set ; }      // determines how deleted questions are highlighted
+        public bool HighlightNR { get ; set ; }             // true if non-response options should be highlighted
+        public bool HybridHighlight { get ; set ; }         // true if differences in wordings should have both Green and Tracked Changes coloring
+        // order comparison
+        public bool IncludeWordings { get ; set; }          // true if order comparison is to include wordings
+        public bool BySection { get; set ; }                // true if order comparison should break the report into sections
+
+        public bool HideIdenticalQuestions { get ; set ; }  // true if identical questions should be removed from the report
         
-        bool highlight;                 // TODO
-        HStyle highlightStyle;
-        HScheme highlightScheme;
-        bool highlightNR;
-        bool hybridHighlight;
+
+        // TODO implement
+        //public List<string> fieldList; // this list contains fields that should be compared     
 
         public Comparison()
         {
-            _primarySurvey = null;
-            _otherSurvey = null;
+            ShowDeletedFields = true;
+            ShowDeletedQuestions = true;
+            ReInsertDeletions = true;
 
-            selfCompare = false;
+            IgnoreSimilarWords = true;
 
-            hidePrimary = false;
-            showDeletedFields = true;
-            showDeletedQuestions = true;
-            reInsertDeletions = true;
-            hideIdenticalWordings = false;
-            hideIdenticalQuestions = false;
-            showOrderChanges = false;
-            beforeAfterReport = false;
-            ignoreSimilarWords = false;
-            convertTrackedChanges = false;
-            matchOnRename = false;
-
-            includeWordings = false;
-            bySection = false;
-
-            highlight = true;
-            highlightStyle = HStyle.Classic;
-            highlightScheme = HScheme.Sequential;
-            highlightNR = true;
-            hybridHighlight = false;
+            Highlight = true;
+            HighlightStyle = HStyle.Classic;
+            HighlightScheme = HScheme.Sequential;
+            HighlightNR = true;
+           
         }
 
-        public Comparison(Survey p, Survey o)
+        public Comparison(ReportSurvey p, ReportSurvey o)
         {
-            _primarySurvey = p;
-            _otherSurvey = o;
+            PrimarySurvey = p;
+            OtherSurvey = o;
+            
+            ShowDeletedFields = true;
+            ShowDeletedQuestions = true;
+            ReInsertDeletions = true;
 
-            selfCompare = false;
+            IgnoreSimilarWords = true;
 
-            hidePrimary = false;
-            showDeletedFields = true;
-            showDeletedQuestions = true;
-            reInsertDeletions = true;
-            hideIdenticalWordings = false;
-            hideIdenticalQuestions = false;
-            showOrderChanges = false;
-            beforeAfterReport = false;
-            ignoreSimilarWords = false;
-            convertTrackedChanges = false;
-            matchOnRename = false;
-
-            includeWordings = false;
-            bySection = false;
-
-            highlight = true;
-            highlightStyle = HStyle.Classic;
-            highlightScheme = HScheme.Sequential;
-            highlightNR = true;
-            hybridHighlight = false;
+            Highlight = true;
+            HighlightStyle = HStyle.Classic;
+            HighlightScheme = HScheme.Sequential;
+            HighlightNR = true;
+           
         }
 
         // Use VarName as the basis for comparison (actually refVarName)
@@ -119,63 +87,14 @@ namespace ITCSurveyReportLib
             // Compare the English survey content
             CompareSurveyTables();
 
-            // Compare translation records if at least one language was selected for each survey
-            if (highlight)
-                if (_primarySurvey.TransFields.Count >= 1 && _otherSurvey.TransFields.Count >= 1)
-                    CompareTranslationTables();
+            // Compare translation records if at least one language was selected for each survey TODO see if this can be included in regular comparison methods
+            if (Highlight)
+                if (PrimarySurvey.TransFields.Count >= 1 && OtherSurvey.TransFields.Count >= 1)
+                    CompareTranslations();
 
 
         }
 
-
-        /// <summary>
-        /// For each translation in the non-primary survey, compare it to the same language in the primary survey.
-        /// </summary>
-        private void CompareTranslationTables()
-        {
-            DataRow[] foundRows;
-            foreach (string t in _otherSurvey.TransFields)
-            {
-                // primary also contains this language
-                if (!_primarySurvey.TransFields.Contains(t))
-                    continue;
-                
-                foreach (DataRow rOther in _otherSurvey.translationTable.Rows)
-                {
-                    foundRows = _primarySurvey.translationTable.Select("refVarName = '" + rOther["refVarName"].ToString() + "'");
-                    if (foundRows.Length == 0)
-                    {
-                        // if no matching rows are found in primary, this row is unique to other
-                        if (highlightScheme == HScheme.Sequential)
-                        {
-
-                            if (!rOther["VarName"].Equals("")) { rOther["VarName"] = "[yellow]" + rOther["VarName"] + "[/yellow]"; }
-                            if (!rOther[t].Equals("")) { rOther[t] = "[yellow]" + rOther[t] + "[/yellow]"; }
-
-                        }
-                        else if (highlightScheme == HScheme.AcrossCountry)
-                        {
-                            if (!rOther["VarName"].Equals("")) { rOther["VarName"] = "[yellow]" + rOther["VarName"] + "[/yellow]"; }
-                        }
-                    }
-                    else
-                    {
-                        // if matching rows are found in dt1 (primary), compare the wording fields
-                        foreach (DataRow r in foundRows)
-                        {
-                            CompareWordings(r, rOther, t);
-                               
-                        }
-                    }
-                       
-                }
-                
-            }
-            //other.translationTable.AcceptChanges();
-        }
-
-        //TODO accept a list of fields that should be compared, this would generalize the comparison so any 2 tables can be compared
-        
         /// <summary>
         /// Compares rows in this Surveys' DataTable objects. The non-primary data table will contain highlighting tags where it differs from the primary data table.
         /// For rows that exist in only one of the tables, either color the whole question (Sequential), or just the VarName field (Across Country).
@@ -183,91 +102,192 @@ namespace ITCSurveyReportLib
         private void CompareSurveyTables()
         {
             
-            // Highlight questions in the 'other' survey
-            if (highlight)
-                ProcessNonPrimaryRows();
+            ProcessCommonQuestions();
 
-            // If we want to include those questions that are only in the primary survey, process them now
-            // They will either be included at the end of the report, or inserted into their proper places
-            if (showDeletedQuestions)
+            ProcessPrimaryOnlyQuestions();
+
+            ProcessOtherOnlyQuestions();
+            
+
+            //If we want to include those questions that are only in the primary survey, process them now
+            //They will either be included at the end of the report, or inserted into their proper places
+            if (ShowDeletedQuestions)
             {
-                ProcessPrimaryOnlyRows();
-
                 // if we are not re-inserting them, add heading for unmatched questions
-                if (!reInsertDeletions)
+                if (!ReInsertDeletions)
                     AddUnmatchedQuestionsHeading();
+            }
+            else
+            {
+                // need to take out primary only questions from the survey
             }
 
         }
 
         /// <summary>
+        /// For any common rows, compare the wordings and color them if they are different or missing.
+        /// </summary>
+        private void ProcessCommonQuestions()
+        {
+            // for every refVarName shared by the 2 surveys, compare wordings
+            List<SurveyQuestion> intersection = OtherSurvey.questions.Intersect(PrimarySurvey.questions, new SurveyQuestionComparer()).ToList();
+            SurveyQuestion found;
+            foreach (SurveyQuestion sq in intersection)
+            {
+                found = PrimarySurvey.questions.Find(x => x.refVarName.Equals(sq.refVarName)); // find the question in the primary survey
+
+                sq.PreP = CompareWordings(found.PreP, sq.PreP);
+                sq.PreI = CompareWordings(found.PreI, sq.PreI);
+                sq.PreA = CompareWordings(found.PreA, sq.PreA);
+                sq.LitQ = CompareWordings(found.LitQ, sq.LitQ);
+                sq.PstI = CompareWordings(found.PstI, sq.PstI);
+                sq.PstP = CompareWordings(found.PstP, sq.PstP);
+                sq.RespOptions = CompareWordings(found.RespOptions, sq.RespOptions);
+                sq.NRCodes = CompareWordings(found.NRCodes, sq.NRCodes);
+            }
+        }
+
+        /// <summary>
         /// For any row that only appears in the primary survey, we need to either move it to the end of the survey, or re-insert it into its original position.
         /// </summary>
-        private void ProcessPrimaryOnlyRows()
+        private void ProcessPrimaryOnlyQuestions()
         {
-            DataTable deletedQs; // holds the rows that only appear in the primary survey
-            DataRow[] foundRows;
-
-            DataRow toAdd;
-            deletedQs = _primarySurvey.rawTable.Clone();
-
-            // for each row that only exists in the primary table, add it to the non-primary table
-            foreach (DataRow rPrime in _primarySurvey.rawTable.Rows)
+            if (ShowDeletedQuestions)
             {
-
-                foundRows = _otherSurvey.rawTable.Select("refVarName = '" + rPrime["refVarName"].ToString() + "'");
-                if (foundRows.Length == 0)
+                // for every refVarName in primary only, add to Qnum survey and highlight blue
+                List<SurveyQuestion> primeOnly = PrimarySurvey.questions.Except(OtherSurvey.questions, new SurveyQuestionComparer()).ToList();
+                SurveyQuestion toAdd;
+                foreach (SurveyQuestion sq in primeOnly)
                 {
-                    // row not found in non-primary table
-                    // add it and colour it blue if we are re-inserting them 
-                    // highlight the whole question if the surveys are part of the same country by differ by wave
-                    // highlight the VarName only if the surveys are from different countries or differ by cohort/group
-                    if (reInsertDeletions)
+
+                    if (PrimarySurvey.Qnum)
+                        toAdd = sq;
+                    else
+                        toAdd = sq.Copy();
+
+                    if (HighlightScheme == HScheme.Sequential)
                     {
-                        if (highlightScheme == HScheme.Sequential)
+                        toAdd.VarName = "[s][t]" + toAdd.VarName + "[/t][/s]";
+
+                        if (ReInsertDeletions)
                         {
-                            if (!rPrime["VarName"].Equals("")) { rPrime["VarName"] = "[s][t]" + rPrime["VarName"] + "[/t][/s]"; }
-                            if (!rPrime["PreP"].Equals("")) { rPrime["PreP"] = "[s][t]" + rPrime["PreP"] + "[/t][/s]"; }
-                            if (!rPrime["PreI"].Equals("")) { rPrime["PreI"] = "[s][t]" + rPrime["PreI"] + "[/t][/s]"; }
-                            if (!rPrime["PreA"].Equals("")) { rPrime["PreA"] = "[s][t]" + rPrime["PreA"] + "[/t][/s]"; }
-                            if (!rPrime["LitQ"].Equals("")) { rPrime["LitQ"] = "[s][t]" + rPrime["LitQ"] + "[/t][/s]"; }
-                            if (!rPrime["PstI"].Equals("")) { rPrime["PstI"] = "[s][t]" + rPrime["PstI"] + "[/t][/s]"; }
-                            if (!rPrime["PstP"].Equals("")) { rPrime["PstP"] = "[s][t]" + rPrime["PstP"] + "[/t][/s]"; }
-                            if (!rPrime["RespOptions"].Equals("")) { rPrime["RespOptions"] = "[s][t]" + rPrime["RespOptions"] + "[/t][/s]"; }
-                            if (!rPrime["NRCodes"].Equals("")) { rPrime["NRCodes"] = "[s][t]" + rPrime["NRCodes"] + "[/t][/s]"; }
+                            if (!string.IsNullOrEmpty(toAdd.PreP)) toAdd.PreP = "[s][t]" + toAdd.PreP + "[/t][/s]";
+                            if (!string.IsNullOrEmpty(toAdd.PreI)) toAdd.PreI = "[s][t]" + toAdd.PreI + "[/t][/s]";
+                            if (!string.IsNullOrEmpty(toAdd.PreA)) toAdd.PreA = "[s][t]" + toAdd.PreA + "[/t][/s]";
+                            if (!string.IsNullOrEmpty(toAdd.LitQ)) toAdd.LitQ = "[s][t]" + toAdd.LitQ + "[/t][/s]";
+                            if (!string.IsNullOrEmpty(toAdd.PstI)) toAdd.PstI = "[s][t]" + toAdd.PstI + "[/t][/s]";
+                            if (!string.IsNullOrEmpty(toAdd.PstP)) toAdd.PstP = "[s][t]" + toAdd.PstP + "[/t][/s]";
+                            if (!string.IsNullOrEmpty(toAdd.RespOptions)) toAdd.RespOptions = "[s][t]" + toAdd.RespOptions + "[/t][/s]";
+                            if (!string.IsNullOrEmpty(toAdd.NRCodes)) toAdd.NRCodes = "[s][t]" + toAdd.NRCodes + "[/t][/s]";
                         }
-                        else if (highlightScheme == HScheme.AcrossCountry)
+                        else
                         {
-                            if (!rPrime["VarName"].Equals("")) { rPrime["VarName"] = "[s][t]" + rPrime["VarName"] + "[/t][/s]"; }
+                            toAdd.PreP = "";
+                            toAdd.PreI = "";
+                            toAdd.PreA = "";
+                            toAdd.LitQ = "";
+                            toAdd.PstI = "";
+                            toAdd.PstP = "";
+                            toAdd.RespOptions = "";
+                            toAdd.NRCodes = "";
                         }
                     }
-                    // if we are including the deleted questions, copy the row, add it to the deletedQs table
-                    toAdd = deletedQs.NewRow();
-                    toAdd.ItemArray = rPrime.ItemArray;
- 
-                    toAdd["SortBy"] = "z" + toAdd["SortBy"];
+                    else if (HighlightScheme == HScheme.AcrossCountry)
+                    {
+                        toAdd.VarName = "[s][t]" + toAdd.VarName + "[/t][/s]";
+                        toAdd.Qnum = "[s][t]" + toAdd.Qnum + "[/t][/s]";
+                    }
 
-                    deletedQs.Rows.Add(toAdd);
-                    deletedQs.AcceptChanges();
-                    // reject the changes to the original row in the primary table (blue highlighting)
-                    rPrime.RejectChanges();
-                    // but change the Qnum to add a 'z'
-                    rPrime["SortBy"] = "z" + rPrime["SortBy"];
-                    rPrime.AcceptChanges();
+                    if (ReInsertDeletions)
+                    {
+                        if (OtherSurvey.Qnum)
+                            OtherSurvey.questions.Add(toAdd);
+                        // TODO find last common question, renumber etc. also color qnum blue here?
+                    }
+                    else
+                    {
+
+                        // add to bottom of Qnum survey (if Qnum<>Primary)
+                        if (OtherSurvey.Qnum)
+                        {
+                            toAdd.Qnum = "z" + toAdd.Qnum;
+                            OtherSurvey.questions.Add(toAdd);
+                        }
+                    }
                 }
             }
+        }
 
-            // if we are re-inserting the deleted questions, they need to be renumbered with their location in the primary survey
-            if (reInsertDeletions)
+        /// <summary>
+        /// Add highlighting to the non-primary survey.
+        /// For any row not in the primary survey, color it yellow.
+        /// </summary>
+        private void ProcessOtherOnlyQuestions()
+        {
+
+            // for every refVarName in non-primary only, add to Qnum survey highlight yellow
+            List<SurveyQuestion> otherOnly = OtherSurvey.questions.Except(PrimarySurvey.questions, new SurveyQuestionComparer()).ToList();
+
+            foreach (SurveyQuestion sq in otherOnly)
             {
-                RenumberDeletions(deletedQs);
+                if (HighlightScheme == HScheme.Sequential)
+                {
+                    sq.VarName = "[yellow]" + sq.VarName + "[/yellow]";
 
-                // now merge the deleted questions table with the non-primary table 
-                // change the primary key to the refVarName column, since there may be duplicate ID numbers (in the case of renames)
-                _otherSurvey.rawTable.PrimaryKey = new DataColumn[] { _otherSurvey.rawTable.Columns["refVarName"] };
-                _otherSurvey.rawTable.Merge(deletedQs);
+                    if (!string.IsNullOrEmpty(sq.PreP)) sq.PreP = "[yellow]" + sq.PreP + "[/yellow]";
+                    if (!string.IsNullOrEmpty(sq.PreI)) sq.PreI = "[yellow]" + sq.PreI + "[/yellow]";
+                    if (!string.IsNullOrEmpty(sq.PreA)) sq.PreA = "[yellow]" + sq.PreA + "[/yellow]";
+                    if (!string.IsNullOrEmpty(sq.LitQ)) sq.LitQ = "[yellow]" + sq.LitQ + "[/yellow]";
+                    if (!string.IsNullOrEmpty(sq.PstI)) sq.PstI = "[yellow]" + sq.PstI + "[/yellow]";
+                    if (!string.IsNullOrEmpty(sq.PstP)) sq.PstP = "[yellow]" + sq.PstP + "[/yellow]";
+                    if (!string.IsNullOrEmpty(sq.RespOptions)) sq.RespOptions = "[yellow]" + sq.RespOptions + "[/yellow]";
+                    if (!string.IsNullOrEmpty(sq.NRCodes)) sq.NRCodes = "[yellow]" + sq.NRCodes + "[/yellow]";
+                }
+                else if (HighlightScheme == HScheme.AcrossCountry)
+                {
+                    sq.VarName = "[yellow]" + sq.VarName + "[/yellow]";
+                }
+
+
+
             }
-            
+        }
+
+        
+
+        public void RenumberDeletions(List<SurveyQuestion> deletedQs)
+        {
+            // for each row in deletedQs where the qnum starts with z, 
+            // we need to find the last common varname between the 2 tables, set the qnum of the row to that common row's qnum + the z-qnum
+            var foundQs = deletedQs.FindAll(x => x.Qnum.StartsWith("z"));
+            string varname;
+            string previousvar;
+            string previousqnum = "";
+            foreach (SurveyQuestion r in foundQs)
+            {
+                varname = r.VarName;
+                varname = varname.Replace("[s][t]", "");
+                varname = varname.Replace("[/t][/s]", "");
+
+                for (int i = 0; i < PrimarySurvey.questions.Count; i++)
+                {
+                    if (PrimarySurvey.questions[i].VarName.Equals(varname))
+                    {
+                        if (i == 0)
+                        {
+                            previousqnum = "000";
+                        }
+                        else
+                        {
+                            previousvar = PrimarySurvey.questions[i - 1].VarName;
+                            previousqnum = GetPreviousCommonVar(varname);
+                        }
+                        break;
+                    }
+                }
+                r.Qnum = previousqnum + r.Qnum;
+                
+            }
         }
 
         /// <summary>
@@ -276,124 +296,27 @@ namespace ITCSurveyReportLib
         /// </summary>
         private void AddUnmatchedQuestionsHeading()
         {
-            DataRow toAdd;
-            
-            toAdd = _otherSurvey.rawTable.NewRow();
-            toAdd["ID"] = "-1";
-            toAdd["refVarName"] = "ZZ999";
-            toAdd["VarName"] = "ZZ999";
-            toAdd["Qnum"] = "z000";
-            toAdd["SortBy"] = "z000";
-            toAdd["PreP"] = "Unmatched Questions";
-            toAdd["TableFormat"] = false;
-            toAdd["CorrectedFlag"] = false;
-
-            _otherSurvey.rawTable.Rows.Add(toAdd);
-            _otherSurvey.rawTable.AcceptChanges();
-
-            toAdd = _primarySurvey.rawTable.NewRow();
-            toAdd["ID"] = "-1";
-            toAdd["refVarName"] = "ZZ999";
-            toAdd["VarName"] = "ZZ999";
-            toAdd["Qnum"] = "z000";
-            toAdd["SortBy"] = "z000";
-            toAdd["PreP"] = "Unmatched Questions";
-            toAdd["TableFormat"] = false;
-            toAdd["CorrectedFlag"] = false;
-
-            _primarySurvey.rawTable.Rows.Add(toAdd);
-            _primarySurvey.rawTable.AcceptChanges();
-            
-        }
-
-        /// <summary>
-        /// Add highlighting to the non-primary survey.
-        /// For any row not in the primary survey, color it yellow.
-        /// For any common rows, compare the wordings and color them if they are different or missing.
-        /// </summary>
-        private void ProcessNonPrimaryRows()
-        {
-            DataRow[] foundRows;
-
-            foreach (DataRow rOther in _otherSurvey.rawTable.Rows)
+            OtherSurvey.questions.Add(new SurveyQuestion
             {
-                foundRows = _primarySurvey.rawTable.Select("refVarName = '" + rOther["refVarName"].ToString() + "'");
+                ID = -1,
+                refVarName = "ZZ999",
+                VarName = "ZZ999",
+                Qnum = "z000",
+                PreP = "Unmatched Questions",
+                TableFormat = false,
+                CorrectedFlag = false,
+            });
 
-                if (foundRows.Length == 0)
-                {
-                    // if no matching rows are found in primary, this row is unique to other
-                    // highlight the whole question if the surveys are part of the same country by differ by wave
-                    // highlight the VarName only if the surveys are from different countries or differ by cohort/group
-                    if (highlightScheme == HScheme.Sequential)
-                    {
-                        if (!rOther["VarName"].Equals("")) { rOther["VarName"] = "[yellow]" + rOther["VarName"] + "[/yellow]"; }
-                        if (!rOther["PreP"].Equals("")) { rOther["PreP"] = "[yellow]" + rOther["PreP"] + "[/yellow]"; }
-                        if (!rOther["PreI"].Equals("")) { rOther["PreI"] = "[yellow]" + rOther["PreI"] + "[/yellow]"; }
-                        if (!rOther["PreA"].Equals("")) { rOther["PreA"] = "[yellow]" + rOther["PreA"] + "[/yellow]"; }
-                        if (!rOther["LitQ"].Equals("")) { rOther["LitQ"] = "[yellow]" + rOther["LitQ"] + "[/yellow]"; }
-                        if (!rOther["PstI"].Equals("")) { rOther["PstI"] = "[yellow]" + rOther["PstI"] + "[/yellow]"; }
-                        if (!rOther["PstP"].Equals("")) { rOther["PstP"] = "[yellow]" + rOther["PstP"] + "[/yellow]"; }
-                        if (!rOther["RespOptions"].Equals("")) { rOther["RespOptions"] = "[yellow]" + rOther["RespOptions"] + "[/yellow]"; }
-                        if (!rOther["NRCodes"].Equals("")) { rOther["NRCodes"] = "[yellow]" + rOther["NRCodes"] + "[/yellow]"; }
-                    }
-                    else if (highlightScheme == HScheme.AcrossCountry)
-                    {
-                        if (!rOther["VarName"].Equals("")) { rOther["VarName"] = "[yellow]" + rOther["VarName"] + "[/yellow]"; }
-                    }
-                    rOther.AcceptChanges();
-                }
-                else
-                {
-                    // if matching rows are found in primary, compare the wording fields
-                    foreach (DataRow r in foundRows)
-                    {
-                        CompareWordings(r, rOther, "PreP");
-                        CompareWordings(r, rOther, "PreI");
-                        CompareWordings(r, rOther, "PreA");
-                        CompareWordings(r, rOther, "LitQ");
-                        CompareWordings(r, rOther, "PstI");
-                        CompareWordings(r, rOther, "PstP");
-                        CompareWordings(r, rOther, "RespOptions");
-                        if (highlightNR) { CompareWordings(r, rOther, "NRCodes"); }
-                    }
-                }
-            }
-           
-        }
-
-        public void RenumberDeletions (DataTable deletedQs)
-        {
-            // for each row in deletedQs where the qnum starts with z, 
-            // we need to find the last common varname between the 2 tables, set the qnum of the row to that common row's qnum + the z-qnum
-            var foundRows = deletedQs.Select("SortBy Like 'z%'");
-            string varname;
-            string previousvar;
-            string previousqnum = "";
-            foreach (DataRow r in foundRows)
+            PrimarySurvey.questions.Add(new SurveyQuestion
             {
-                varname = (string) r["VarName"];
-                varname = varname.Replace("[s][t]", "");
-                varname = varname.Replace("[/t][/s]", "");
-
-                for (int i = 0; i < _primarySurvey.rawTable.Rows.Count; i ++)
-                {
-                    if (_primarySurvey.rawTable.Rows[i]["VarName"].Equals(varname))
-                    {
-                        if (i == 0)
-                        {
-                            previousqnum = "000";
-                        }
-                        else
-                        {
-                            previousvar = (string)_primarySurvey.rawTable.Rows[i - 1]["VarName"];
-                            previousqnum = GetPreviousCommonVar(varname);
-                        }
-                        break;
-                    }
-                }
-                r["SortBy"] = previousqnum + r["SortBy"];
-                r.AcceptChanges();
-            }
+                ID = -1,
+                refVarName = "ZZ999",
+                VarName = "ZZ999",
+                Qnum = "z000",
+                PreP = "Unmatched Questions",
+                TableFormat = false,
+                CorrectedFlag = false,
+            });
         }
 
         /// <summary>
@@ -401,22 +324,19 @@ namespace ITCSurveyReportLib
         /// </summary>
         /// <param name="varname">The starting point from which we will look back to find the first common VarName.</param>
         /// <returns>Returns the Qnum of the first common VarName that occurs before the specified VarName. If there are no common VarNmaes before this VarName, returns '000'.</returns>
-        private string GetPreviousCommonVar (string varname)
+        private string GetPreviousCommonVar(string varname)
         {
             string previousQnum = "";
             string prev = "";
             string curr = "";
-            DataView dt1 = _primarySurvey.rawTable.DefaultView;
-            dt1.Sort = "SortBy ASC";
-            DataView dt2 = _otherSurvey.rawTable.DefaultView;
-            dt2.Sort = "SortBy ASC";
+           
+            // sort questions by Qnum
+            PrimarySurvey.questions.Sort((x, y) => x.Qnum.CompareTo(y.Qnum));
+            OtherSurvey.questions.Sort((x, y) => x.Qnum.CompareTo(y.Qnum));
 
-            DataTable sorted1 = dt1.ToTable();
-            DataTable sorted2 = dt2.ToTable();
-
-            for (int i = dt1.ToTable().Rows.Count-1; i >= 0; i--)
+            for (int i = PrimarySurvey.questions.Count - 1; i >= 0; i--)
             {
-                curr = (string)sorted1.Rows[i]["VarName"];
+                curr = PrimarySurvey.questions[i].VarName;
                 curr = curr.Replace("[s][t]", "");
                 curr = curr.Replace("[/t][/s]", "");
 
@@ -430,20 +350,21 @@ namespace ITCSurveyReportLib
                     }
                     else
                     {
-                        prev = (string)sorted1.Rows[i - 1]["VarName"];
+                        prev = PrimarySurvey.questions[i - 1].VarName;
                         prev = prev.Replace("[s][t]", "");
                         prev = prev.Replace("[/t][/s]", "");
                         // check if it exists in dt2
-                        var foundRow = sorted2.Select("VarName = '" + prev + "'");
+                        var foundRow = OtherSurvey.questions.Find(x => x.VarName == prev);
 
-                        if (foundRow.Length != 0)
+
+                        if (foundRow != null)
                         {
-                            previousQnum = (string)foundRow[0]["Qnum"];
+                            previousQnum = foundRow.Qnum;
                             break;
                         }
                         else
                         {
-                            varname = (string)sorted1.Rows[i - 1]["VarName"];
+                            varname = PrimarySurvey.questions[i - 1].VarName;
                         }
                     }
                 }
@@ -451,117 +372,97 @@ namespace ITCSurveyReportLib
 
             if (prev.Equals(""))
                 previousQnum = "000";
-           
-       
+
+
             return previousQnum;
         }
 
-        public void CompareVars(DataRow rPrime, DataRow rOther)
+
+        public string CompareWordings(string primaryWording, string otherWording)
         {
-            if (rPrime == null) // if rPrime is null, yellow
+ 
+            if (IsWordingEqual(primaryWording, otherWording, true, IgnoreSimilarWords))
             {
-                if (!rOther["PreP"].Equals("")) {rOther["PreP"] = "[yellow]" + rOther["PreP"] + "[/yellow]"; }
-                if (!rOther["PreI"].Equals("")) { rOther["PreI"] = "[yellow]" + rOther["PreI"] + "[/yellow]"; }
-                if (!rOther["PreA"].Equals("")) { rOther["PreA"] = "[yellow]" + rOther["PreA"] + "[/yellow]"; }
-                if (!rOther["LitQ"].Equals("")) { rOther["LitQ"] = "[yellow]" + rOther["LitQ"] + "[/yellow]"; }
-                if (!rOther["PstI"].Equals("")) { rOther["PstI"] = "[yellow]" + rOther["PstI"] + "[/yellow]"; }
-                if (!rOther["PstP"].Equals("")) { rOther["PstP"] = "[yellow]" + rOther["PstP"] + "[/yellow]"; }
-                if (!rOther["RespOptions"].Equals("")) { rOther["RespOptions"] = "[yellow]" + rOther["RespOptions"] + "[/yellow]"; }
-                if (!rOther["NRCodes"].Equals("")) { rOther["NRCodes"] = "[yellow]" + rOther["NRCodes"] + "[/yellow]"; }
-                rOther.AcceptChanges();
-            }else if (rOther == null) // if rOther is null, blue
-            {
-                if (!rPrime["PreP"].Equals("")) { rPrime["PreP"] = "[t][s]" + rPrime["PreP"] + "[/s][/t]"; }
-                if (!rPrime["PreI"].Equals("")) { rPrime["PreI"] = "[t][s]" + rPrime["PreI"] + "[/s][/t]"; }
-                if (!rPrime["PreA"].Equals("")) { rPrime["PreA"] = "[t][s]" + rPrime["PreA"] + "[/s][/t]"; }
-                if (!rPrime["LitQ"].Equals("")) { rPrime["LitQ"] = "[t][s]" + rPrime["LitQ"] + "[/s][/t]"; }
-                if (!rPrime["PstI"].Equals("")) { rPrime["PstI"] = "[t][s]" + rPrime["PstI"] + "[/s][/t]"; }
-                if (!rPrime["PstP"].Equals("")) { rPrime["PstP"] = "[t][s]" + rPrime["PstP"] + "[/s][/t]"; }
-                if (!rPrime["RespOptions"].Equals("")) { rPrime["RespOptions"] = "[t][s]" + rPrime["RespOptions"] + "[/s][/t]"; }
-                if (!rPrime["NRCodes"].Equals("")) { rPrime["NRCodes"] = "[t][s]" + rPrime["NRCodes"] + "[/s][/t]"; }
-                rPrime.AcceptChanges();
-            }
-            
-
-        }
-
-        
-        public void CompareWordings (DataRow rPrime, DataRow rOther, String fieldname)
-        {
-            //String highlightStartNew;
-            //String highlightEndNew;
-            //String highlightStartDiff;
-            //String highlightEndDiff;
-            //String highlightStartMiss;
-            //String highlightEndMiss;
-
-            //bool highlightVar;
-            //bool highlightWord;
-
-            string primaryWording = (string)rPrime[fieldname];
-            string otherWording = (string)rOther[fieldname];
-
-            //switch (highlightStyle) {
-            //    case HStyle.Classic:
-
-            //        if (highlightScheme == HScheme.Sequential)
-            //        {
-            //            highlightVar = true;
-            //            highlightWord = true;
-            //        } else if (highlightScheme == HScheme.AcrossCountry)
-            //        {
-            //            highlightVar = true;
-            //            highlightWord = false;
-            //        }
-            //        highlightStartNew = "[yellow]";
-            //        highlightEndNew = "[/yellow]";
-
-            //        highlightStartDiff = "[brightgreen]";
-            //        highlightEndDiff = "[/brightgreen]";
-
-            //        highlightStartMiss = "[t][s]";
-            //        highlightEndMiss = "[/s][/t]";
-            //        break;
-            //    case HStyle.TrackedChanges:
-
-            //        break;
-
-            //}
-
-
-
-            //if (primaryWording.Equals(otherWording)){
-            if (IsWordingEqual(primaryWording,otherWording))
-            {
-                if (hideIdenticalWordings) { rOther[fieldname] = "";}
+                if (HideIdenticalWordings)  otherWording = ""; 
             }
             else
             {
-                if (otherWording.Equals("") && showDeletedFields)
+                if (otherWording.Equals("") && ShowDeletedFields)
                 {
-                    rOther[fieldname] = "[t][s]" + rPrime[fieldname] + "[/t][/s]";
-                }else if (primaryWording.Equals(""))
+                    otherWording = "[t][s]" + primaryWording + "[/t][/s]";
+                }
+                else if (primaryWording.Equals(""))
                 {
-                    rOther[fieldname] = "[yellow]" + rOther[fieldname] + "[/yellow]";
+                    otherWording = "[yellow]" + otherWording + "[/yellow]";
                 }
                 else
                 {
-                    if (hybridHighlight)
+                    if (HybridHighlight)
                     {
                         // tracked changes  and brightgreen
-                        rOther[fieldname] = "[brightgreen]" + rOther[fieldname] + "[/brightgreen]";
+                        otherWording = "[brightgreen]" + otherWording + "[/brightgreen]";
                     }
                     else
                     {
-                        rOther[fieldname] = "[brightgreen]" + rOther[fieldname] + "[/brightgreen]";
+                        otherWording = "[brightgreen]" + otherWording + "[/brightgreen]";
                     }
                 }
             }
-            rOther.AcceptChanges();
+            return otherWording;
         }
 
         /// <summary>
-        /// 
+        /// For each translation in the non-primary survey, compare it to the same language in the primary survey.
+        /// </summary>
+        private void CompareTranslations()
+        {
+            Translation p;
+
+            SurveyQuestion sqPrime;
+            foreach (string t in OtherSurvey.TransFields)
+            {
+                // continue to next language if primary does not contain this language
+                if (!PrimarySurvey.TransFields.Contains(t))
+                    continue;
+
+                foreach (SurveyQuestion sqOther in OtherSurvey.questions)
+                {
+                    sqPrime = PrimarySurvey.questions.Find(x => x.refVarName.Equals(sqOther.refVarName)); // find the question in the primary survey
+
+                    if (sqPrime == null)
+                    {
+                        // if no matching question is found in primary, this question is unique to other
+                        if (HighlightScheme == HScheme.Sequential)
+                        {
+
+                            //sqOther.VarName = "[yellow]" + sqOther.VarName + "[/yellow]";
+                            p = sqOther.GetTranslation(t);
+                            if (p!=null)
+                                p.TranslationText = "[yellow]" + p.TranslationText + "[/yellow]";
+
+
+
+                        }
+                        else if (HighlightScheme == HScheme.AcrossCountry)
+                        {
+                            //sqOther.VarName = "[yellow]" + sqOther.VarName + "[/yellow]";
+                        }
+                    }
+                    else
+                    {
+                        p = sqOther.GetTranslation(t);
+                        if (p!=null)
+                            p.TranslationText = CompareWordings(sqPrime.GetTranslationText(t), sqOther.GetTranslationText(t));
+                    }
+                    
+                }
+            }
+            
+        }
+
+
+        /// <summary>
+        /// TODO create a list or dictionary for the alternate spelling words, remove need for database connection
         /// </summary>
         /// <param name="str1"></param>
         /// <param name="str2"></param>
@@ -640,234 +541,6 @@ namespace ITCSurveyReportLib
             
         }
 
-
-
-
-        #region Topic/Label Comparison
-        // TODO consider making this another class
-        // TODO create method for getting question text
-        // TODO create method for getting SortBy (even for Qnum survey)
-
-
-        /// <summary>
-        /// Returns a DataTable containing all combinations of Topic and Content labels found in the survey list. Each question that appears under these 
-        /// combinations is displayed under it's own survey heading. The table is sorted by the Qnum from the first survey and any labels not found in that 
-        /// survey are collected at the bottom of the table.
-        /// </summary>
-        public DataTable CreateTCReport(List<Survey> surveyList) {
-            DataTable report = new DataTable();
-            DataRow newrow;            
-            string currentT;
-            string currentC;
-            string qs = "";
-            string firstQnum = "";
-            string otherFirstQnum = "";
-            DataRow[] foundRows;
-            Survey qnumSurvey = null;
-
-            // start with a table containing all Topic/Content combinations present in the surveys
-            report = CreateTCBaseTable(surveyList);
-
-            foreach (Survey s in surveyList)
-            {
-                if (s.Qnum) qnumSurvey = s;
-            }
-
-            // for each T/C combination, add each survey's questions that match 
-            // there should be one row for each T/C combo, so we need to concatenate all questions with that combo
-            foreach (DataRow tc in report.Rows)
-            {
-                currentC = (string)tc["Info"];
-                currentC = currentC.Substring(currentC.IndexOf("<em>") + 4, currentC.IndexOf("</em>") - currentC.IndexOf("<em>")-4);
-                currentC = currentC.Replace("'", "''");
-
-                currentT = (string)tc["Info"];
-                currentT = currentT.Substring(8, currentT.IndexOf("</strong>") - 8);
-                currentT = currentT.Replace("'", "''");
-
-                // now for each survey, add the questions that match the topic content pair
-                foreach (Survey s in surveyList)
-                {
-                    foundRows = s.finalTable.Select("Topic = '" + currentT + "' AND Content = '" + currentC + "'");
-                    foreach (DataRow r in foundRows)
-                    {
-                        if (firstQnum.Equals(""))
-                            firstQnum = (string)r["Qnum"];
-
-                        qs += r[s.SurveyCode] + "\r\n\r\n";
-                    }
-
-                    qs = Utilities.TrimString(qs, "\r\n\r\n");
-                    tc[s.SurveyCode] = qs;
-                    if (s.Qnum)
-                    {
-                        tc["SortBy"] = firstQnum;
-                        tc["Qnum"] = firstQnum;
-                    }
-                    else
-                    {
-
-                        if (tc["SortBy"] == DBNull.Value || tc["SortBy"].Equals(""))
-                        {
-                            otherFirstQnum = GetFirstQnum(currentT, currentC, qnumSurvey);
-
-                            if (otherFirstQnum.Equals("z"))
-                                firstQnum = otherFirstQnum + firstQnum;
-                            else
-                                firstQnum = otherFirstQnum;
-
-                            tc["SortBy"] = firstQnum;
-                        }
-                    }
-                    qs = "";
-                    firstQnum = "";
-                }
-                tc.AcceptChanges();
-            }
-            // add a row to start the section for unmatched labels (labels that do not exist in the Qnum survey)
-            newrow = report.NewRow();
-            newrow["Info"] = "<strong>Unmatches Labels</strong>";
-            newrow["SortBy"] = "z000";
-            report.Rows.Add(newrow);
-            report.AcceptChanges();
-
-            return report;
-        }
-
-
-        /// <summary>
-        /// Get sortby by looking for the topic label and content label in the qnum survey and using that qnum
-        /// if the content label isnt there, use the qnum for the last instance of the topic label, adding !00 to it
-        /// if neither are there, use z
-        /// </summary>
-        /// <param name="topic"></param>
-        /// <param name="content"></param>
-        /// <param name="qnumSurvey"></param>
-        /// <returns>string. The first Qnum that contains the provided Topic and Content labels</returns>
-        private string GetFirstQnum(string topic, string content, Survey qnumSurvey)
-        {
-            string firstQnum;
-            DataRow[] foundRows;
-            foundRows = qnumSurvey.finalTable.Select("Topic = '" + topic + "' AND Content = '" + content + "'");
-            
-            if (foundRows.Count() != 0)
-            {
-                firstQnum = (string)foundRows[0]["Qnum"];
-            }
-            else
-            {
-                foundRows = qnumSurvey.finalTable.Select("Topic = '" + topic + "'");
-                if (foundRows.Count() != 0)
-                {
-                    firstQnum = (string)foundRows[0]["Qnum"] + "!00";
-                }
-                else
-                {
-                    firstQnum = "z";
-                }
-            }
-
-            return firstQnum;
-        }
-
-        /// <summary>
-        /// Create a DataTable that contains the all the Topic/Content combinations found in the list of surveys. A column for each survey is also created.
-        /// </summary>
-        private DataTable CreateTCBaseTable(List<Survey> surveyList)
-        {
-            DataTable report = new DataTable();
-            List<string> topicContent = new List<string>();
-            string currentTC;
-            DataRow newrow;
-            report.Columns.Add(new DataColumn("Info", System.Type.GetType("System.String")));
-            report.Columns.Add(new DataColumn("Qnum", System.Type.GetType("System.String")));
-            report.Columns.Add(new DataColumn("SortBy", System.Type.GetType("System.String")));
-
-            foreach (Survey s in surveyList)
-            {
-                report.Columns.Add(new DataColumn(s.SurveyCode, System.Type.GetType("System.String")));
-                
-                foreach (DataRow r in s.finalTable.Rows)
-                {
-                    currentTC = "<strong>" + r["Topic"] + "</strong>\r\n<em>" + r["Content"] + "</em>";
-                    if (!topicContent.Contains(currentTC))
-                        topicContent.Add(currentTC);
-
-                }
-            }
-
-            // now add each topic content pair to the table
-            for (int i = 0; i < topicContent.Count; i++)
-            {
-                newrow = report.NewRow();
-                newrow["Info"] = topicContent[i];
-                report.Rows.Add(newrow);
-                report.AcceptChanges();
-            }
-
-            return report;
-        }
-        #endregion
-
-        #region Order Comparison
-        private void CompareSurveyOrder()
-        {
-
-        }
-        #endregion
-
-        #region LINQ attempts
-        // Marks differences between 2 tables in the specified field
-        // Get all rows that differ in the specified field. Then, insert [brightgreen] tags around the entire field.
-        public void CompareField<T>(DataTable dt1, DataTable dt2, String fieldname)
-        {
-            var results = from table2 in dt2.AsEnumerable()
-                          join table1 in dt1.AsEnumerable() on table2.Field<string>("refVarName") equals table1.Field<string>("refVarName")
-                          where !table2.Field<T>(fieldname).Equals(table1.Field<T>(fieldname))
-                          select table2;
-
-            foreach (DataRow r in results)
-            {
-                if (r[fieldname].Equals(""))
-                {
-                    // blue?
-                    r[fieldname] = "[yellow]" + r[fieldname] + "[/yellow]";
-                }
-                else
-                {
-                    r[fieldname] = "[brightgreen]" + r[fieldname] + "[/brightgreen]";
-                }
-
-                r.AcceptChanges();
-
-            }
-        }
-
-        // Marks unique variables 
-        public void CompareVars(DataTable dt1, DataTable dt2)
-        {
-            var results = from table2 in dt2.AsEnumerable()
-                          join table1 in dt1.AsEnumerable() on table2.Field<string>("refVarName") equals table1.Field<string>("refVarName") into a
-                          from table1 in a.DefaultIfEmpty()
-                          where table1 == null
-                          select table2;
-
-            foreach (DataRow r in results)
-            {
-                r["PreP"] = "[yellow]" + r["PreP"] + "[/yellow]";
-                r["PreI"] = "[yellow]" + r["PreI"] + "[/yellow]";
-                r["PreA"] = "[yellow]" + r["PreA"] + "[/yellow]";
-                r["LitQ"] = "[yellow]" + r["LitQ"] + "[/yellow]";
-                r["PstI"] = "[yellow]" + r["PstI"] + "[/yellow]";
-                r["PstP"] = "[yellow]" + r["PstP"] + "[/yellow]";
-                r["RespOptions"] = "[yellow]" + r["RespOptions"] + "[/yellow]";
-                r["NRCodes"] = "[yellow]" + r["NRCodes"] + "[/yellow]";
-                r.AcceptChanges();
-
-            }
-        }
-        #endregion
-
         public override string ToString()
         {
             PropertyInfo[] _PropertyInfos = null;
@@ -885,50 +558,6 @@ namespace ITCSurveyReportLib
             return sb.ToString();
         }
 
-        public bool SelfCompare { get => selfCompare; set => selfCompare = value; }
-
-        [CategoryAttribute("Layout Options"), DescriptionAttribute("Hide the primary survey.")]
-        public bool HidePrimary { get => hidePrimary; set => hidePrimary = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Show deleted fields in blue.")]
-        public bool ShowDeletedFields { get => showDeletedFields; set => showDeletedFields = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Show deleted questions (depends on Scheme).")]
-        public bool ShowDeletedQuestions { get => showDeletedQuestions; set => showDeletedQuestions = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Re-insert deleted questions after the last common question.")]
-        public bool ReInsertDeletions { get => reInsertDeletions; set => reInsertDeletions = value; }
-        [CategoryAttribute("Layout Options"), DescriptionAttribute("Hide identical wording fields.")]
-        public bool HideIdenticalWordings { get => hideIdenticalWordings; set => hideIdenticalWordings = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Highlight changes to the order or questions.")]
-        public bool ShowOrderChanges { get => showOrderChanges; set => showOrderChanges = value; }
-        [CategoryAttribute("Layout Options"), DescriptionAttribute("Create a 3-column report in old-marked-new order.")]
-        public bool BeforeAfterReport { get => beforeAfterReport; set => beforeAfterReport = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Ignore words with alternate spellings (honor/honour).")]
-        public bool IgnoreSimilarWords { get => ignoreSimilarWords; set => ignoreSimilarWords = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Convert tracked changes highlighting to actual tracked changes.")]
-        public bool ConvertTrackedChanges { get => convertTrackedChanges; set => convertTrackedChanges = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Try to match questions based on previous names.")]
-        public bool MatchOnRename { get => matchOnRename; set => matchOnRename = value; }
-
         
-
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Highlight differences between surveys."), DefaultValueAttribute(true)]
-        public bool Highlight { get => highlight; set => highlight = value; }
-
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Classic (Green, Yellow, Blue) or Tracked Changes."), DisplayNameAttribute("Style"), DefaultValueAttribute(1)]
-        public HStyle HighlightStyle { get => highlightStyle; set => highlightStyle = value; }
-
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Determines how deleted questions are shown."), DisplayNameAttribute("Scheme"),DefaultValueAttribute(1)]
-        public HScheme HighlightScheme { get => highlightScheme; set => highlightScheme = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("Highlight changes in the Non-response field."), DefaultValueAttribute(true)]
-        public bool HighlightNR { get => highlightNR; set => highlightNR = value; }
-        [CategoryAttribute("Highlighting Options"), DescriptionAttribute("For wording differences, use both Green and Tracked Changes."), DefaultValueAttribute(false)]
-        public bool HybridHighlight { get => hybridHighlight; set => hybridHighlight = value; }
-
-        [CategoryAttribute("Order Comparisons"), DescriptionAttribute("Include a column for the wordings."), DefaultValueAttribute(false)]
-        public bool IncludeWordings { get => includeWordings; set => includeWordings = value; }
-        [CategoryAttribute("Order Comparisons"), DescriptionAttribute("Display the report by section."), DefaultValueAttribute(false)]
-        public bool BySection { get => bySection; set => bySection = value; }
-        public Survey PrimarySurvey { get => _primarySurvey; set => _primarySurvey = value; }
-        public Survey OtherSurvey { get => _otherSurvey; set => _otherSurvey = value; }
-        public bool HideIdenticalQuestions { get => hideIdenticalQuestions; set => hideIdenticalQuestions = value; }
     }
 }

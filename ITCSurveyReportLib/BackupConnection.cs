@@ -12,7 +12,7 @@ using System.Configuration;
 
 namespace ITCSurveyReportLib
 {
-    
+    // TEST
     public class BackupConnection
     {
         public readonly DateTime FirstDateForSurveyNumbersID = new DateTime(2016, 6, 14); // any backups before this date will not have an ID field in tblSurveyNumbers
@@ -33,6 +33,7 @@ namespace ITCSurveyReportLib
             "LEFT JOIN (SELECT [W#], Wording AS LitQ FROM Wording_AllFields WHERE FieldName ='LitQ') AS tblLitQ ON tblSurveyNumbers.[LitQ#] = tblLitQ.[W#]) " +
             "LEFT JOIN (SELECT [W#], Wording AS PstI FROM Wording_AllFields WHERE FieldName ='PstI') AS tblPstI ON tblSurveyNumbers.[PstI#] = tblPstI.[W#]) " +
             "LEFT JOIN (SELECT [W#], Wording AS PstP FROM Wording_AllFields WHERE FieldName ='PstP') AS tblPstP ON tblSurveyNumbers.[PstP#] = tblPstP.[W#]";
+
         const string backupRepo = "\\\\psychfile\\psych$\\psych-lab-gfong\\SMG\\Backend\\DailyBackups\\VarInfoBack\\";
 
         public bool Connected { get => connected; set => connected = value; }

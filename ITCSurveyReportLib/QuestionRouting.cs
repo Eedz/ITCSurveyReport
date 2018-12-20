@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace ITCSurveyReportLib
 {
+    // TODO separate destination suffix (section or heading) from varname
     /// <summary>
     /// Represents the routing/skips portion of a survey question, also known as Post-programming instructions. This object also
     /// includes the response option set for the question.
@@ -24,14 +25,6 @@ namespace ITCSurveyReportLib
 
         }
 
-        /// <summary>
-        /// Initializes a new instances of the QuestionFilter class using fields from the provided DataRow object.
-        /// </summary>
-        /// <param name="question"></param>
-        public QuestionRouting(DataRow question)
-        {
-
-        }
 
         public QuestionRouting(string routing, string respOptions)
         {
@@ -48,9 +41,8 @@ namespace ITCSurveyReportLib
             {
                 return;
             }
-
             
-            // populate filterVars list
+            // populate routingVars list
             
             GetRoutingVars();
         }
@@ -62,7 +54,6 @@ namespace ITCSurveyReportLib
         {
             RoutingVar rv;
            
-            
             string[] options;
             string[] routingNumbers;
             string destination;
@@ -84,10 +75,6 @@ namespace ITCSurveyReportLib
 
             string[] routingOptionsList;
  
-            
-            
-           
-
             for (int i = 0; i < routingText.Length; i++)
             {
                 // get routing type, if 1 or 2, this instruction will be removed from the routing field and its routing destination will be
@@ -103,7 +90,8 @@ namespace ITCSurveyReportLib
                 m = results[0];
 
                 // the destination varname (or sometimes, section) (anything after the destination variable is formatting with a smaller font)
-                destination = routingText[i].Substring(m.Index, m.Length + 1) + "<Font Size=8>" + routingText[i].Substring(m.Index + m.Length + 1) + "</Font>";
+                destination = routingText[i].Substring(m.Index, m.Length + 1);
+                if (!string.IsNullOrEmpty(routingText[i].Substring(m.Index + m.Length +1)) && routingText[i].Substring(m.Index + m.Length + 1).Length>1) destination += "<Font Size=8>" + routingText[i].Substring(m.Index + m.Length + 1) + "</Font>";
                 rv = new RoutingVar();
                 switch (routingType)
                 {
@@ -118,13 +106,8 @@ namespace ITCSurveyReportLib
                         numbers = GetRoutingNumbers(routingText[i]);
                         numbersArray = numbers.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                         numbersArrayInt = Array.ConvertAll(numbersArray, int.Parse);
-                        
-                        
-
-                        
-                       
-                                    
-                        rv.Varname = destination;
+                             
+                        rv.Varname = destination.Replace("go to ", "");
                         rv.ResponseCodes = numbersArrayInt.ToList<int>();
                         if (!routingVars.Contains(rv))
                             routingVars.Add(rv);
@@ -133,7 +116,7 @@ namespace ITCSurveyReportLib
                         routingText[i] = "";
                         break;
                     case RoutingType.Otherwise:
-                        rv.Varname = destination;
+                        rv.Varname = destination.Replace("go to ", "");
                         for (int r = 0; r < routingVars.Count; r++)
                         {
                             for (int s = 0; s < responseOptions.Length; s++)
@@ -148,7 +131,7 @@ namespace ITCSurveyReportLib
                             routingVars.Add(rv);
                         break;
                     case RoutingType.If:
-                        rv.Varname = destination;
+                        rv.Varname = destination.Replace("go to ", "");
                         rv.ResponseCodes.Add(0);
                         break;
                     case RoutingType.Other:
@@ -243,7 +226,7 @@ namespace ITCSurveyReportLib
         {
             string ineq= "";
             double d = 0;
-            while (!Double.TryParse(s.Substring(1, 1), out d)) {
+            while (!Double.TryParse(s.Substring(0, 1), out d)) {
                 ineq += s.Substring(1,1);
                 s = s.Substring(2);
             }
@@ -335,7 +318,7 @@ namespace ITCSurveyReportLib
                 {
                     if (rv.ResponseCodes.Contains(ResponseNumber(responseOptions[i])))
                     {
-                        output += responseOptions[i] + " => " + rv.Varname;
+                        output += responseOptions[i] + " => go to " + rv.Varname;
                         break;
                     }
                 }

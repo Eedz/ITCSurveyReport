@@ -153,7 +153,7 @@ namespace ITCSurveyReportLib
 
             for (int i = 1; i <= doc.Tables[1].Rows.Count; i++)
             {
-                if (!doc.Tables[1].Rows[i].Cells[1].Range.Text.Contains("!"))
+                if (!doc.Tables[1].Cell(i,varCol).Range.Text.StartsWith("Z"))
                     continue;
 
                 txt = doc.Tables[1].Cell(i, varCol).Range.Text;

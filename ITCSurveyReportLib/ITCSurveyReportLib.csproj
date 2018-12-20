@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\ITCSurveyReportLib.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -43,21 +44,35 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackupConnection.cs" />
+    <Compile Include="Comment.cs" />
     <Compile Include="Comparison.cs" />
+    <Compile Include="DBAction.cs" />
     <Compile Include="FilterVar.cs" />
+    <Compile Include="HarmonyReport.cs" />
     <Compile Include="Heading.cs" />
+    <Compile Include="ITCReport.cs" />
+    <Compile Include="LabelBasedReport.cs" />
+    <Compile Include="SurveySectionsReport.cs" />
+    <Compile Include="TopicContentReport.cs" />
+    <Compile Include="OrderReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuestionFilter.cs" />
     <Compile Include="QuestionRouting.cs" />
     <Compile Include="ReportColumn.cs" />
     <Compile Include="ReportFormatting.cs" />
     <Compile Include="ReportLayout.cs" />
+    <Compile Include="ReportSurvey.cs" />
     <Compile Include="RoutingVar.cs" />
     <Compile Include="Survey.cs" />
-    <Compile Include="SurveyDataTable.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="SurveyReport.cs" />
+    <Compile Include="SurveyBasedReport.cs" />
+    <Compile Include="SurveyOverviewReport.cs" />
+    <Compile Include="SurveyQuestion.cs" />
+    <Compile Include="SurveyQuestionComparer.cs" />
+    <Compile Include="SyntaxReport.cs" />
+    <Compile Include="VariableName.cs" />
+    <Compile Include="VarNameBasedReport.cs" />
+    <Compile Include="VarNameReport.cs" />
+    <Compile Include="Translation.cs" />
     <Compile Include="UserPrefs.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>

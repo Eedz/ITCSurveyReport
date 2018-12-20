@@ -23,10 +23,11 @@ namespace ITCSurveyReportLib
 
         }
 
+        // TODO finish this or abandon?
         public RoutingVar(string routingExpression, string respOptions)
         {
             // find first varname
-            Regex rx = new Regex("go to([A-Z][A-Z][A-Z]/|[0-9][0-9][0-9][a-z]*/)*[a-zA-z][a-zA-z](\\d{ 5}|\\d{ 3})");
+            Regex rx = new Regex("go to ([A-Z][A-Z][A-Z]/|[0-9][0-9][0-9][a-z]*/)*[a-zA-z][a-zA-z](\\d{ 5}|\\d{ 3})");
             MatchCollection results;
             Match m;
             RoutingType rtype = 0;
