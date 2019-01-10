@@ -17,9 +17,9 @@ namespace ITCSurveyReport
     // TODO create class for headings to be used in the heading Filter
     public partial class SurveyReportForm : Form
     {
-        SurveyReport SR;
+        VarNameReport SR;
         UserPrefs UP;
-        Survey CurrentSurvey;
+        ReportSurvey CurrentSurvey;
         TabPage pgCompareTab;
         // background color RGB values
         int backColorR = 55;
@@ -59,7 +59,7 @@ namespace ITCSurveyReport
 
             
             // start with blank constructor, default settings
-            SR = new SurveyReport();
+            SR = new VarNameReport();
             UP = new UserPrefs();
             SR.FileName = UP.ReportPath;
 
@@ -94,7 +94,7 @@ namespace ITCSurveyReport
                 int result;
                 
                 txtOptions.Text = SR.ToString();
-                result = SR.GenerateSurveyReport();
+                result = SR.GenerateReport();
                 switch (result)
                 {
                     case 0: // no errors
@@ -107,23 +107,23 @@ namespace ITCSurveyReport
                         break;
                 }
 
-                surveyView.DataSource = null;
-                surveyView.DataSource = SR.Surveys[0].rawTable;
-                surveyView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-                surveyView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                //surveyView.DataSource = null;
+                //surveyView.DataSource = SR.Surveys[0].rawTable;
+                //surveyView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+                //surveyView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
-                if (SR.Surveys.Count > 1)
-                {
-                    surveyView2.DataSource = null;
-                    surveyView2.DataSource = SR.Surveys[1].rawTable;
-                    surveyView2.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-                    surveyView2.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-                }
+                //if (SR.Surveys.Count > 1)
+                //{
+                //    surveyView2.DataSource = null;
+                //    surveyView2.DataSource = SR.Surveys[1].rawTable;
+                //    surveyView2.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+                //    surveyView2.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                //}
 
-                gridFinalReport.DataSource = null;
-                gridFinalReport.DataSource = SR.ReportTable;
-                gridFinalReport.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-                gridFinalReport.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                //gridFinalReport.DataSource = null;
+                //gridFinalReport.DataSource = SR.ReportTable;
+                //gridFinalReport.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+                //gridFinalReport.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             }
         }
 
@@ -141,7 +141,7 @@ namespace ITCSurveyReport
         {
             if (lstSelectedSurveys.SelectedItem != null)
             {
-                CurrentSurvey = (Survey)lstSelectedSurveys.SelectedItem;
+                CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
                 LoadSurveyOptions();
             }
         }
@@ -346,11 +346,11 @@ namespace ITCSurveyReport
 
         private void AddSurvey_Click(object sender, EventArgs e)
         {
-            // add survey to the SurveyReport object
-            Survey s;
+            // add survey to the VarNameReport object
+            ReportSurvey s;
             try
             {
-                s = new Survey(cboSurveys.SelectedValue.ToString());
+                s = new ReportSurvey(DBAction.GetSurvey(cboSurveys.SelectedValue.ToString()));
             }catch (Exception ex)
             {
                 MessageBox.Show("Survey not found.");
@@ -386,8 +386,8 @@ namespace ITCSurveyReport
 
         private void RemoveSurvey_Click(object sender, EventArgs e)
         {
-            // remove survey from the SurveyReport object
-            SR.Surveys.Remove((Survey)lstSelectedSurveys.SelectedItem);
+            // remove survey from the VarNameReport object
+            SR.Surveys.Remove((ReportSurvey)lstSelectedSurveys.SelectedItem);
             SR.AutoSetPrimary();
             // TODO remove all column associated with the survey from the column order collection
             //for (int i = 0 to SR.ColumnOrder.)
@@ -420,18 +420,18 @@ namespace ITCSurveyReport
         {
             // add another survey with the already selected survey code
            
-            Survey s;
+            ReportSurvey s;
             Survey item = lstSelectedSurveys.SelectedItem as Survey;
             try
             {
-                s = new Survey(item.SurveyCode);
+                s = new ReportSurvey(DBAction.GetSurvey(item.SurveyCode));
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Survey not found.");
                 return;
             }
-            // add survey to the SurveyReport object
+            // add survey to the VarNameReport object
             SR.AddSurvey(s);
             SR.AutoSetPrimary();
             lstSelectedSurveys.DataSource = null;
@@ -837,19 +837,19 @@ namespace ITCSurveyReport
 
         private void RepeatedFields_Click(object sender, EventArgs e)
         {
-            SR.RepeatedFields.Clear();
-            foreach (Survey s in SR.Surveys)
-            {
-                s.RepeatedFields.Clear();
-            }
-            for (int i = 0; i < lstRepeatedFields.SelectedItems.Count; i++)
-            {
-                SR.RepeatedFields.Add(lstRepeatedFields.SelectedItems[i].ToString());
-                foreach(Survey s in SR.Surveys)
-                {
-                    s.RepeatedFields.Add(lstRepeatedFields.SelectedItems[i].ToString());
-                }
-            }
+            //SR.RepeatedFields.Clear();
+            //foreach (Survey s in SR.Surveys)
+            //{
+            //    s.RepeatedFields.Clear();
+            //}
+            //for (int i = 0; i < lstRepeatedFields.SelectedItems.Count; i++)
+            //{
+            //    SR.RepeatedFields.Add(lstRepeatedFields.SelectedItems[i].ToString());
+            //    foreach(Survey s in SR.Surveys)
+            //    {
+            //        s.RepeatedFields.Add(lstRepeatedFields.SelectedItems[i].ToString());
+            //    }
+            //}
         }
         #endregion  
 

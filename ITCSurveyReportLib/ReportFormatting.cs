@@ -147,8 +147,8 @@ namespace ITCSurveyReportLib
             {
                 txt = doc.Tables[1].Cell(1, i).Range.Text;
                 if (txt.StartsWith("Q#")) qnumCol = i;
-                if (txt.Contains("AltQ#")) altQnumCol = i;
-                if (txt.Contains("VarName")) varCol = i;
+                if (txt.StartsWith("AltQ#")) altQnumCol = i;
+                if (txt.StartsWith("VarName")) varCol = i;
             }
 
             for (int i = 1; i <= doc.Tables[1].Rows.Count; i++)

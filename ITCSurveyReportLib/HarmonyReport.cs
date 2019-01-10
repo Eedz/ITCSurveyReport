@@ -12,21 +12,69 @@ namespace ITCSurveyReportLib
     {
         public List<string> matchFields; // wording fields used to group questions together
 
+        /// <summary>
+        /// True if each label should appear as a separate column in the report
+        /// </summary>
         public bool SeparateLabels { get; set; }
+        /// <summary>
+        /// True if a column should be included displaying the last wave that used this wording
+        /// </summary>
         public bool LastWaveOnly { get; set; }
+        /// <summary>
+        /// True if labels are present
+        /// </summary>
         public bool HasLabels { get; set; }
+        /// <summary>
+        /// True if translations are present
+        /// </summary>
+        public bool HasLang { get; set; }
+
+        private string lang;
+        /// <summary>
+        /// The language to use for this report. Setting this to a non-empty string also sets the HasLang property to true;
+        /// </summary>
+        /// 
+        public string Lang {
+            get
+            {
+                return lang;
+            }
+            set
+            { 
+                if (!string.IsNullOrEmpty(value))
+                {
+                    lang = value;
+                    HasLang = true;
+                }
+                else
+                {
+                    lang = value;
+                    HasLang = false;
+                }
+            }
+        }
+
+
+    
+
+        /// <summary>
+        /// True if project (country plus wave) should be shown instead of survey
+        /// </summary>
         public bool ShowProjects { get; set; } // display project (country wave) rather than survey
         // TODO last wave only
         // TODO implement a range option so you can see the unused vars
-        // TODO show selected surveys option
-        // TODO include translation
+        // TODO show selected surveys only option
+
         // TODO color differences
         // TODO display surveys vs. projects
 
         // TODO option to include group by column
         // TODO rename group by column to specific field names
 
-
+        /// <summary>
+        /// Generates a report using a list of refVarNames. Each unique (based on MatchFields) version of a refVarName will appear once in the report 
+        /// with a list of surveys that use that version. Wordings, labels, and translations can be used to define what is unique.
+        /// </summary>
         public void CreateHarmonyReport()
         {
             CreateHarmonyTable();
@@ -66,6 +114,9 @@ namespace ITCSurveyReportLib
                     columns.Add("Labels");
                 }
             }
+
+            if (HasLang)
+                columns.Add("Translation");
 
             if (LastWaveOnly)
                 columns.Add("RecentWaves");
@@ -143,6 +194,11 @@ namespace ITCSurveyReportLib
                     }
                 }
 
+                if (HasLang)
+                {
+                    newrow["Translation"] = sq.GetTranslationText(Lang);
+                }
+
                 newrow["Group By Fields"] = GetGroupByFields(sq);
 
                 reportTable.Rows.Add(newrow);
@@ -162,6 +218,13 @@ namespace ITCSurveyReportLib
             bool toAdd = true;
             foreach (SurveyQuestion sq in questions)
             {
+                // if we are including translations, but this question has no translation, skip it
+                if (sq.Translations == null && HasLang)
+                    continue;
+
+                
+
+                // if there are no questions in the list, add this one right away
                 if (questionsCombined.Count == 0)
                 {
                     toAdd = true;
@@ -260,6 +323,9 @@ namespace ITCSurveyReportLib
                 if (s.Equals("VarLabel"))
                     matchFieldValues.Add(sq.VarLabel);
 
+                if (s.Equals("Translation"))
+                    matchFieldValues.Add(Lang);
+
             }
 
             return String.Join(", ", matchFieldValues);
@@ -274,6 +340,7 @@ namespace ITCSurveyReportLib
         public bool HarmonyMatch(SurveyQuestion sq1, SurveyQuestion sq2)
         {
             bool prepMatch = false, preiMatch = false, preaMatch = false, litqMatch = false, pstiMatch = false, pstpMatch = false, roMatch = false, nrMatch = false;
+            bool tranMatch = false;
 
             if (!matchFields.Contains("PreP")) prepMatch = true;
             if (!matchFields.Contains("PreI")) preiMatch = true;
@@ -283,6 +350,7 @@ namespace ITCSurveyReportLib
             if (!matchFields.Contains("PstP")) pstpMatch = true;
             if (!matchFields.Contains("RespOptions")) roMatch = true;
             if (!matchFields.Contains("NRCodes")) nrMatch = true;
+            if (!matchFields.Contains("Translation")) tranMatch = true;
 
             foreach (string s in matchFields)
             {
@@ -311,6 +379,9 @@ namespace ITCSurveyReportLib
                 if (s.Equals("NRCodes"))
                     nrMatch = (sq1.NRCodes == sq2.NRCodes);
 
+                if (s.Equals("Translation"))
+                    tranMatch = (sq1.GetTranslationText(Lang) == sq2.GetTranslationText(Lang));
+                   
             }
 
             return prepMatch && preiMatch && preaMatch && litqMatch && pstiMatch & pstpMatch && roMatch && nrMatch;

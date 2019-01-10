@@ -116,11 +116,32 @@ namespace ITCSurveyReportLib
             return questionText;
         }
 
+        /// <summary>
+        /// Surround the translation text with the PreP and PstP from the English.
+        /// </summary>
+        public void InsertEnglishRouting()
+        {
+            string existing;
+            foreach (Translation t in Translations)
+            {
+                existing = t.TranslationText;
+                if (!string.IsNullOrEmpty(PreP))
+                    t.TranslationText = PreP + "\r\n";
 
 
+                t.TranslationText += existing;
+
+                if (!string.IsNullOrEmpty(PstP))
+                    t.TranslationText = t.TranslationText + "\r\n" + PstP;
+                
+            }
+        }
 
         public string GetTranslationText(string lang)
         {
+            if (Translations == null || Translations.Count == 0)
+                return "";
+
             foreach (Translation t in Translations)
             {
                 if (t.Language.Equals(lang))
@@ -132,6 +153,9 @@ namespace ITCSurveyReportLib
 
         public Translation GetTranslation(string lang)
         {
+            if (Translations == null || Translations.Count == 0)
+                return null;
+
             foreach (Translation t in Translations)
             {
                 if (t.Language.Equals(lang))

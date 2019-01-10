@@ -24,6 +24,8 @@ namespace ITCSurveyReportLib
         public VariableName(string varname)
         {
             VarName = varname;
+
+            refVarName = Utilities.ChangeCC(varname);
         }
     }
 }

@@ -108,7 +108,7 @@ namespace ITCSurveyReportLib
             SurveyCode = s.SurveyCode;
             Title = s.Title;
             Languages = s.Languages;
-            Groups = s.Groups;
+            Group = s.Group;
             Mode = s.Mode;
             CountryCode = s.CountryCode;
             WebName = s.WebName;

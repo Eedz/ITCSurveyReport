@@ -280,10 +280,7 @@ namespace ITCSurveyReportLib
             return 0;
         }
 
-        /// <summary>
-        /// Builds a table using the lists of questions, comments, translations etc.
-        /// </summary>
-
+        
         ///<summary>
         ///Exports the final report DataTable to Word. The table is formatted in Word, including headings, colors, formatting tags like bold, italics, etc.
         ///
@@ -545,7 +542,7 @@ namespace ITCSurveyReportLib
             t.Rows[3].Cells[1].Range.Text = "Survey Code: " + s.SurveyCode;
             t.Rows[4].Cells[1].Range.Text = "Languages: " + s.Languages;
             t.Rows[5].Cells[1].Range.Text = "Mode: " + s.Mode;
-            t.Rows[6].Cells[1].Range.Text = s.Groups.Equals("") ? "(" + s.Groups + ")" : "";
+            t.Rows[6].Cells[1].Range.Text = s.Group.Equals("") ? "(" + s.Group + ")" : "";
             // format table
             t.Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
             t.Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleNone;
@@ -878,6 +875,10 @@ namespace ITCSurveyReportLib
        
         #endregion
 
+        /// <summary>
+        /// Returns the details of each property.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             PropertyInfo[] _PropertyInfos = null;
@@ -922,8 +923,7 @@ namespace ITCSurveyReportLib
         // TODO 
         public void IncludeOrderChanges() { }
 
-        // TODO 
-        public void IncludeDeletedQuestions() { }
+       
 
         // TODO 
         public void MarkOrderChanges() { }

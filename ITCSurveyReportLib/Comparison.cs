@@ -85,7 +85,8 @@ namespace ITCSurveyReportLib
         public void CompareByVarName()
         {
             // Compare the English survey content
-            CompareSurveyTables();
+            if (Highlight)
+                CompareSurveyTables();
 
             // Compare translation records if at least one language was selected for each survey TODO see if this can be included in regular comparison methods
             if (Highlight)
@@ -254,7 +255,10 @@ namespace ITCSurveyReportLib
         }
 
         
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deletedQs"></param>
         public void RenumberDeletions(List<SurveyQuestion> deletedQs)
         {
             // for each row in deletedQs where the qnum starts with z, 
@@ -377,7 +381,12 @@ namespace ITCSurveyReportLib
             return previousQnum;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="primaryWording"></param>
+        /// <param name="otherWording"></param>
+        /// <returns></returns>
         public string CompareWordings(string primaryWording, string otherWording)
         {
  
@@ -541,6 +550,10 @@ namespace ITCSurveyReportLib
             
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             PropertyInfo[] _PropertyInfos = null;

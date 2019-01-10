@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ITCSurveyReportLib
 {
+    /// <summary>
+    /// Represents a note about a single question.
+    /// </summary>
     public class Comment
     {
         public int ID { get; set; }

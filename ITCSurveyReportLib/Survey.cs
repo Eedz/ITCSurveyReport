@@ -22,15 +22,51 @@ namespace ITCSurveyReportLib
         #region Survey Properties
         
         // properties from database
+        /// <summary>
+        /// Unique ID for the survey referenced by this object.
+        /// </summary>
         public int SID { get ; set ; }
+        /// <summary>
+        /// Survey code for the survey referenced by this object
+        /// </summary>
         public string SurveyCode { get; set ; }
+        /// <summary>
+        /// Full title of this survey.
+        /// </summary>
         public string Title { get ; set ; }
+        /// <summary>
+        /// Languages that this survey was translated into.
+        /// </summary>
         public string Languages { get ; set ; }
-        public string Groups { get; set ; }
+        /// <summary>
+        /// User group that this survey if meant for.
+        /// </summary>
+        public string Group { get; set ; }
+        /// <summary>
+        /// Cohort name for this survey. Recontact, replenishment, recruitment or some combination.
+        /// </summary>
+        public string Cohort { get; set; }
+        /// <summary>
+        /// The survey mode. Telephone, web, or face to face.
+        /// </summary>
         public string Mode { get ; set ; }
+        /// <summary>
+        /// Country specific 2-digit code.
+        /// </summary>
         public int CountryCode { get ; set; }
+        /// <summary>
+        /// File name to be used when uploading this survey to the website.
+        /// </summary>
         public string WebName { get ; set ; } 
-        public string EnglishRouting { get; set; }
+        /// <summary>
+        /// True if this survey utilizes English Routing.
+        /// </summary>
+        /// <remarks>English Routing means that the translated version may have filters and routing taken from the English version.</remarks>
+        public bool EnglishRouting { get; set; }
+        /// <summary>
+        /// True if this survey cannot be edited until unlocked.
+        /// </summary>
+        public bool Locked { get; set; }
 
         // TODO consider adding rest of the fields from tblStudyAttributes
 

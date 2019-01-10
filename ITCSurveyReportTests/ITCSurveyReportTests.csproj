@@ -55,6 +55,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ITCSurveyReportLib\ITCSurveyReportLib.csproj">
+      <Project>{c57bd956-a7d7-44ad-be58-09ad4bddd455}</Project>
+      <Name>ITCSurveyReportLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ITCSurveyReport\ITCSurveyReport.csproj">
       <Project>{28ee53a4-9f5b-4d83-99aa-60ecb5cc7349}</Project>
       <Name>ITCSurveyReport</Name>

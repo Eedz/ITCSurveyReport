@@ -868,7 +868,7 @@
             // 
             // surveyReportBindingSource
             // 
-            this.surveyReportBindingSource.DataSource = typeof(ITCSurveyReportLib.SurveyReport);
+            this.surveyReportBindingSource.DataSource = typeof(ITCSurveyReportLib.VarNameReport);
             // 
             // hideIdenticalWordingsCheckBox
             // 
