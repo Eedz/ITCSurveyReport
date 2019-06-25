@@ -9,25 +9,39 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Configuration;
-using ITCSurveyReportLib;
+using ITCLib;
 
 namespace ITCSurveyReport
 {
-    // TODO use using statements to fill Filter combo boxes
-    // TODO create class for headings to be used in the heading Filter
+    /// <summary>
+    /// User interface for generating a Survey-based report.
+    /// </summary>
     public partial class SurveyReportForm : Form
     {
-        VarNameReport SR;
+        
+        SurveyBasedReport SR;
+        Comparison compare;
+        ReportTypes reportType;
         UserPrefs UP;
         ReportSurvey CurrentSurvey;
         TabPage pgCompareTab;
+
         // background color RGB values
         int backColorR = 55;
         int backColorG = 170;
         int backColorB = 136;
 
-        SqlDataAdapter sql;
-        SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString);
+        // quick report descriptions
+        string standardToolTipText = "Standard Survey Printout\r\n" +
+                                    "Includes:\r\n" +
+                                    "Blank Column\r\n" +
+                                    "VarName Changes\r\n" +
+                                    "QN Insertion (F2F only)\r\n" +
+                                    "Don't Read (F2F only)\r\n" +
+                                    "For 2 or more surveys:\r\n" +
+                                    "Classic Highlighting with Re-inserted deletions";
+
+        
 
         /// <summary>
         /// 
@@ -35,36 +49,48 @@ namespace ITCSurveyReport
         public SurveyReportForm()
         {
             InitializeComponent();
+            
+            // start with blank constructor, default settings
+            reportType = ReportTypes.Standard;
+            SR = new SurveyBasedReport();
+            UP = new UserPrefs();
+            
         }
 
+        /// <summary>
+        /// After the form is created, perform some initial setup.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SurveyReportForm_Load(object sender, EventArgs e)
         {
-            SqlDataAdapter sql;
-            DataTable surveyList = new DataTable();
-            sql = new SqlDataAdapter("SELECT Survey FROM qrySurveys ORDER BY ISO_Code, Wave, Survey", conn);
-
-            //using (conn) {
-            conn.Open();
-            sql.Fill(surveyList);
-            conn.Close();
-            
-            cboSurveys.DataSource = surveyList;
+            // fill the survey drop down
             cboSurveys.ValueMember = "Survey";
             cboSurveys.DisplayMember = "Survey";
-            //}
-
-
+            cboSurveys.DataSource = DBAction.GetSurveyList();
+            
+            // add tooltips for the quick reports
+           // toolTipStandard.SetToolTip(this.optStd, standardToolTipText);
+            toolTipStandard.ShowAlways = true;
+            toolTipStandard.AutomaticDelay = 0;
+            toolTipStandard.AutoPopDelay = 30000;
+            
+            // hide the comparison tab until it is needed
             pgCompareTab = pgCompare;
             tabControlOptions.TabPages.Remove(pgCompare);
 
-            
-            // start with blank constructor, default settings
-            SR = new VarNameReport();
-            UP = new UserPrefs();
-            SR.FileName = UP.ReportPath;
-
+            // bind the controls of the form to the SR object
             surveyReportBindingSource.DataSource = SR;
 
+            compare = new Comparison();
+            compare.SimilarWords = DBAction.GetSimilarWords(); // TODO this could be handled much better
+
+            compareBindingSource.DataSource = compare;
+
+            reportLayoutBindingSource.DataSource = SR.LayoutOptions;
+            
+
+            // populate the repeated fields list
             lstRepeatedFields.Items.Add("PreP");
             lstRepeatedFields.Items.Add("PreI");
             lstRepeatedFields.Items.Add("PreA");
@@ -73,83 +99,180 @@ namespace ITCSurveyReport
             lstRepeatedFields.Items.Add("NRCodes");
             lstRepeatedFields.Items.Add("PstI");
             lstRepeatedFields.Items.Add("PstP");
+
+            // populate highlight scheme box
+            cboHighlightScheme.DataSource = Enum.GetValues(typeof(HScheme));
+
+
+            // bind selected surveys to the list of surveys in SR
+            lstSelectedSurveys.DataSource = SR.Surveys;
+            lstSelectedSurveys.ValueMember = "ID";
+            lstSelectedSurveys.DisplayMember = "SurveyCode";
+
+            lblStatus.Visible = false;
+            lblStatus.Text = "Ready.";
+            cmdCheckOptions.Visible = false;
+            
+
+
         }
 
-        private void ReportType_CheckedChanged(object sender, EventArgs e)
+        #region Menu Strip
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            RadioButton r = sender as RadioButton;
-            int sel = Convert.ToInt32(r.Tag);
-
-            SR.ReportType = (ReportTypes)sel;
+            Close();
         }
 
+        private void standardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void standardWTranslationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void websiteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void websiteWTranslationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Generate the report.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CheckOptions_Click(object sender, EventArgs e)
         {
-            
-            // if standard is not chosen, create a new SR with the chosen template
-
-
-            if (lstSelectedSurveys.SelectedIndex != -1)
+            if (lstSelectedSurveys.SelectedItems.Count == 0)
             {
-                int result;
-                
-                txtOptions.Text = SR.ToString();
-                result = SR.GenerateReport();
-                switch (result)
+                MessageBox.Show("No surveys selected.");
+                return;
+            }
+
+            int result;
+
+            // set file name to the user's report path
+            SR.FileName = UP.ReportPath;
+
+            PopulateSurveys();
+
+            // if standard is not chosen, create a new SR with the chosen template
+            switch (reportType)
+            {
+                case ReportTypes.Standard:
+                    
+                    SurveyReport survReport = new SurveyReport(SR)
+                    {
+                        SurveyCompare = compare
+                    };
+
+                    // bind status label to survey report's status property
+                    lblStatus.DataBindings.Clear();
+                    lblStatus.DataBindings.Add(new Binding("Text", survReport, "ReportStatus"));
+
+                    result = survReport.GenerateReport();
+                    switch (result)
+                    {
+                        case 1:
+                            MessageBox.Show("One or more surveys contain no records.");
+                            // TODO if a backup was chosen, show a form for selecting a different survey code from that date
+                            break;
+                        default:
+                            break;
+                    }
+
+                    
+                    // output report to Word/PDF
+                    survReport.OutputReportTableXML();
+                    
+                    break;
+                case ReportTypes.Label:
+
+                    TopicContentReport TC = new TopicContentReport(SR);
+
+                    result = TC.GenerateLabelReport();
+                    switch (result)
+                    {
+                        case 1:
+                            MessageBox.Show("One or more surveys contain no records.");
+                            // TODO if a backup was chosen, show a form for selecting a different survey code from that date
+                            break;
+                        default:
+                            break;
+                    }
+
+                    TC.OutputReportTable();
+                    
+                    break;
+            }
+
+        }
+
+        /// <summary>
+        /// For each survey in the report, fill the question list, comments and translations as needed.
+        /// </summary>
+        private void PopulateSurveys()
+        {
+            // populate the survey and extra fields
+            foreach (ReportSurvey rs in SR.Surveys)
+            {
+                rs.Questions.Clear();
+                rs.SurveyNotes.Clear();
+                rs.VarChanges.Clear();
+
+                // questions
+                if (rs.Backend.Date != DateTime.Today)
+                    rs.AddQuestions(new BindingList<SurveyQuestion>(DBAction.GetBackupQuestions(rs, rs.Backend)));
+                else
+                    DBAction.FillQuestions(rs);
+
+                // correct questions
+                if (rs.Corrected)
                 {
-                    case 0: // no errors
-                        break;
-                    case 1:
-                        MessageBox.Show("One or more surveys contain no records.");
-                        // TODO if a backup was chosen, show a form for selecting a different survey code from that date
-                        break;
-                    default:
-                        break;
+                    DBAction.FillCorrectedQuestions(rs);
+                    rs.CorrectWordings();
                 }
 
-                //surveyView.DataSource = null;
-                //surveyView.DataSource = SR.Surveys[0].rawTable;
-                //surveyView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-                //surveyView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                // previous names (for Var column)
+                DBAction.FillPreviousNames(rs, SR.ExcludeTempChanges);
 
-                //if (SR.Surveys.Count > 1)
-                //{
-                //    surveyView2.DataSource = null;
-                //    surveyView2.DataSource = SR.Surveys[1].rawTable;
-                //    surveyView2.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-                //    surveyView2.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-                //}
+                // survey notes
+                if (SR.SurvNotes)
+                    rs.SurveyNotes = DBAction.GetSurvCommentsBySurvey(rs.SID);
 
-                //gridFinalReport.DataSource = null;
-                //gridFinalReport.DataSource = SR.ReportTable;
-                //gridFinalReport.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-                //gridFinalReport.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                // comments
+                if (rs.CommentFields.Count > 0)
+                {
+                    DBAction.FillCommentsBySurvey(rs, rs.CommentFields, rs.CommentDate, rs.CommentAuthors, rs.CommentSources);
+                }
+
+                // translations
+                foreach (string language in rs.TransFields)
+                    DBAction.FillTranslationsBySurvey(rs, language);
+
+                // varchanges (for appendix)
+                if (SR.VarChangesApp)
+                    rs.VarChanges = DBAction.GetVarNameChangeBySurvey(rs.SurveyCode);
             }
         }
 
-        private void Surveys_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Return)
-            {
-                cmdAddSurvey.PerformClick();
-                cboSurveys.Focus();
-            }
-
-        }
-
-        private void SelectedSurveys_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (lstSelectedSurveys.SelectedItem != null)
-            {
-                CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
-                LoadSurveyOptions();
-            }
-        }
+        #region Current Survey "Load" Methods
 
         // bind each control to the selected survey's corresponding fields
         private void LoadSurveyOptions()
         {
-            
+            if (CurrentSurvey == null)
+                return;
+
             // backend date
             dateBackend.DataBindings.Clear();
             dateBackend.DataBindings.Add ("Value", CurrentSurvey, "Backend");
@@ -188,7 +311,7 @@ namespace ITCSurveyReport
 
             // extrafields
             // list them
-            LoadExtraFields(CurrentSurvey.SurveyCode);
+            LoadExtraFields(CurrentSurvey);
             // select them
             foreach (object item in CurrentSurvey.TransFields)
             {
@@ -204,6 +327,13 @@ namespace ITCSurveyReport
                     if (item.ToString().Equals(lstCommentFields.Items[i].ToString()))
                         lstCommentFields.SetSelected(i, true);
 
+            }
+
+            dateTimeCommentsSince.DataBindings.Clear();
+            dateTimeCommentsSince.DataBindings.Add("Value", CurrentSurvey, "CommentDate");
+            if (CurrentSurvey.CommentDate == null)
+            {
+                dateTimeCommentsSince.Checked = false;
             }
 
             chkCorrected.DataBindings.Clear();
@@ -222,298 +352,527 @@ namespace ITCSurveyReport
             chkVarLabelCol.DataBindings.Add("Checked", CurrentSurvey, "VarLabelCol");
             chkProductCol.DataBindings.Clear();
             chkProductCol.DataBindings.Add("Checked", CurrentSurvey, "ProductLabelCol");
+            chkAltQNum2Col.DataBindings.Clear();
+            chkAltQNum2Col.DataBindings.Add("Checked", CurrentSurvey, "AltQnum2Col");
+            chkAltQNum3Col.DataBindings.Clear();
+            chkAltQNum3Col.DataBindings.Add("Checked", CurrentSurvey, "AltQnum3Col");
 
         }
 
         private void LoadPrefixes(string survey)
         {
-            SqlDataAdapter sql;
-            DataTable prefixes = new DataTable();
-            sql = new SqlDataAdapter("SELECT Left(VarName,2) AS Prefix FROM qrySurveyQuestions WHERE Survey ='" + survey + "' GROUP BY Left(VarName,2)", conn);
-
-            //using (conn) {
-                conn.Open();
-                sql.Fill(prefixes);
-                conn.Close();
-
-                cboPrefixes.DataSource = prefixes;
-                cboPrefixes.ValueMember = "Prefix";
-                cboPrefixes.DisplayMember = "Prefix";
-            //}
-            
-            
+            cboPrefixes.ValueMember = "Prefix";
+            cboPrefixes.DisplayMember = "Prefix";
+            cboPrefixes.DataSource = DBAction.GetVariablePrefixes(survey);
+            cboPrefixes.SelectedItem = null;
         }
 
+        // TODO filter on selected prefixes?
         private void LoadVarNames(string survey)
         {
-            SqlDataAdapter sql;
-            DataTable varnames = new DataTable();
-            sql = new SqlDataAdapter("SELECT VarName FROM qrySurveyQuestions WHERE Survey ='" + survey + "' GROUP BY VarName", conn);
-
-            //using (conn) {
-            conn.Open();
-            sql.Fill(varnames);
-            conn.Close();
-
-            cboVarNames.DataSource = varnames;
             cboVarNames.ValueMember = "VarName";
             cboVarNames.DisplayMember = "VarName";
-            //}
+
+            if (lstPrefixes.Items.Count > 0)
+            {
+                cboVarNames.DataSource = DBAction.GetVariableList(survey);
+            }
+            else
+            {
+                cboVarNames.DataSource = DBAction.GetVariableList(survey);
+            }
+            
+            cboVarNames.SelectedItem = null;
         }
 
         private void LoadHeadings(string survey)
-        {
-            DataTable headings = new DataTable();
-            
-            using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ISISConnectionString"].ConnectionString)) {
-                using (SqlDataAdapter sql = new SqlDataAdapter("SELECT Qnum, PreP FROM qrySurveyQuestions WHERE Survey ='" + survey + "' AND VarName LIKE 'Z%' GROUP BY Qnum, PreP ORDER BY Qnum", conn))
-                {
-                    conn.Open();
-                    sql.Fill(headings);
-                    conn.Close();
-
-                    cboHeadings.DataSource = headings;
-                    cboHeadings.ValueMember = "Qnum";
-                    cboHeadings.DisplayMember = "PreP";
-                }
-            }
+        {            
+            cboHeadings.ValueMember = "Qnum";
+            cboHeadings.DisplayMember = "PreP";
+            cboHeadings.DataSource = DBAction.GetHeadings(survey);
         }
 
-        private void LoadExtraFields(string survey)
+        private void LoadExtraFields(Survey survey)
         {
-            SqlDataAdapter sql;
-
             // load comment types
-            sql = new SqlDataAdapter("SELECT NoteType FROM qryVarComments WHERE Survey ='" + survey + "' GROUP BY NoteType", conn);
+            List<string> noteTypes = DBAction.GetQuesCommentTypes(survey.SID);
 
-            DataTable t = new DataTable();
-
-            conn.Open();
-            sql.Fill(t);
-            conn.Close();
             lstCommentFields.Items.Clear();
-            foreach (DataRow row in t.Rows) { lstCommentFields.Items.Add(row[0]); }
-            
-            lstCommentFields.ValueMember = "NoteType";
-            lstCommentFields.DisplayMember = "NoteType";
+            foreach (string s in noteTypes)
+                lstCommentFields.Items.Add(s); 
 
-            // load comment authors and sources
-            sql = new SqlDataAdapter("SELECT DISTINCT NoteInit, Name FROM qryCommentsAll INNER JOIN qrySurveyInfo ON qryCommentsAll.SID = qrySurveyInfo.ID WHERE Survey = '" + survey + "' " +
-                    "UNION SELECT DISTINCT NoteInit, Name FROM qryCommentsAll INNER JOIN qrySurveyInfo ON qryCommentsAll.WID = qrySurveyInfo.WaveID WHERE Survey = '" + survey + "'", conn);
+            // load comment authors
+            List<Person> authors = DBAction.GetCommentAuthors(survey.SID);
 
-            t = new DataTable();
-
-            conn.Open();
-            sql.Fill(t);
-            conn.Close();
-
-            lstCommentAuthors.DataSource = t;
             lstCommentAuthors.DisplayMember = "Name";
             lstCommentAuthors.ValueMember = "NoteInit";
-            lstCommentAuthors.SetSelected(0, false);
+            lstCommentAuthors.DataSource = authors;
+            
+            if (lstCommentAuthors.Items.Count >0 )
+                lstCommentAuthors.SetSelected(0, false);
 
-            sql = new SqlDataAdapter("SELECT DISTINCT SourceName FROM qryCommentsAll INNER JOIN qrySurveyInfo ON qryCommentsAll.SID = qrySurveyInfo.ID WHERE Survey = '" + survey + "' " +
-                    "UNION SELECT DISTINCT SourceName FROM qryCommentsAll INNER JOIN qrySurveyInfo ON qryCommentsAll.WID = qrySurveyInfo.WaveID WHERE Survey = '" + survey + "'", conn);
+            // load comment source names (authorities)
+            List<string> sourceNames = DBAction.GetCommentSourceNames(survey.SurveyCode);
 
-            t = new DataTable();
-
-            conn.Open();
-            sql.Fill(t);
-            conn.Close();
-
-            foreach (DataRow row in t.Rows) { lstCommentSources.Items.Add(row[0]); }
+            foreach (string s in sourceNames)
+                lstCommentSources.Items.Add(s);
 
             // load translation languages
-            sql = new SqlDataAdapter("SELECT Lang FROM qryTranslation AS T INNER JOIN qrySurveyQuestions AS SQ ON T.QID = SQ.ID " +
-                "WHERE SQ.Survey ='" + survey + "' GROUP BY Lang", conn);
+            List<string> langs = DBAction.GetLanguages(survey);
 
-            t = new DataTable();
-
-            conn.Open();
-            sql.Fill(t);
-            conn.Close();
             lstTransFields.Items.Clear();
-            foreach (DataRow row in t.Rows) { lstTransFields.Items.Add(row[0]); }
-            
-            lstTransFields.ValueMember = "Lang";
-            lstTransFields.DisplayMember = "Lang";
-
-        }
-
-        
-
-        #region Top of Form
-
-        private void AddSurvey_Click(object sender, EventArgs e)
-        {
-            // add survey to the VarNameReport object
-            ReportSurvey s;
-            try
-            {
-                s = new ReportSurvey(DBAction.GetSurvey(cboSurveys.SelectedValue.ToString()));
-            }catch (Exception ex)
-            {
-                MessageBox.Show("Survey not found.");
-                return;
-            }
-
-            SR.AddSurvey(s);
-            SR.AutoSetPrimary();
-            lstSelectedSurveys.DataSource = null;
-            lstSelectedSurveys.DataSource = SR.Surveys;
-            lstSelectedSurveys.ValueMember = "ID";
-            lstSelectedSurveys.DisplayMember = "SurveyCode";
-
-            if (lstSelectedSurveys.Items.Count >=2 && !tabControlOptions.TabPages.Contains(pgCompareTab)) { tabControlOptions.TabPages.Insert(2,pgCompareTab); }
-            gridPrimarySurvey.DataSource = null;
-            gridPrimarySurvey.DataSource = SR.Surveys;
-            gridPrimarySurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridPrimarySurvey.Refresh();
-
-            gridColumnOrder.DataSource = null;
-            gridColumnOrder.DataSource = SR.ColumnOrder;
-            gridColumnOrder.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridColumnOrder.Refresh();
-
-            gridQnumSurvey.DataSource = null;
-            gridQnumSurvey.DataSource = SR.Surveys;
-            gridQnumSurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridQnumSurvey.Refresh();
-
-            if (lstSelectedSurveys.Items.Count > 0)
-                tabControlOptions.Visible = true;
-        }
-
-        private void RemoveSurvey_Click(object sender, EventArgs e)
-        {
-            // remove survey from the VarNameReport object
-            SR.Surveys.Remove((ReportSurvey)lstSelectedSurveys.SelectedItem);
-            SR.AutoSetPrimary();
-            // TODO remove all column associated with the survey from the column order collection
-            //for (int i = 0 to SR.ColumnOrder.)
-            //SR.ColumnOrder.Remove()
-            lstSelectedSurveys.DataSource = null;
-            lstSelectedSurveys.DataSource = SR.Surveys;
-            lstSelectedSurveys.ValueMember = "ID";
-            lstSelectedSurveys.DisplayMember = "SurveyCode";
-            if (lstSelectedSurveys.Items.Count < 2) { tabControlOptions.TabPages.Remove(pgCompareTab); }
-            gridPrimarySurvey.DataSource = null;
-            gridPrimarySurvey.DataSource = SR.Surveys;
-            gridPrimarySurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridPrimarySurvey.Refresh();
-
-            gridColumnOrder.DataSource = null;
-            gridColumnOrder.DataSource = SR.ColumnOrder;
-            gridColumnOrder.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridColumnOrder.Refresh();
-
-            gridQnumSurvey.DataSource = null;
-            gridQnumSurvey.DataSource = SR.Surveys;
-            gridQnumSurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridQnumSurvey.Refresh();
-
-            if (lstSelectedSurveys.Items.Count < 1)
-                tabControlOptions.Visible = false;
-        }
-
-        private void SelfCompare_Click(object sender, EventArgs e)
-        {
-            // add another survey with the already selected survey code
-           
-            ReportSurvey s;
-            Survey item = lstSelectedSurveys.SelectedItem as Survey;
-            try
-            {
-                s = new ReportSurvey(DBAction.GetSurvey(item.SurveyCode));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Survey not found.");
-                return;
-            }
-            // add survey to the VarNameReport object
-            SR.AddSurvey(s);
-            SR.AutoSetPrimary();
-            lstSelectedSurveys.DataSource = null;
-            lstSelectedSurveys.DataSource = SR.Surveys;
-            lstSelectedSurveys.ValueMember = "ID";
-            lstSelectedSurveys.DisplayMember = "SurveyCode";
-
-            if (lstSelectedSurveys.Items.Count >= 2 && !tabControlOptions.TabPages.Contains(pgCompareTab)) { tabControlOptions.TabPages.Insert(2, pgCompareTab); }
-            gridPrimarySurvey.DataSource = null;
-            gridPrimarySurvey.DataSource = SR.Surveys;
-            gridPrimarySurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridPrimarySurvey.Refresh();
-
-            gridColumnOrder.DataSource = null;
-            gridColumnOrder.DataSource = SR.ColumnOrder;
-            gridColumnOrder.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridColumnOrder.Refresh();
-
-            gridQnumSurvey.DataSource = null;
-            gridQnumSurvey.DataSource = SR.Surveys;
-            gridQnumSurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            gridQnumSurvey.Refresh();
-
-            if (lstSelectedSurveys.Items.Count > 0)
-                tabControlOptions.Visible = true;
-            // set focus to calendar
-            dateBackend.Focus();
+            foreach (string s in langs)
+                lstTransFields.Items.Add(s);
 
         }
 
         #endregion
 
+
+        #region Top of Form
+
+        private void AddSurvey_Click(object sender, EventArgs e)
+        {
+            // add survey to the SurveyReport object
+            ReportSurvey s;
+            try
+            {
+                s = new ReportSurvey(DBAction.GetSurveyInfo(cboSurveys.SelectedItem.ToString()));
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Survey not found.");
+                return;
+            }
+
+            AddSurvey(s);
+        }
+
+        private void SelfCompare_Click(object sender, EventArgs e)
+        {
+            // add another survey with the already selected survey code
+
+            ReportSurvey s;
+            Survey item = lstSelectedSurveys.SelectedItem as Survey;
+            try
+            {
+                s = new ReportSurvey(DBAction.GetSurveyInfo(item.SurveyCode));
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Survey not found.");
+                return;
+            }
+
+            AddSurvey(s);
+
+            // set focus to calendar
+            dateBackend.Focus();
+
+        }
+
+        /// <summary>
+        /// Add a survey to the report.
+        /// </summary>
+        /// <param name="s">ReportSurvey object being added to the report.</param>
+        private void AddSurvey(ReportSurvey s)
+        {
+            
+            SR.AddSurvey(s);
+            
+            UpdateGrids();
+
+            // show the options tabs if at least one survey is chosen
+            if (lstSelectedSurveys.Items.Count > 0)
+            {
+                lblStatus.Visible = true;
+                cmdCheckOptions.Visible = true;
+                tabControlOptions.Visible = true;
+            }
+
+            // update report defaults
+            UpdateDefaultOptions();
+            UpdateFileNameTab();
+            UpdateReportDetails();
+            // set current survey
+            CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
+
+            // load survey specific options
+            LoadSurveyOptions();
+        }
+
+        private void RemoveSurvey_Click(object sender, EventArgs e)
+        {
+            RemoveSurvey((ReportSurvey)lstSelectedSurveys.SelectedItem);
+        }
+
+        /// <summary>
+        /// Remove a survey from the report.
+        /// </summary>
+        /// <param name="s">ReportSurvey object being removed from the report.</param>
+        private void RemoveSurvey(ReportSurvey s)
+        {
+            // remove survey from the SurveyReport object
+            SR.RemoveSurvey((ReportSurvey)lstSelectedSurveys.SelectedItem);
+            GC.Collect();
+
+            UpdateGrids();
+
+            // hide the options tabs no surveys are chosen
+            if (lstSelectedSurveys.Items.Count < 1)
+            {
+                lblStatus.Visible = false;
+                cmdCheckOptions.Visible = false;
+                tabControlOptions.Visible = false;
+            }
+
+            // update report defaults
+            UpdateDefaultOptions();
+            UpdateFileNameTab();
+            UpdateReportDetails();
+            // set current survey
+            CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
+
+            // load survey specific options
+            LoadSurveyOptions();
+        }
+
+
+        private void UpdateDefaultOptions()
+        {
+            int surveyCount = SR.Surveys.Count;
+            if (surveyCount > 1 && SR.ReportType == ReportTypes.Standard) {
+                if( !tabControlOptions.TabPages.Contains(pgCompareTab)) tabControlOptions.TabPages.Insert(2,pgCompareTab);
+                chkCompare.Enabled = true;
+                chkCompare.Checked = true;
+            }
+            else
+            {
+                tabControlOptions.TabPages.Remove(pgCompareTab);
+                chkCompare.Enabled = false;
+                chkCompare.Checked = false;
+            }
+
+            if (!CheckForDiffCountry())
+                compare.MatchOnRename = true;
+            else
+                compare.MatchOnRename = false;
+
+            cboHighlightScheme.Enabled = surveyCount == 2;
+
+
+            if (surveyCount == 2) {
+                if (SR.Surveys[0].SurveyCode == SR.Surveys[1].SurveyCode) // self compare
+                {
+                    cboHighlightScheme.SelectedItem = HScheme.Sequential;
+                    compare.HighlightScheme = HScheme.Sequential;
+                    cboHighlightScheme.Enabled = false;
+                }
+                else if (CheckForDiffCountry())
+                {
+                    
+                    cboHighlightScheme.SelectedItem = HScheme.AcrossCountry;
+                    compare.HighlightScheme = HScheme.AcrossCountry;
+                    cboHighlightScheme.Enabled = false;
+                }
+                else
+                {
+                    compare.HighlightScheme = HScheme.Sequential;
+                    cboHighlightScheme.SelectedItem = HScheme.Sequential;
+                    
+                }
+            }
+            else
+            {
+                cboHighlightScheme.SelectedItem = HScheme.AcrossCountry;
+            }
+            beforeAfterReportCheckBox.Enabled = surveyCount == 2;
+
+            semiTelCheckBox.Enabled = !(SR.ReportType == ReportTypes.Order) && !(surveyCount > 1);
+
+            chkTableFormat.Enabled = !(surveyCount > 1);
+
+            if (surveyCount > 1 || SR.ReportType == ReportTypes.Label)
+            {
+                SR.SubsetTables = false;
+                chkTableFormat.Enabled = false;
+                SR.SubsetTablesTranslation = false;
+                chkTranslationTableFormat.Visible = false;
+                chkTranslationTableFormat.Enabled = false;
+            }
+
+
+            if (SR.ReportType == ReportTypes.Label || !HasF2F())
+            {
+                inlineRoutingCheckBox.Enabled = false;
+
+            }
+            else
+            {
+                inlineRoutingCheckBox.Enabled = true;
+            }
+
+            if (surveyCount > 1) {
+                inlineRoutingCheckBox.Enabled = compare.HighlightStyle != HStyle.TrackedChanges;
+            }
+
+
+            // order comparisons
+            // check for order comparison
+            lblOrderOptions.Visible = SR.ReportType == ReportTypes.Order;
+            includeWordingsCheckBox.Visible = SR.ReportType == ReportTypes.Order;
+            bySectionCheckBox.Visible = SR.ReportType == ReportTypes.Order;
+
+            // table of contents disabled for T/C reports, since it needs headings
+            if (SR.ReportType == ReportTypes.Label)
+            {
+                optToCNone.Checked = true; // changing the checked state updates the SR object
+            }
+
+            groupToC.Enabled = SR.ReportType == ReportTypes.Standard;
+            optToCPgNum.Enabled = !(surveyCount > 1);
+
+            // "Don't read" options disabled for T/C and order reports
+            if (SR.ReportType != ReportTypes.Standard)
+                optNRFormatNeither.Checked = true;
+
+            groupNRFormat.Enabled = SR.ReportType == ReportTypes.Standard;
+
+            // Web format is disabled for T/C and order reports
+            if (SR.ReportType != ReportTypes.Standard)
+                webCheckBox.Checked = false;
+
+            webCheckBox.Enabled = SR.ReportType == ReportTypes.Standard;
+  
+        }
+
+        private void UpdateGrids()
+        {
+            // populate the primary survey grid
+            gridPrimarySurvey.DataSource = SR.Surveys;
+            gridPrimarySurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            gridPrimarySurvey.Refresh();
+
+            // popluate the column order grid
+            //gridColumnOrder.DataSource = SR.ColumnOrder;
+            //gridColumnOrder.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+           // gridColumnOrder.Refresh();
+
+            // populate the qnum survey grid
+            gridQnumSurvey.DataSource = SR.Surveys;
+            gridQnumSurvey.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            gridQnumSurvey.Refresh();
+        }
+
+        private void UpdateFileNameTab()
+        {
+            if (SR.Surveys.Count == 0)
+                return;
+
+            ReportSurvey primary = SR.PrimarySurvey();
+            string mainSource = primary.SurveyCode;
+            string secondSources = "";
+
+            if (primary.Backend != DateTime.Today)
+                mainSource += " on " + primary.Backend;
+
+
+            foreach(ReportSurvey o in SR.NonPrimarySurveys())
+            {
+                secondSources += o.SurveyCode;
+                if (o.Backend != DateTime.Today)
+                {
+                    secondSources += " on " + o.Backend;
+                }
+
+                secondSources += ", ";
+            }
+
+            secondSources = Utilities.TrimString(secondSources, ", ");
+
+            txtMainSource.Text = mainSource;
+            txtSecondSources.Text = secondSources;
+            
+       
+        }
+
+        private void UpdateReportDetails()
+        {
+            string details = "";
+            string extras = "", comments = "", translation = "", filters = "", labels = "";
+            switch (SR.ReportType)
+            {
+                case ReportTypes.Standard:
+                    break;
+                case ReportTypes.Label:
+                    details += "Content comparison.";
+                    break;
+                case ReportTypes.Order:
+                    details += "Order comparison.";
+                    break;
+            }
+
+            foreach (ReportSurvey rs in SR.Surveys)
+            {
+                if (rs.CommentFields.Count > 0 && string.IsNullOrEmpty(comments))
+                    comments += "comments, ";
+
+                if (rs.TransFields.Count > 1 && string.IsNullOrEmpty(translation))
+                    translation += "translation, ";
+
+                if ((rs.VarLabelCol || rs.TopicLabelCol || rs.DomainLabelCol || rs.ContentLabelCol || rs.ProductLabelCol) && string.IsNullOrEmpty(labels))
+                    labels += "labels, ";
+
+                if (rs.FilterCol && string.IsNullOrEmpty(filters))
+                    filters += "Filters, ";
+
+            }
+
+            extras = comments + translation + filters + labels;
+
+            if (!string.IsNullOrEmpty(extras))
+                details += " With " + extras;
+
+            SR.Details = details;
+        }
+
+        /// <summary>
+        /// Checks if there are at least 2 different countries in the report.
+        /// </summary>
+        /// <returns>True if there are surveys from at least 2 different countries in the report, false otherwise.</returns>
+        private bool CheckForDiffCountry()
+        {
+            if (SR.Surveys.Count <= 1)
+                return false;
+
+            string prefix;
+            prefix = SR.Surveys[0].SurveyCodePrefix;
+            foreach (Survey s in SR.Surveys)
+                if (s.SurveyCodePrefix != prefix)
+                    return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks to see if there are any F2F surveys in the report.
+        /// </summary>
+        /// <returns>Returns true if any of the selected surveys are F2F surveys.</returns>
+        private bool HasF2F()
+        {
+            foreach (Survey s in SR.Surveys)
+                if (s.Mode.ModeAbbrev == "F2F")
+                    return true;
+
+            return false;
+        }
+
+       
+
+        /// <summary>
+        /// Update the report type in the SR object.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReportType_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton r = sender as RadioButton;
+            int sel = Convert.ToInt32(r.Tag);
+
+            reportType = (ReportTypes)sel;
+            SR.ReportType = reportType;
+            UpdateDefaultOptions();
+            UpdateFileNameTab();
+        }
+
+        // TODO check if backup exists for this date
+        private void dateBackend_ValueChanged(object sender, EventArgs e)
+        {
+            //if (!dateBackend.Value.Equals(DateTime.Today))
+              //  CurrentSurvey.questions = DBAction.GetQuestionsBySurveyFromBackup(CurrentSurvey.SurveyCode, dateBackend.Value);
+        }
+
+        /// <summary>
+        /// Allow Enter/Return key to add the currently highlighted Survey in the combobox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Surveys_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+            {
+                cmdAddSurvey.PerformClick();
+                cboSurveys.Focus();
+            }
+        }
+
+        /// <summary>
+        /// Set the CurrentSurvey object to the currently selected survey in the list box.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectedSurveys_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lstSelectedSurveys.SelectedItem != null)
+            {
+                CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
+                LoadSurveyOptions();
+            }
+        }
+
+
+        #endregion
+
+
+
         #region Filters Tab
         // TODO do not add duplicates
-        // TODO check for null when removing
         // Add the selected prefix to the Current Survey's prefix list and refresh the Prefix listbox
         private void AddPrefix_Click(object sender, EventArgs e)
         {
-            CurrentSurvey.Prefixes.Add(cboPrefixes.SelectedValue.ToString());
-            lstPrefixes.DataSource = null;
-            lstPrefixes.DataSource = CurrentSurvey.Prefixes;
+            if (cboPrefixes.SelectedValue != null)
+            {
+                CurrentSurvey.Prefixes.Add(cboPrefixes.SelectedValue.ToString());
+                lstPrefixes.DataSource = null;
+                lstPrefixes.DataSource = CurrentSurvey.Prefixes;
+            }
         }
 
         // Remove the selected prefix from the Current Survey's prefix list and refresh the Prefix listbox
         private void RemovePrefix_Click(object sender, EventArgs e)
         {
-            CurrentSurvey.Prefixes.Remove(lstPrefixes.SelectedValue.ToString());
-            lstPrefixes.DataSource = null;
-            lstPrefixes.DataSource = CurrentSurvey.Prefixes;
+            if (lstPrefixes.SelectedValue != null)
+            {
+                CurrentSurvey.Prefixes.Remove(lstPrefixes.SelectedValue.ToString());
+                lstPrefixes.DataSource = null;
+                lstPrefixes.DataSource = CurrentSurvey.Prefixes;
+            }
         }
 
         private void AddVarName_Click(object sender, EventArgs e)
         {
-            CurrentSurvey.Varnames.Add(cboVarNames.SelectedValue.ToString());
-            lstSelectedVarNames.DataSource = null;
-            lstSelectedVarNames.DataSource = CurrentSurvey.Varnames;
+            if (cboVarNames.SelectedValue != null)
+            {
+                CurrentSurvey.Varnames.Add(cboVarNames.SelectedValue.ToString());
+                lstSelectedVarNames.DataSource = null;
+                lstSelectedVarNames.DataSource = CurrentSurvey.Varnames;
+            }
         }
 
         private void RemoveVarName_Click(object sender, EventArgs e)
         {
-            try
+            if (lstSelectedVarNames.SelectedValue != null)
             {
                 CurrentSurvey.Varnames.Remove(lstSelectedVarNames.SelectedValue.ToString());
+                lstSelectedVarNames.DataSource = null;
+                lstSelectedVarNames.DataSource = CurrentSurvey.Varnames;
             }
-            catch (NullReferenceException ne)
-            {
-            }
-            lstSelectedVarNames.DataSource = null;
-            lstSelectedVarNames.DataSource = CurrentSurvey.Varnames;
         }
 
         private void cmdAddHeading_Click(object sender, EventArgs e)
         {
-            // cast the selected item as a datarowview
-            DataRowView item = (DataRowView) cboHeadings.SelectedItem;
-            // create a new heading object and fill its members
-            Heading h = new Heading
-            {
-             
-                Qnum = (string)item[0],
-                Prep = (string)item[1]
-            };
+           
+            Heading h = (Heading)cboHeadings.SelectedItem;
             // add it to the survey's headings collection
             CurrentSurvey.Headings.Add(h);
             // refresh the selected headings list box, using the PreP as the display
@@ -526,15 +885,11 @@ namespace ITCSurveyReport
 
         private void cmdRemoveHeading_Click(object sender, EventArgs e)
         {
-            try
-            {
+            if (lstHeadings.SelectedItem != null) {
                 CurrentSurvey.Headings.Remove((Heading)lstHeadings.SelectedItem);
+                lstHeadings.DataSource = null;
+                lstHeadings.DataSource = CurrentSurvey.Headings;
             }
-            catch (NullReferenceException ne)
-            {
-            }
-            lstHeadings.DataSource = null;
-            lstHeadings.DataSource = CurrentSurvey.Headings;
         }
         #endregion
 
@@ -563,24 +918,59 @@ namespace ITCSurveyReport
             panelOtherFields.Visible = true;
 
         }
+
+        /// <summary>
+        /// Adds the selected items in the list to the current survey's translation list. The list is cleared first, then the selected items are added back.
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TransFields_Click(object sender, EventArgs e)
         {
+            // remove report columns for any languages current in the list
+            for (int i= 0; i < SR.ColumnOrder.Count; i ++)
+            {
+                foreach (string language in CurrentSurvey.TransFields)
+                {
+                    if (SR.ColumnOrder[i].ColumnName == CurrentSurvey.SurveyCode + " " + CurrentSurvey.Backend.ToString("d") + " " + language)
+                        SR.ColumnOrder.RemoveAt(i);
+                }
+            }
+            // clear the list and add back the selected items
             CurrentSurvey.TransFields.Clear();
 
             for (int i = 0; i < lstTransFields.SelectedItems.Count; i++)
             {
                 CurrentSurvey.TransFields.Add(lstTransFields.SelectedItems[i].ToString());
+                SR.AddColumn(CurrentSurvey.SurveyCode + " " + CurrentSurvey.Backend.ToString("d") + " " + lstTransFields.SelectedItems[i].ToString());
             }
         }
 
+        /// <summary>
+        /// Adds the selected items in the list to the current survey's comment field list. The list is cleared first, then the selected items are added back.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CommentFields_Click(object sender, EventArgs e)
         {
+            // remove report column that may already be there
+            for (int i = 0; i < SR.ColumnOrder.Count; i++)
+            {
+                
+                if (SR.ColumnOrder[i].ColumnName == CurrentSurvey.SurveyCode + " " + CurrentSurvey.Backend.ToString("d") + " Comments")
+                    SR.ColumnOrder.RemoveAt(i);
+                
+            }
+
             CurrentSurvey.CommentFields.Clear();
 
             for (int i = 0; i < lstCommentFields.SelectedItems.Count; i++)
             {
                 CurrentSurvey.CommentFields.Add(lstCommentFields.SelectedItems[i].ToString());
             }
+
+            if (CurrentSurvey.CommentFields.Count > 1)
+                SR.AddColumn(CurrentSurvey.SurveyCode + " " + CurrentSurvey.Backend.ToString("d") + " Comments");
         }
 
         private void CommentsSince_ValueChanged(object sender, EventArgs e)
@@ -612,53 +1002,9 @@ namespace ITCSurveyReport
             }
         }
 
-        private void CorrectedWordings_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox c = sender as CheckBox;
-            CurrentSurvey.Corrected = c.Checked;
-        }
+        
 
-        private void BlankCol_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox c = sender as CheckBox;
-            SR.LayoutOptions.BlankColumn = c.Checked;
-        }
-
-        private void FilterCol_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox c = sender as CheckBox;
-            CurrentSurvey.FilterCol = c.Checked;
-        }
-
-        private void DomainCol_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox c = sender as CheckBox;
-            CurrentSurvey.DomainLabelCol = c.Checked;
-        }
-
-        private void TopicCol_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox c = sender as CheckBox;
-            CurrentSurvey.TopicLabelCol = c.Checked;
-        }
-
-        private void ContentCol_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox c = sender as CheckBox;
-            CurrentSurvey.ContentLabelCol = c.Checked;
-        }
-
-        private void VarLabelCol_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox c = sender as CheckBox;
-            CurrentSurvey.VarLabelCol = c.Checked;
-        }
-
-        private void ProductCol_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox c = sender as CheckBox;
-            CurrentSurvey.ProductLabelCol = c.Checked;
-        }
+        
 
         #endregion
 
@@ -727,7 +1073,7 @@ namespace ITCSurveyReport
             RadioButton r = sender as RadioButton;
             int sel = Convert.ToInt32(r.Tag);
 
-            SR.SurveyCompare.HighlightStyle = (HStyle)sel;
+            compare.HighlightStyle = (HStyle)sel;
         }
 
         private void ShowDeletedQuestionsCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -738,6 +1084,15 @@ namespace ITCSurveyReport
         #endregion
 
         #region Order and Numbering tab
+
+
+
+        private void BlankCol_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox c = sender as CheckBox;
+            SR.LayoutOptions.BlankColumn = c.Checked;
+            SR.AddColumn("Comments");
+        }
 
         // Once the gridview is bound, hide unecessary columns and rename SurveyCode to Survey
         private void QnumSurvey_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -788,25 +1143,10 @@ namespace ITCSurveyReport
         }
         
 
-        // Once the gridview is bound, hide unecessary columns and rename SurveyCode to Survey
+      
         private void ColumnOrder_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            //for (int i = 0; i < gridColumnOrder.ColumnCount; i++)
-            //{
-            //    switch (gridColumnOrder.Columns[i].Name)
-            //    {
-            //        case "SurveyCode":
-            //            gridColumnOrder.Columns[i].HeaderText = "Survey";
-            //            break;
-            //        case "Backend":
-            //        case "Corrected":
-            //        case "Primary":
-            //            break;
-            //        default:
-            //            gridColumnOrder.Columns[i].Visible = false;
-            //            break;
-            //    }
-            //}
+    
         }
 
         
@@ -817,6 +1157,13 @@ namespace ITCSurveyReport
 
             SR.Numbering = (Enumeration) sel;
             
+            UpdateColumnList();
+        }
+
+        private void UpdateColumnList()
+        {
+            gridColumnOrder.DataSource = SR.ColumnOrder;
+            gridColumnOrder.Refresh();
         }
 
         #endregion
@@ -837,19 +1184,17 @@ namespace ITCSurveyReport
 
         private void RepeatedFields_Click(object sender, EventArgs e)
         {
-            //SR.RepeatedFields.Clear();
-            //foreach (Survey s in SR.Surveys)
-            //{
-            //    s.RepeatedFields.Clear();
-            //}
-            //for (int i = 0; i < lstRepeatedFields.SelectedItems.Count; i++)
-            //{
-            //    SR.RepeatedFields.Add(lstRepeatedFields.SelectedItems[i].ToString());
-            //    foreach(Survey s in SR.Surveys)
-            //    {
-            //        s.RepeatedFields.Add(lstRepeatedFields.SelectedItems[i].ToString());
-            //    }
-            //}
+            
+            foreach (ReportSurvey s in SR.Surveys)
+                s.RepeatedFields.Clear();
+            
+            for (int i = 0; i < lstRepeatedFields.SelectedItems.Count; i++)
+            {
+                foreach (ReportSurvey s in SR.Surveys)
+                {
+                    s.RepeatedFields.Add(lstRepeatedFields.SelectedItems[i].ToString());
+                }
+            }
         }
         #endregion  
 
@@ -886,12 +1231,17 @@ namespace ITCSurveyReport
             SR.NrFormat = (ReadOutOptions)sel;
         }
 
+        private void WebCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (webCheckBox.Checked)
+                optFileFormatPDF.Checked = true;
+            else
+                optFileFormatWord.Checked = true;
 
-
-
+        }
 
         #endregion
 
-       
+        
     }
 }

@@ -47,12 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RadioButtonGroup.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="RadioButtonGroup.Designer.cs">
-      <DependentUpon>RadioButtonGroup.cs</DependentUpon>
-    </Compile>
     <Compile Include="SurveyReportForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -74,7 +68,9 @@
     <EmbeddedResource Include="SurveyReportForm.resx">
       <DependentUpon>SurveyReportForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Properties\DataSources\SurveyReport.datasource" />
+    <None Include="Properties\DataSources\ITCLib.Comparison.datasource" />
+    <None Include="Properties\DataSources\ITCLib.ReportLayout.datasource" />
+    <None Include="Properties\DataSources\ITCLib.SurveyBasedReport.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -118,12 +114,6 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ITCSurveyReportLib\ITCSurveyReportLib.csproj">
-      <Project>{c57bd956-a7d7-44ad-be58-09ad4bddd455}</Project>
-      <Name>ITCSurveyReportLib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\ITCLogo.jpg" />
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +123,12 @@
     <Content Include="7za.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ITCLib\ITCLib\ITCLib.csproj">
+      <Project>{1f878409-8602-4dc3-a0cb-45cccc21289e}</Project>
+      <Name>ITCLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

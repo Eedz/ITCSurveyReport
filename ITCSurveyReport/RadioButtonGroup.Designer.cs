@@ -1,8 +1,5 @@
 ﻿namespace ITCSurveyReport
 {
-    /// <summary>
-    /// 
-    /// </summary>
     partial class RadioButtonGroup
     {
         /// <summary>
