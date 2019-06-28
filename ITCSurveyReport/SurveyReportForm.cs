@@ -89,7 +89,6 @@ namespace ITCSurveyReport
 
             reportLayoutBindingSource.DataSource = SR.LayoutOptions;
             
-
             // populate the repeated fields list
             lstRepeatedFields.Items.Add("PreP");
             lstRepeatedFields.Items.Add("PreI");
@@ -445,6 +444,9 @@ namespace ITCSurveyReport
                 return;
             }
 
+            if (cboSurveys.SelectedIndex < cboSurveys.Items.Count-1)
+                cboSurveys.SelectedIndex++;
+
             AddSurvey(s);
         }
 
@@ -495,7 +497,7 @@ namespace ITCSurveyReport
             UpdateFileNameTab();
             UpdateReportDetails();
             // set current survey
-            CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
+            UpdateCurrentSurvey();
 
             // load survey specific options
             LoadSurveyOptions();
@@ -531,12 +533,17 @@ namespace ITCSurveyReport
             UpdateFileNameTab();
             UpdateReportDetails();
             // set current survey
-            CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
+            UpdateCurrentSurvey();
 
             // load survey specific options
             LoadSurveyOptions();
         }
 
+        private void UpdateCurrentSurvey()
+        {
+            CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
+            lblCurrentSurveyFields.Text = CurrentSurvey.SurveyCode + " (" + CurrentSurvey.Backend.ToString("d") + ") field selections.";
+        }
 
         private void UpdateDefaultOptions()
         {
@@ -788,8 +795,7 @@ namespace ITCSurveyReport
         // TODO check if backup exists for this date
         private void dateBackend_ValueChanged(object sender, EventArgs e)
         {
-            //if (!dateBackend.Value.Equals(DateTime.Today))
-              //  CurrentSurvey.questions = DBAction.GetQuestionsBySurveyFromBackup(CurrentSurvey.SurveyCode, dateBackend.Value);
+            
         }
 
         /// <summary>
@@ -815,7 +821,7 @@ namespace ITCSurveyReport
         {
             if (lstSelectedSurveys.SelectedItem != null)
             {
-                CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
+                UpdateCurrentSurvey();
                 LoadSurveyOptions();
             }
         }
