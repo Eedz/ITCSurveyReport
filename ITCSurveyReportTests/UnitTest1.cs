@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ITCLib;
 using System.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ITCSurveyReportTests
 {
@@ -47,7 +49,7 @@ namespace ITCSurveyReportTests
                 sq.Qnum = i.ToString("000");
                 sq.PreP = "Test PreP" + i;
                 sq.LitQ = "Test LitQ" + i;
-                for (int j =1; j <= i; j++)
+                for (int j = 1; j <= i; j++)
                     sq.RespOptions += j + "   Response Option " + j;
 
                 s.AddQuestion(sq);
@@ -78,7 +80,7 @@ namespace ITCSurveyReportTests
             SurveyReport SR = new SurveyReport();
             ReportSurvey p = new ReportSurvey("TestPrimary");
 
-            
+
 
             SurveyQuestion sq = new SurveyQuestion();
             sq.VarName = "AA000";
@@ -94,11 +96,11 @@ namespace ITCSurveyReportTests
             o.AddQuestion(sq);
 
             SurveyQuestion sq2 = new SurveyQuestion();
-            sq.VarName = "AA001";
-            sq.Qnum = "000";
-            sq.PreP = "Test PreP";
-            sq.LitQ = "Test LitQ";
-            sq.RespOptions = "1   Yes";
+            sq2.VarName = "AA001";
+            sq2.Qnum = "000";
+            sq2.PreP = "Test PreP";
+            sq2.LitQ = "Test LitQ";
+            sq2.RespOptions = "1   Yes";
 
             o.AddQuestion(sq2);
 
@@ -112,9 +114,10 @@ namespace ITCSurveyReportTests
 
             Assert.IsTrue(SR.ReportTable.Rows.Count == 2);
 
-           
-        }
-    }
 
-    
+        }
+
+        
+
+    }
 }

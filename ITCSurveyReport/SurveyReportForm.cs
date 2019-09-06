@@ -192,7 +192,7 @@ namespace ITCSurveyReport
                     
                     // output report to Word/PDF
                     survReport.OutputReportTableXML();
-                    
+                  
                     break;
                 case ReportTypes.Label:
 
@@ -257,6 +257,10 @@ namespace ITCSurveyReport
                 // translations
                 foreach (string language in rs.TransFields)
                     DBAction.FillTranslationsBySurvey(rs, language);
+
+                // filters
+                if (rs.FilterCol)
+                    rs.MakeFilterList();
 
                 // varchanges (for appendix)
                 if (SR.VarChangesApp)
@@ -542,6 +546,9 @@ namespace ITCSurveyReport
         private void UpdateCurrentSurvey()
         {
             CurrentSurvey = (ReportSurvey)lstSelectedSurveys.SelectedItem;
+            if (CurrentSurvey == null)
+                return;
+
             lblCurrentSurveyFields.Text = CurrentSurvey.SurveyCode + " (" + CurrentSurvey.Backend.ToString("d") + ") field selections.";
         }
 
@@ -560,7 +567,7 @@ namespace ITCSurveyReport
                 chkCompare.Checked = false;
             }
 
-            if (!CheckForDiffCountry())
+            if (!SR.CheckForDiffCountry())
                 compare.MatchOnRename = true;
             else
                 compare.MatchOnRename = false;
@@ -575,7 +582,7 @@ namespace ITCSurveyReport
                     compare.HighlightScheme = HScheme.Sequential;
                     cboHighlightScheme.Enabled = false;
                 }
-                else if (CheckForDiffCountry())
+                else if (SR.CheckForDiffCountry())
                 {
                     
                     cboHighlightScheme.SelectedItem = HScheme.AcrossCountry;
@@ -609,7 +616,7 @@ namespace ITCSurveyReport
             }
 
 
-            if (SR.ReportType == ReportTypes.Label || !HasF2F())
+            if (SR.ReportType == ReportTypes.Label || !SR.HasF2F())
             {
                 inlineRoutingCheckBox.Enabled = false;
 
@@ -744,39 +751,6 @@ namespace ITCSurveyReport
         }
 
         /// <summary>
-        /// Checks if there are at least 2 different countries in the report.
-        /// </summary>
-        /// <returns>True if there are surveys from at least 2 different countries in the report, false otherwise.</returns>
-        private bool CheckForDiffCountry()
-        {
-            if (SR.Surveys.Count <= 1)
-                return false;
-
-            string prefix;
-            prefix = SR.Surveys[0].SurveyCodePrefix;
-            foreach (Survey s in SR.Surveys)
-                if (s.SurveyCodePrefix != prefix)
-                    return true;
-
-            return false;
-        }
-
-        /// <summary>
-        /// Checks to see if there are any F2F surveys in the report.
-        /// </summary>
-        /// <returns>Returns true if any of the selected surveys are F2F surveys.</returns>
-        private bool HasF2F()
-        {
-            foreach (Survey s in SR.Surveys)
-                if (s.Mode.ModeAbbrev == "F2F")
-                    return true;
-
-            return false;
-        }
-
-       
-
-        /// <summary>
         /// Update the report type in the SR object.
         /// </summary>
         /// <param name="sender"></param>
@@ -792,10 +766,26 @@ namespace ITCSurveyReport
             UpdateFileNameTab();
         }
 
-        // TODO check if backup exists for this date
+        
         private void dateBackend_ValueChanged(object sender, EventArgs e)
         {
-            
+
+            if (dateBackend.Value == DateTime.Today)
+                return;
+
+            string filePath = dateBackend.Value.ToString("yyyy-MM-dd");
+
+            BackupConnection bkp = new BackupConnection(dateBackend.Value);
+
+            if (!bkp.IsValidBackup())
+            {
+                
+                MessageBox.Show("No backup found for this date.");
+                dateBackend.Value = bkp.GetNearestBackup();
+            }
+               
+
+
         }
 
         /// <summary>
@@ -1240,9 +1230,15 @@ namespace ITCSurveyReport
         private void WebCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (webCheckBox.Checked)
+            {
                 optFileFormatPDF.Checked = true;
+                chkCoverPage.Checked = true;
+            }
             else
+            {
+                chkCoverPage.Checked = false;
                 optFileFormatWord.Checked = true;
+            }
 
         }
 

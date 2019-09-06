@@ -60,6 +60,7 @@
             this.cboPrefixes = new System.Windows.Forms.ComboBox();
             this.lstPrefixes = new System.Windows.Forms.ListBox();
             this.pgFields = new System.Windows.Forms.TabPage();
+            this.lblCurrentSurveyFields = new System.Windows.Forms.Label();
             this.panelOtherFields = new System.Windows.Forms.Panel();
             this.chkAltQNum3Col = new System.Windows.Forms.CheckBox();
             this.chkAltQNum2Col = new System.Windows.Forms.CheckBox();
@@ -91,7 +92,6 @@
             this.groupLayoutOptions = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.hidePrimaryCheckBox = new System.Windows.Forms.CheckBox();
-            this.compareBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.chkHideIdenticalQs = new System.Windows.Forms.CheckBox();
             this.hideIdenticalWordingsCheckBox = new System.Windows.Forms.CheckBox();
             this.beforeAfterReportCheckBox = new System.Windows.Forms.CheckBox();
@@ -112,13 +112,11 @@
             this.highlightCheckBox = new System.Windows.Forms.CheckBox();
             this.gridPrimarySurvey = new System.Windows.Forms.DataGridView();
             this.chkCompare = new System.Windows.Forms.CheckBox();
-            this.surveyReportBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.chkMatchOnRename = new System.Windows.Forms.CheckBox();
             this.pgOrder = new System.Windows.Forms.TabPage();
             this.label17 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.chkBlankCol = new System.Windows.Forms.CheckBox();
-            this.reportLayoutBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.gridQnumSurvey = new System.Windows.Forms.DataGridView();
             this.gridColumnOrder = new System.Windows.Forms.DataGridView();
             this.groupEnumeration = new System.Windows.Forms.GroupBox();
@@ -202,7 +200,9 @@
             this.standardWTranslationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.websiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.websiteWTranslationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblCurrentSurveyFields = new System.Windows.Forms.Label();
+            this.compareBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.surveyReportBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.reportLayoutBindingSource = new System.Windows.Forms.BindingSource(this.components);
             detailsLabel = new System.Windows.Forms.Label();
             fileNameLabel = new System.Windows.Forms.Label();
             this.tabControlOptions.SuspendLayout();
@@ -213,14 +213,11 @@
             this.pgCompare.SuspendLayout();
             this.groupLayoutOptions.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.compareBindingSource)).BeginInit();
             this.groupHighlightOptions.SuspendLayout();
             this.flowHighlightOptions.SuspendLayout();
             this.groupHighlightStyle.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPrimarySurvey)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).BeginInit();
             this.pgOrder.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.reportLayoutBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridQnumSurvey)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridColumnOrder)).BeginInit();
             this.groupEnumeration.SuspendLayout();
@@ -238,6 +235,9 @@
             this.pgFileName.SuspendLayout();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.compareBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.reportLayoutBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // detailsLabel
@@ -541,6 +541,16 @@
             this.pgFields.Size = new System.Drawing.Size(465, 503);
             this.pgFields.TabIndex = 1;
             this.pgFields.Text = "Fields";
+            // 
+            // lblCurrentSurveyFields
+            // 
+            this.lblCurrentSurveyFields.AutoSize = true;
+            this.lblCurrentSurveyFields.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCurrentSurveyFields.Location = new System.Drawing.Point(26, 13);
+            this.lblCurrentSurveyFields.Name = "lblCurrentSurveyFields";
+            this.lblCurrentSurveyFields.Size = new System.Drawing.Size(218, 15);
+            this.lblCurrentSurveyFields.TabIndex = 29;
+            this.lblCurrentSurveyFields.Text = "Current Survey\'s Field Selections";
             // 
             // panelOtherFields
             // 
@@ -883,10 +893,6 @@
             this.hidePrimaryCheckBox.Text = "Hide Reference Survey";
             this.hidePrimaryCheckBox.UseVisualStyleBackColor = true;
             // 
-            // compareBindingSource
-            // 
-            this.compareBindingSource.DataSource = typeof(ITCLib.Comparison);
-            // 
             // chkHideIdenticalQs
             // 
             this.chkHideIdenticalQs.AutoSize = true;
@@ -1131,10 +1137,6 @@
             this.chkCompare.UseVisualStyleBackColor = true;
             this.chkCompare.CheckedChanged += new System.EventHandler(this.Compare_CheckedChanged);
             // 
-            // surveyReportBindingSource
-            // 
-            this.surveyReportBindingSource.DataSource = typeof(ITCLib.SurveyBasedReport);
-            // 
             // chkMatchOnRename
             // 
             this.chkMatchOnRename.DataBindings.Add(new System.Windows.Forms.Binding("CheckState", this.compareBindingSource, "MatchOnRename", true));
@@ -1192,10 +1194,6 @@
             this.chkBlankCol.TabIndex = 56;
             this.chkBlankCol.Text = "Include Blank Column";
             this.chkBlankCol.UseVisualStyleBackColor = true;
-            // 
-            // reportLayoutBindingSource
-            // 
-            this.reportLayoutBindingSource.DataSource = typeof(ITCLib.ReportLayout);
             // 
             // gridQnumSurvey
             // 
@@ -2038,7 +2036,7 @@
             this.quickReportToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(507, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(498, 24);
             this.menuStrip1.TabIndex = 61;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -2096,22 +2094,24 @@
             this.websiteWTranslationToolStripMenuItem.Text = "Website w/ Translation";
             this.websiteWTranslationToolStripMenuItem.Click += new System.EventHandler(this.websiteWTranslationToolStripMenuItem_Click);
             // 
-            // lblCurrentSurveyFields
+            // compareBindingSource
             // 
-            this.lblCurrentSurveyFields.AutoSize = true;
-            this.lblCurrentSurveyFields.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCurrentSurveyFields.Location = new System.Drawing.Point(26, 13);
-            this.lblCurrentSurveyFields.Name = "lblCurrentSurveyFields";
-            this.lblCurrentSurveyFields.Size = new System.Drawing.Size(218, 15);
-            this.lblCurrentSurveyFields.TabIndex = 29;
-            this.lblCurrentSurveyFields.Text = "Current Survey\'s Field Selections";
+            this.compareBindingSource.DataSource = typeof(ITCLib.Comparison);
+            // 
+            // surveyReportBindingSource
+            // 
+            this.surveyReportBindingSource.DataSource = typeof(ITCLib.SurveyBasedReport);
+            // 
+            // reportLayoutBindingSource
+            // 
+            this.reportLayoutBindingSource.DataSource = typeof(ITCLib.ReportLayout);
             // 
             // SurveyReportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(507, 776);
+            this.ClientSize = new System.Drawing.Size(498, 776);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.cmdSelfCompare);
             this.Controls.Add(this.panel1);
@@ -2125,6 +2125,7 @@
             this.Controls.Add(this.cmdCheckOptions);
             this.Controls.Add(this.lstSelectedSurveys);
             this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "SurveyReportForm";
             this.Text = "Survey Report";
@@ -2142,16 +2143,13 @@
             this.groupLayoutOptions.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.compareBindingSource)).EndInit();
             this.groupHighlightOptions.ResumeLayout(false);
             this.flowHighlightOptions.ResumeLayout(false);
             this.groupHighlightStyle.ResumeLayout(false);
             this.groupHighlightStyle.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridPrimarySurvey)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).EndInit();
             this.pgOrder.ResumeLayout(false);
             this.pgOrder.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.reportLayoutBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridQnumSurvey)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridColumnOrder)).EndInit();
             this.groupEnumeration.ResumeLayout(false);
@@ -2179,6 +2177,9 @@
             this.panel1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.compareBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.surveyReportBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.reportLayoutBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
