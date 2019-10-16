@@ -117,7 +117,32 @@ namespace ITCSurveyReportTests
 
         }
 
-        
+        [TestCategory ("LCS")]
+        [TestMethod]
+        public void TestLCS_ByCharacters()
+        {
+            string s1 = "computer";
+            string s2 = "houseboat";
 
+           
+            var c = ChangeHighlighter.LCS(s1, s2);
+
+            string output = ChangeHighlighter.PrintDiff(c, s1, s2, s1.Length, s2.Length);
+
+        }
+
+        [TestCategory("LCS")]
+        [TestMethod]
+        public void TestLCS_ByWords()
+        {
+            string[] s1 = new string[] { "computer", "house" };
+            string[] s2 = new string[] { "computer", "houseboat" };
+
+
+            var c = ChangeHighlighter.LCS(s1, s2);
+
+            string output = ChangeHighlighter.PrintDiff(c, s1, s2, s1.Length, s2.Length);
+
+        }
     }
 }
