@@ -144,5 +144,7 @@ namespace ITCSurveyReportTests
             string output = ChangeHighlighter.PrintDiff(c, s1, s2, s1.Length, s2.Length);
 
         }
+
+       
     }
 }

@@ -33,7 +33,7 @@ namespace ITCSurveyReportTests
             QuestionComment c1 = new QuestionComment()
             {
                 NoteDate = new DateTime(2019, 10, 16),
-                Notes = "Comment text.",
+                Notes = new Note(1, "Comment text."),
                 NoteInit = 33,
                 Name = "Eddie B",
                 Source = "Eddie B"

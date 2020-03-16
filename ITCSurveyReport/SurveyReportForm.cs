@@ -54,6 +54,7 @@ namespace ITCSurveyReport
         {
             InitializeComponent();
             
+            // add arrow symbol to add/remove buttons
             cmdAddSurvey.Text = char.ConvertFromUtf32(0x2192);
             cmdRemoveSurvey.Text= char.ConvertFromUtf32(0x2190);
             cmdAddPrefixHeading.Text = char.ConvertFromUtf32(0x2192);
@@ -321,7 +322,7 @@ namespace ITCSurveyReport
                 else
                     DBAction.FillQuestions(rs);
 
-                // correct questions
+                // correct questions // TODO should we only get corrected for current data?
                 if (rs.Corrected)
                 {
                     DBAction.FillCorrectedQuestions(rs);
@@ -331,6 +332,13 @@ namespace ITCSurveyReport
                 // previous names (for Var column)
                 DBAction.FillPreviousNames(rs, SR.ExcludeTempChanges);
 
+                if (compare.MatchOnRename && rs.Backend.Date != DateTime.Today) {
+                    foreach (SurveyQuestion sq in rs.Questions)
+                    {
+                        sq.VarName = new VariableName (DBAction.GetCurrentName(rs.SurveyCode, sq.VarName.FullVarName, rs.Backend));
+                    }
+
+                }
                 // survey notes
                 if (SR.SurvNotes)
                     rs.SurveyNotes = DBAction.GetSurvCommentsBySurvey(rs.SID);
@@ -339,7 +347,6 @@ namespace ITCSurveyReport
                 if (rs.CommentFields.Count > 0)
                 {
                     DBAction.FillCommentsBySurvey(rs);
-                    //DBAction.FillCommentsBySurvey(rs, rs.CommentFields, rs.CommentDate, rs.CommentAuthors, rs.CommentSources, rs.CommentText);
                 }
 
                 // translations
@@ -494,11 +501,11 @@ namespace ITCSurveyReport
             
             if (lstPrefixesHeadings.Items.Count > 0)
             {
-                List<string> vars = DBAction.GetVariableList(survey);
+                List<VariableName> vars = DBAction.GetVariableList(survey);
                 
                 List<string> prefixes = (List<string>)lstPrefixesHeadings.DataSource;
 
-                vars = vars.Where(x => prefixes.Contains(x.Substring(0, 2))).ToList();
+                vars = vars.Where(x => prefixes.Contains(x.FullVarName.Substring(0, 2))).ToList();
                 
                 cboVarNames.DataSource = vars;
             }
@@ -704,7 +711,7 @@ namespace ITCSurveyReport
                 dateBackend.Value = bkp.GetNearestBackup();
             }
 
-
+            UpdateReportColumns(null, null);
 
         }
 

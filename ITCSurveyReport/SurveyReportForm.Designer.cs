@@ -67,13 +67,14 @@
             this.optRoutingStyleGrey = new System.Windows.Forms.RadioButton();
             this.optRoutingStyleNormal = new System.Windows.Forms.RadioButton();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.lstExtraFields = new System.Windows.Forms.ListBox();
             this.chkCorrected = new System.Windows.Forms.CheckBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.lstStdFields = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panelOtherFields = new System.Windows.Forms.Panel();
             this.chkAltQNum3Col = new System.Windows.Forms.CheckBox();
             this.chkAltQNum2Col = new System.Windows.Forms.CheckBox();
-            this.label8 = new System.Windows.Forms.Label();
             this.chkProductCol = new System.Windows.Forms.CheckBox();
             this.chkDomainCol = new System.Windows.Forms.CheckBox();
             this.chkContentCol = new System.Windows.Forms.CheckBox();
@@ -636,7 +637,9 @@
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel2.Controls.Add(this.lstExtraFields);
             this.panel2.Controls.Add(this.chkCorrected);
+            this.panel2.Controls.Add(this.label8);
             this.panel2.Controls.Add(this.lstStdFields);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.panelOtherFields);
@@ -644,6 +647,23 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(429, 172);
             this.panel2.TabIndex = 32;
+            // 
+            // lstExtraFields
+            // 
+            this.lstExtraFields.FormattingEnabled = true;
+            this.lstExtraFields.Items.AddRange(new object[] {
+            "Filters",
+            "Domain",
+            "Topic",
+            "Content",
+            "VarLabel",
+            "Product",
+            "AltQNum 2",
+            "AltQNum 3"});
+            this.lstExtraFields.Location = new System.Drawing.Point(216, 24);
+            this.lstExtraFields.Name = "lstExtraFields";
+            this.lstExtraFields.Size = new System.Drawing.Size(86, 108);
+            this.lstExtraFields.TabIndex = 29;
             // 
             // chkCorrected
             // 
@@ -655,6 +675,16 @@
             this.chkCorrected.Text = "Use Corrected Wordings";
             this.chkCorrected.UseVisualStyleBackColor = true;
             this.chkCorrected.CheckedChanged += new System.EventHandler(this.UpdateReportColumns);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.Location = new System.Drawing.Point(217, 6);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(85, 15);
+            this.label8.TabIndex = 26;
+            this.label8.Text = "Other Fields";
             // 
             // lstStdFields
             // 
@@ -689,14 +719,13 @@
             // 
             this.panelOtherFields.Controls.Add(this.chkAltQNum3Col);
             this.panelOtherFields.Controls.Add(this.chkAltQNum2Col);
-            this.panelOtherFields.Controls.Add(this.label8);
             this.panelOtherFields.Controls.Add(this.chkProductCol);
             this.panelOtherFields.Controls.Add(this.chkDomainCol);
             this.panelOtherFields.Controls.Add(this.chkContentCol);
             this.panelOtherFields.Controls.Add(this.chkTopicCol);
             this.panelOtherFields.Controls.Add(this.chkVarLabelCol);
             this.panelOtherFields.Controls.Add(this.chkFilterCol);
-            this.panelOtherFields.Location = new System.Drawing.Point(228, 5);
+            this.panelOtherFields.Location = new System.Drawing.Point(316, 16);
             this.panelOtherFields.Name = "panelOtherFields";
             this.panelOtherFields.Size = new System.Drawing.Size(132, 149);
             this.panelOtherFields.TabIndex = 28;
@@ -722,16 +751,6 @@
             this.chkAltQNum2Col.Text = "AltQNum 2";
             this.chkAltQNum2Col.UseVisualStyleBackColor = true;
             this.chkAltQNum2Col.CheckedChanged += new System.EventHandler(this.UpdateReportColumns);
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(21, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(85, 15);
-            this.label8.TabIndex = 26;
-            this.label8.Text = "Other Fields";
             // 
             // chkProductCol
             // 
@@ -2142,7 +2161,7 @@
             this.quickReportToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(498, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(596, 24);
             this.menuStrip1.TabIndex = 61;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -2183,28 +2202,28 @@
             // standardToolStripMenuItem
             // 
             this.standardToolStripMenuItem.Name = "standardToolStripMenuItem";
-            this.standardToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.standardToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.standardToolStripMenuItem.Text = "Standard";
             this.standardToolStripMenuItem.Click += new System.EventHandler(this.standardToolStripMenuItem_Click);
             // 
             // standardWTranslationToolStripMenuItem
             // 
             this.standardWTranslationToolStripMenuItem.Name = "standardWTranslationToolStripMenuItem";
-            this.standardWTranslationToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.standardWTranslationToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.standardWTranslationToolStripMenuItem.Text = "Standard w/ Translation";
             this.standardWTranslationToolStripMenuItem.Click += new System.EventHandler(this.standardWTranslationToolStripMenuItem_Click);
             // 
             // websiteToolStripMenuItem
             // 
             this.websiteToolStripMenuItem.Name = "websiteToolStripMenuItem";
-            this.websiteToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.websiteToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.websiteToolStripMenuItem.Text = "Website";
             this.websiteToolStripMenuItem.Click += new System.EventHandler(this.websiteToolStripMenuItem_Click);
             // 
             // websiteWTranslationToolStripMenuItem
             // 
             this.websiteWTranslationToolStripMenuItem.Name = "websiteWTranslationToolStripMenuItem";
-            this.websiteWTranslationToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.websiteWTranslationToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.websiteWTranslationToolStripMenuItem.Text = "Website w/ Translation";
             this.websiteWTranslationToolStripMenuItem.Click += new System.EventHandler(this.websiteWTranslationToolStripMenuItem_Click);
             // 
@@ -2213,7 +2232,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(498, 798);
+            this.ClientSize = new System.Drawing.Size(596, 798);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.cmdSelfCompare);
             this.Controls.Add(this.panel1);
@@ -2470,6 +2489,7 @@
         private System.Windows.Forms.TextBox txtCommentFilter;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.ListBox lstExtraFields;
     }
 }
 
